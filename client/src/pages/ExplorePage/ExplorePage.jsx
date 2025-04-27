@@ -1,42 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ExplorePage.module.scss';
 import PodCard from '../../components/PodCard/PodCard';
+import axios from 'axios';
 
 const ExplorePage = () => {
-  const dummyPods = [
-    {
-      id: 1,
-      title: 'Build a Decentralized Finance App',
-      status: 'Open',
-      neededRoles: ['Developer', 'Designer'],
-    },
-    {
-      id: 2,
-      title: 'Launch a Sustainable Fashion Brand',
-      status: 'In Progress',
-      neededRoles: ['Marketer', 'Writer'],
-    },
-    {
-      id: 3,
-      title: 'Create a Mental Health AI Tool',
-      status: 'Live',
-      neededRoles: [],
-    },
-  ];
+  const [pods, setPods] = useState([]);
+
+  useEffect(() => {
+    const fetchPods = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/pods');
+        setPods(res.data);
+      } catch (error) {
+        console.error(error.response?.data?.message || error.message);
+      }
+    };
+
+    fetchPods();
+  }, []);
 
   return (
     <div className={styles.explorePage}>
       <h1>Explore Pods</h1>
       <div className={styles.podGrid}>
-      {dummyPods.map((pod) => (
-  <PodCard
-    key={pod.id}
-    id={pod.id} // <-- important!
-    title={pod.title}
-    status={pod.status}
-    neededRoles={pod.neededRoles}
-  />
-))}
+        {pods.length > 0 ? (
+          pods.map((pod) => (
+            <PodCard
+              key={pod._id}
+              id={pod._id}
+              title={pod.title}
+              status="Open" // Placeholder, we'll expand statuses later
+              neededRoles={pod.rolesNeeded}
+            />
+          ))
+        ) : (
+          <p>No Pods available yet. Be the first to create one!</p>
+        )}
       </div>
     </div>
   );

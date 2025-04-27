@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CreatePodPage.module.scss';
+import axios from 'axios';
 
 const CreatePodPage = () => {
   const navigate = useNavigate();
@@ -19,14 +20,19 @@ const CreatePodPage = () => {
     }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-
-    console.log('Creating Pod:', formData);
-
-    // Later we send this to MongoDB via Axios
-    // For now just navigate
-    navigate('/dashboard');
+  
+    try {
+      const res = await axios.post('http://localhost:5000/api/pods', formData);
+      console.log('Pod Created:', res.data);
+  
+      navigate('/explore', { replace: true });
+      window.location.reload();
+    } catch (error) {
+      console.error(error.response?.data?.message || error.message);
+      alert(error.response?.data?.message || 'Error creating pod');
+    }
   };
 
   return (

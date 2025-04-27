@@ -1,54 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import styles from './PodDetailPage.module.scss';
-
-const dummyPods = [
-  {
-    id: 1,
-    title: 'Build a Decentralized Finance App',
-    status: 'Open',
-    rolesNeeded: ['Developer', 'Designer'],
-    description: 'We are building a DeFi app that empowers users to lend and borrow assets easily.',
-  },
-  {
-    id: 2,
-    title: 'Launch a Sustainable Fashion Brand',
-    status: 'In Progress',
-    rolesNeeded: ['Marketer', 'Writer'],
-    description: 'We’re creating an eco-friendly clothing brand for modern consumers.',
-  },
-  {
-    id: 3,
-    title: 'Create a Mental Health AI Tool',
-    status: 'Live',
-    rolesNeeded: [],
-    description: 'Launching an AI tool that helps users monitor and improve their mental health daily.',
-  },
-];
 
 const PodDetailPage = () => {
   const { id } = useParams();
-  const pod = dummyPods.find((p) => p.id === parseInt(id));
+  const [pod, setPod] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  if (!pod) {
-    return <div className={styles.podDetailPage}>Pod not found.</div>;
+  useEffect(() => {
+    const fetchPod = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/pods/${id}`);
+        setPod(res.data);
+      } catch (err) {
+        console.error(err.response?.data?.message || err.message);
+        setError('Pod not found');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPod();
+  }, [id]);
+
+  if (loading) {
+    return <div className={styles.podDetailPage}>Loading Pod...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.podDetailPage}>{error}</div>;
   }
 
   return (
     <div className={styles.podDetailPage}>
       <h1>{pod.title}</h1>
-      <p>Status: <span className={styles.status}>{pod.status}</span></p>
-      <p>{pod.description}</p>
+      <p>{pod.mission}</p>
 
+      <h3>Needed Roles:</h3>
       {pod.rolesNeeded.length > 0 ? (
-        <div className={styles.roles}>
-          <h3>Roles Needed:</h3>
+        <ul>
           {pod.rolesNeeded.map((role, index) => (
-            <span key={index} className={styles.role}>{role}</span>
+            <li key={index}>{role}</li>
           ))}
-        </div>
+        </ul>
       ) : (
-        <p>All roles are filled for this Pod.</p>
+        <p>No roles specified.</p>
       )}
     </div>
   );
