@@ -7,19 +7,302 @@
   color: $white;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-inside;
   padding: $spacing-section;
-  text-align: center;
+  gap: $spacing-section;
+  overflow-x: hidden;
 
-  h1 {
-    font-size: 36px;
-    font-weight: bold;
+  .dashboardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-large;
+
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      h1 {
+        font-size: 36px;
+        font-weight: bold;
+        background: linear-gradient(90deg, $blue, $purple);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      p {
+        font-size: 16px;
+        color: $gray;
+      }
+    }
+
+    .createPodButton {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: $blue;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.3s;
+      color: $white;
+
+      &:hover {
+        background: lighten($blue, 10%);
+      }
+    }
   }
 
-  p {
-    font-size: 18px;
-    color: $gray;
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: $spacing-inside;
+
+    .statCard {
+      background: $dark-gray;
+      border: 1px solid $gray;
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color 0.3s, transform 0.3s;
+
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      &:hover {
+        border-color: $gold;
+        transform: translateY(-4px);
+      }
+
+      .iconBox {
+        background: $gray;
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+      }
+
+      .statValue {
+        font-size: 28px;
+        font-weight: bold;
+        color: $white;
+      }
+
+      .statLabel {
+        font-size: 14px;
+        color: $gray;
+      }
+    }
+  }
+
+  .mainContent {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $spacing-section;
+    margin-top: $spacing-large;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+
+    .leftPanel {
+      background: $dark-gray;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid $gray;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      .tabHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .tabs {
+          display: flex;
+          gap: 10px;
+
+          button {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: $gray;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+
+            &.active {
+              background: $blue;
+              color: $white;
+            }
+
+            &:hover {
+              background: lighten($dark-gray, 5%);
+            }
+          }
+        }
+
+        .settingsButton {
+          background: none;
+          border: none;
+          color: $gray;
+          cursor: pointer;
+          transition: color 0.3s;
+
+          &:hover {
+            color: $white;
+          }
+        }
+      }
+
+      .podsList {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .podCard {
+          background: $gray;
+          border: 1px solid $dark-gray;
+          padding: 16px;
+          border-radius: 14px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: border-color 0.3s, background 0.3s;
+
+          &:hover {
+            border-color: $gold;
+            background: lighten($gray, 5%);
+          }
+
+          .podInfo {
+            display: flex;
+            flex-direction: column;
+
+            .podTitle {
+              font-weight: 600;
+              font-size: 18px;
+              color: $white;
+            }
+
+            .podMeta {
+              margin-top: 5px;
+              font-size: 12px;
+              color: $gray;
+              display: flex;
+              gap: 10px;
+            }
+          }
+
+          .progressBar {
+            margin-top: 8px;
+            width: 100px;
+            height: 6px;
+            background: $dark-gray;
+            border-radius: 4px;
+            overflow: hidden;
+
+            .progress {
+              height: 100%;
+              background: linear-gradient(90deg, $blue, $purple);
+              border-radius: 4px;
+            }
+          }
+        }
+      }
+    }
+
+    .rightPanel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      .activityChart, .notifications, .quickActions {
+        background: $dark-gray;
+        border: 1px solid $gray;
+        border-radius: 16px;
+        padding: 24px;
+      }
+
+      .activityChart {
+        h2 {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+      }
+
+      .notifications {
+        h2 {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+
+        .notificationItem {
+          background: $gray;
+          padding: 12px;
+          border-radius: 10px;
+          margin-bottom: 10px;
+          transition: background 0.3s, border 0.3s;
+
+          &:hover {
+            background: lighten($gray, 5%);
+            border-left: 3px solid $blue;
+          }
+
+          p {
+            margin: 0;
+            font-size: 14px;
+            color: $white;
+          }
+
+          span {
+            font-size: 12px;
+            color: $gray;
+          }
+        }
+      }
+
+      .quickActions {
+        h2 {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+
+        .actionGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+
+          .actionButton {
+            background: $gray;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.3s, color 0.3s, transform 0.3s;
+
+            &:hover {
+              background: $blue;
+              color: $white;
+              transform: translateY(-3px);
+            }
+          }
+        }
+      }
+    }
   }
 }

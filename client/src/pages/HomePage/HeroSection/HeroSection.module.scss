@@ -2,66 +2,449 @@
 
 .hero {
   width: 100%;
-  min-height: 90vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: $black;
   text-align: center;
   padding: $spacing-section $spacing-between;
+  position: relative;
+  overflow: hidden;
+}
+
+// Animated grid background
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
 }
 
 .heroContent {
-  max-width: 900px;
+  max-width: 1100px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  h1 {
-    font-size: 64px;
-    margin-bottom: $spacing-inside;
-    line-height: 1.2;
-    font-weight: 700;
+// Badge styling
+.badgeWrapper {
+  margin-bottom: 24px;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// Heading styling
+h1 {
+  font-size: 80px;
+  margin-bottom: $spacing-inside;
+  line-height: 1.1;
+  font-weight: 800;
+  color: $white;
+  letter-spacing: -1px;
+
+  @media (max-width: 768px) {
+    font-size: 56px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 40px;
+  }
+}
+
+.highlight {
+  position: relative;
+  display: inline-block;
+  color: $white;
+  z-index: 1;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background-color: $gold;
+    bottom: 8px;
+    left: 0;
+    z-index: -1;
+    transform: skewX(-10deg);
+    opacity: 0.6;
+  }
+}
+
+// Value propositions carousel
+.valuePropsContainer {
+  min-height: 80px; // Flexible minimum height
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.valueProp {
+  font-size: 24px;
+  color: $gray;
+  margin: 0;
+  width: 100%;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 0 20px;
+  text-align: center;
+  white-space: normal;
+  position: relative; // <<< ✨ important: make it relative (NOT absolute)
+}
+
+// Carousel indicators
+.indicatorContainer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 60px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &.active {
+    background-color: $gold;
+    transform: scale(1.2);
+  }
+}
+
+// Email capture form
+.ctaFunnel {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 32px;
+}
+
+.emailCaptureForm {
+  width: 100%;
+}
+
+.inputWrapper {
+  display: flex;
+  height: 56px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  
+  &.focused {
+    border-color: $gold;
+    box-shadow: 0 0 20px rgba(232, 197, 71, 0.2);
+  }
+  
+  input {
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0 20px;
     color: $white;
-  }
-
-  p {
-    font-size: 20px;
-    color: $gray;
-    margin-bottom: $spacing-inside;
-  }
-
-  .actions {
-    display: flex;
-    justify-content: center;
-    gap: $spacing-between;
-    margin-top: $spacing-inside;
-
-    .primaryBtn {
-      padding: 14px 32px;
-      background-color: $white;
-      color: $black;
-      font-weight: 600;
-      font-size: 16px;
-      border-radius: 8px;
-      transition: background 0.3s;
-
-      &:hover {
-        background-color: $gold;
-      }
+    font-size: 16px;
+    outline: none;
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
+  }
+  
+  .submitBtn {
+    height: 100%;
+    padding: 0 24px;
+    background-color: $gold;
+    color: $black;
+    font-weight: 600;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: darken($gold, 5%);
+    }
+    
+    &:focus {
+      outline: none;
+    }
+  }
+}
 
-    .secondaryBtn {
-      padding: 14px 32px;
-      background-color: transparent;
+// Action buttons
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 48px;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .primaryBtn {
+    padding: 16px 32px;
+    background-color: $white;
+    color: $black;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    
+    &:hover {
+      background-color: $gold;
+      transform: translateY(-2px);
+    }
+    
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .secondaryBtn {
+    padding: 16px 32px;
+    background-color: transparent;
+    color: $white;
+    font-weight: 600;
+    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: $gold;
+      color: $gold;
+      transform: translateY(-2px);
+    }
+    
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+// Social proof section
+.socialProof {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+.creators {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+    margin: 0;
+    
+    span {
       color: $white;
       font-weight: 600;
-      font-size: 16px;
-      border: 2px solid $white;
-      border-radius: 8px;
-      transition: border-color 0.3s;
-
-      &:hover {
-        border-color: $gold;
-        color: $gold;
-      }
     }
   }
+}
+
+.avatarGroup {
+  display: flex;
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid $black;
+    margin-right: -8px;
+    position: relative;
+    overflow: hidden;
+    
+    &:nth-child(1) { background-color: #FF6B6B; z-index: 5; }
+    &:nth-child(2) { background-color: #4ECDC4; z-index: 4; }
+    &:nth-child(3) { background-color: #FFE66D; z-index: 3; }
+    &:nth-child(4) { background-color: #6B5B95; z-index: 2; }
+    &:nth-child(5) { background-color: #FF6F69; z-index: 1; }
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .number {
+      font-size: 24px;
+      font-weight: 700;
+      color: $white;
+    }
+    
+    .label {
+      font-size: 14px;
+      color: $gray;
+      margin-top: 4px;
+    }
+  }
+}
+
+// Floating animated shapes
+.floatingShape {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.1;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 200px;
+    height: 200px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.8), transparent);
+    filter: blur(20px);
+  }
+  
+  &.shape2 {
+    bottom: 25%;
+    left: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.05), transparent);
+    filter: blur(25px);
+  }
+  
+  &.shape3 {
+    top: 60%;
+    right: 15%;
+    width: 150px;
+    height: 150px;
+    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.2), transparent);
+    filter: blur(15px);
+  }
+}
+
+// Success modal
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  background-color: #0F0F0F;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+  
+  h3 {
+    font-size: 32px;
+    color: $white;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 18px;
+    margin-bottom: 24px;
+  }
+  
+  .emailConfirm {
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-family: monospace;
+    font-weight: 500;
+    color: $gold;
+    margin-bottom: 32px;
+  }
+  
+  .closeBtn {
+    padding: 14px 28px;
+    background-color: $white;
+    color: $black;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: $gold;
+    }
+  }
+}
+
+// Scroll indicator
+.scrollIndicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  z-index: 5;
 }
