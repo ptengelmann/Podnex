@@ -25,7 +25,14 @@ const NavBar = () => {
         {token ? (
           <>
             <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><button className={styles.logoutButton} onClick={handleLogout}>Logout</button></li>
+            <li>
+              <button
+                className={styles.logoutButton}
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </li>
           </>
         ) : (
           <>

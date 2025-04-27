@@ -8,6 +8,8 @@ import DashboardPage from './pages/DashboardPage/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import PodDetailPage from './pages/PodDetailPage/PodDetailPage';
+import CreatePodPage from './pages/CreatePodPage/CreatePodPage';
+
 
 const App = () => {
   return (
@@ -18,6 +20,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/pods/:id" element={<PodDetailPage />} /> {/* <-- Correct: /pods/:id */}
+        <Route path="/create-pod" element={<CreatePodPage />} />
         <Route
           path="/dashboard"
           element={

@@ -1,0 +1,49 @@
+@import '../../styles/variables';
+
+.createPodPage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  color: $white;
+  padding: $spacing-section;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-inside;
+
+  h1 {
+    font-size: 36px;
+    margin-bottom: $spacing-section;
+  }
+
+  .form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-inside;
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid $gray;
+      border-radius: 8px;
+      background: lighten($black, 5%);
+      color: $white;
+    }
+
+    button {
+      background-color: $gold;
+      color: $black;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: darken($gold, 10%);
+      }
+    }
+  }
+}
