@@ -1,0 +1,56 @@
+@import '../../../styles/variables';
+
+.howItWorks {
+  width: 100%;
+  max-width: 1200px;
+  padding: $spacing-section $spacing-between;
+  text-align: center;
+  background-color: $black;
+
+  .sectionTitle {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: $spacing-inside;
+    color: $white;
+  }
+
+  .stepsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-between;
+    margin-top: $spacing-between;
+  }
+
+  .stepCard {
+    background-color: lighten($black, 5%);
+    border: 1px solid $gray;
+    border-radius: 12px;
+    padding: $spacing-inside;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-inside;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: $gold;
+      background-color: lighten($black, 10%);
+    }
+
+    h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: $white;
+    }
+
+    p {
+      font-size: 16px;
+      color: $gray;
+      max-width: 300px;
+    }
+
+    .icon {
+      color: $gold;
+    }
+  }
+}
