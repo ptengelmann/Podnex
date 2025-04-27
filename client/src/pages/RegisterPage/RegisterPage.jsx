@@ -26,10 +26,14 @@ const RegisterPage = () => {
     try {
       const res = await axios.post('http://localhost:5000/api/auth/register', formData);
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify({
+        name: res.data.name,
+        email: res.data.email
+      }));
       navigate('/dashboard');
     } catch (error) {
-      console.error(error.response.data.message);
-      alert(error.response.data.message || 'Registration failed');
+      console.error(error.response?.data?.message);
+      alert(error.response?.data?.message || 'Registration failed');
     }
   };
 
