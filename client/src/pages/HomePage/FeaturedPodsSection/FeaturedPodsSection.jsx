@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './FeaturedPodsSection.module.scss';
-import PodCard from '../PodCard/PodCard';
+import PodCard from '../../../components/PodCard/PodCard';
 
 const FeaturedPodsSection = () => {
   const featuredPods = [

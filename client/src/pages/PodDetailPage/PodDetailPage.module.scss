@@ -1,0 +1,42 @@
+@import '../../styles/variables';
+
+.podDetailPage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  color: $white;
+  padding: $spacing-section;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-inside;
+
+  h1 {
+    font-size: 36px;
+    margin-bottom: $spacing-inside;
+  }
+
+  p {
+    font-size: 18px;
+    color: $gray;
+  }
+
+  .status {
+    color: $gold;
+    font-weight: bold;
+  }
+
+  .roles {
+    margin-top: $spacing-inside;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .role {
+    background-color: $gray;
+    color: $black;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+}

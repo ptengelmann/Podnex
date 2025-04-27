@@ -1,0 +1,21 @@
+@import '../../styles/variables';
+
+.explorePage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  color: $white;
+  padding: $spacing-section;
+  text-align: center;
+
+  h1 {
+    font-size: 36px;
+    margin-bottom: $spacing-section;
+  }
+}
+
+.podGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-between;
+}

@@ -1,7 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // <-- Very important import
 import styles from './PodCard.module.scss';
 
-const PodCard = ({ title, status, neededRoles }) => {
+const PodCard = ({ id, title, status, neededRoles }) => {
   return (
     <div className={styles.card}>
       <div className={styles.status}>{status}</div>
@@ -13,7 +14,7 @@ const PodCard = ({ title, status, neededRoles }) => {
           </span>
         ))}
       </div>
-      <button className={styles.viewBtn}>View Pod</button>
+      <Link to={`/pods/${id}`} className={styles.viewBtn}>View Pod</Link> {/* <-- Correct */}
     </div>
   );
 };
