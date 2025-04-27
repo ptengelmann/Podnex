@@ -1,33 +1,228 @@
 @import '../../styles/variables';
 
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+  
+  &:focus {
+    outline: none;
+    
+    .card {
+      border-color: $gold;
+      box-shadow: 0 0 0 2px rgba($gold, 0.3);
+    }
+  }
+}
+
 .card {
-  background-color: lighten($black, 5%);
-  border: 1px solid $gray;
-  padding: $spacing-inside;
+  background-color: lighten($black, 3%);
+  border: 1px solid rgba($gray, 0.3);
+  padding: 24px;
   border-radius: 12px;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: $spacing-inside;
-
-  &:hover {
-    border-color: $gold;
-    background-color: lighten($black, 8%);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  
+  // Decorative element in top left corner
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 4px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.6;
+    transition: width 0.3s ease;
   }
+  
+  &:hover {
+    border-color: rgba($gold, 0.6);
+    background-color: lighten($black, 5%);
+    
+    &::before {
+      width: 100%;
+      opacity: 1;
+    }
+    
+    .status {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .title {
+      color: $white;
+    }
+    
+    .viewPodIndicator {
+      svg {
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .status {
   font-size: 12px;
-  color: $gold;
   text-transform: uppercase;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s ease;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Status variations
+.statusOpen {
+  color: #34D399;
+  
+  .statusDot {
+    background-color: #34D399;
+    box-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+  }
+}
+
+.statusInProgress {
+  color: #FBBF24;
+  
+  .statusDot {
+    background-color: #FBBF24;
+    box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+  }
+}
+
+.statusLive {
+  color: #818CF8;
+  
+  .statusDot {
+    background-color: #818CF8;
+    box-shadow: 0 0 5px rgba(129, 140, 248, 0.5);
+  }
+}
+
+.statusDraft {
+  color: #9CA3AF;
+  
+  .statusDot {
+    background-color: #9CA3AF;
+    box-shadow: 0 0 5px rgba(156, 163, 175, 0.5);
+  }
+}
+
+.statusPreLaunch {
+  color: #F472B6;
+  
+  .statusDot {
+    background-color: #F472B6;
+    box-shadow: 0 0 5px rgba(244, 114, 182, 0.5);
+  }
+}
+
+.statusArchived {
+  color: #6B7280;
+  
+  .statusDot {
+    background-color: #6B7280;
+    box-shadow: 0 0 5px rgba(107, 114, 128, 0.5);
+  }
+}
+
+.cardActions {
+  display: flex;
+  gap: 12px;
+}
+
+.bookmarkBtn {
+  background: transparent;
+  border: none;
+  color: $gray;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    color: $white;
+  }
 }
 
 .title {
   font-size: 22px;
   font-weight: 700;
   color: $white;
+  margin-bottom: 16px;
+  line-height: 1.3;
+  transition: color 0.3s ease;
+}
+
+.creatorInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.creatorAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba($gold, 0.2);
+  color: $gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.creator {
+  font-size: 14px;
+  color: $gray;
+  margin: 0;
+}
+
+.rolesSection {
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.rolesSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: rgba($white, 0.6);
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  
+  svg {
+    opacity: 0.7;
+  }
 }
 
 .roles {
@@ -37,23 +232,38 @@
 }
 
 .role {
-  background-color: $gray;
-  color: $black;
-  padding: 4px 10px;
+  background-color: rgba($gray, 0.15);
+  color: $gray;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba($gray, 0.2);
+  
+  &:hover {
+    background-color: rgba($gray, 0.25);
+    border-color: rgba($gray, 0.3);
+    color: $white;
+  }
 }
 
-.viewBtn {
+.cardFooter {
   margin-top: auto;
-  padding: 10px 20px;
-  background-color: $white;
-  color: $black;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: background 0.3s;
+  padding-top: 16px;
+  border-top: 1px solid rgba($gray, 0.1);
+}
 
-  &:hover {
-    background-color: $gold;
+.viewPodIndicator {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  color: $gold;
+  font-size: 14px;
+  font-weight: 600;
+  
+  svg {
+    transition: transform 0.3s ease;
   }
 }
