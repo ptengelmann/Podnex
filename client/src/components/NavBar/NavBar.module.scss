@@ -1,0 +1,30 @@
+@import '../../styles/variables';
+
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-inside $spacing-between;
+    background-color: $black;
+  }
+  
+  .logo {
+    font-weight: bold;
+    font-size: 24px;
+  }
+  
+  .navLinks {
+    display: flex;
+    gap: $spacing-between;
+  
+    li {
+      font-size: 16px;
+      cursor: pointer;
+  
+      &:hover {
+        color: $gold;
+      }
+    }
+  }
+  

@@ -1,0 +1,67 @@
+@import '../../../styles/variables';
+
+.hero {
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $black;
+  text-align: center;
+  padding: $spacing-section $spacing-between;
+}
+
+.heroContent {
+  max-width: 900px;
+
+  h1 {
+    font-size: 64px;
+    margin-bottom: $spacing-inside;
+    line-height: 1.2;
+    font-weight: 700;
+    color: $white;
+  }
+
+  p {
+    font-size: 20px;
+    color: $gray;
+    margin-bottom: $spacing-inside;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-between;
+    margin-top: $spacing-inside;
+
+    .primaryBtn {
+      padding: 14px 32px;
+      background-color: $white;
+      color: $black;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 8px;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: $gold;
+      }
+    }
+
+    .secondaryBtn {
+      padding: 14px 32px;
+      background-color: transparent;
+      color: $white;
+      font-weight: 600;
+      font-size: 16px;
+      border: 2px solid $white;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+
+      &:hover {
+        border-color: $gold;
+        color: $gold;
+      }
+    }
+  }
+}
