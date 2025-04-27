@@ -1,308 +1,188 @@
+
 @import '../../styles/variables';
 
 .dashboardPage {
   width: 100%;
   min-height: 100vh;
   background-color: $black;
-  color: $white;
+  padding: $spacing-section $spacing-between;
   display: flex;
   flex-direction: column;
-  padding: $spacing-section;
   gap: $spacing-section;
   overflow-x: hidden;
+}
 
-  .dashboardTop {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: $spacing-large;
+.top {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-between;
 
-    .left {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      h1 {
-        font-size: 36px;
-        font-weight: bold;
-        background: linear-gradient(90deg, $blue, $purple);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      p {
-        font-size: 16px;
-        color: $gray;
-      }
-    }
-
-    .createPodButton {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: $blue;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.3s;
-      color: $white;
-
-      &:hover {
-        background: lighten($blue, 10%);
-      }
-    }
-  }
-
-  .statsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: $spacing-inside;
-
-    .statCard {
-      background: $dark-gray;
-      border: 1px solid $gray;
-      border-radius: 16px;
-      padding: 20px;
-      transition: border-color 0.3s, transform 0.3s;
-
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-
-      &:hover {
-        border-color: $gold;
-        transform: translateY(-4px);
-      }
-
-      .iconBox {
-        background: $gray;
-        padding: 10px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-      }
-
-      .statValue {
-        font-size: 28px;
-        font-weight: bold;
-        color: $white;
-      }
-
-      .statLabel {
-        font-size: 14px;
-        color: $gray;
-      }
-    }
-  }
-
-  .mainContent {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: $spacing-section;
-    margin-top: $spacing-large;
-
-    @media (max-width: 900px) {
-      grid-template-columns: 1fr;
-    }
-
-    .leftPanel {
-      background: $dark-gray;
-      padding: 24px;
-      border-radius: 16px;
-      border: 1px solid $gray;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-
-      .tabHeader {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .tabs {
-          display: flex;
-          gap: 10px;
-
-          button {
-            background: none;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            color: $gray;
-            cursor: pointer;
-            transition: background 0.3s, color 0.3s;
-
-            &.active {
-              background: $blue;
-              color: $white;
-            }
-
-            &:hover {
-              background: lighten($dark-gray, 5%);
-            }
-          }
-        }
-
-        .settingsButton {
-          background: none;
-          border: none;
-          color: $gray;
-          cursor: pointer;
-          transition: color 0.3s;
-
-          &:hover {
-            color: $white;
-          }
-        }
-      }
-
-      .podsList {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .podCard {
-          background: $gray;
-          border: 1px solid $dark-gray;
-          padding: 16px;
-          border-radius: 14px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          transition: border-color 0.3s, background 0.3s;
-
-          &:hover {
-            border-color: $gold;
-            background: lighten($gray, 5%);
-          }
-
-          .podInfo {
-            display: flex;
-            flex-direction: column;
-
-            .podTitle {
-              font-weight: 600;
-              font-size: 18px;
-              color: $white;
-            }
-
-            .podMeta {
-              margin-top: 5px;
-              font-size: 12px;
-              color: $gray;
-              display: flex;
-              gap: 10px;
-            }
-          }
-
-          .progressBar {
-            margin-top: 8px;
-            width: 100px;
-            height: 6px;
-            background: $dark-gray;
-            border-radius: 4px;
-            overflow: hidden;
-
-            .progress {
-              height: 100%;
-              background: linear-gradient(90deg, $blue, $purple);
-              border-radius: 4px;
-            }
-          }
-        }
-      }
-    }
-
-    .rightPanel {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-
-      .activityChart, .notifications, .quickActions {
-        background: $dark-gray;
-        border: 1px solid $gray;
-        border-radius: 16px;
-        padding: 24px;
-      }
-
-      .activityChart {
-        h2 {
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 20px;
-        }
-      }
-
-      .notifications {
-        h2 {
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 20px;
-        }
-
-        .notificationItem {
-          background: $gray;
-          padding: 12px;
-          border-radius: 10px;
-          margin-bottom: 10px;
-          transition: background 0.3s, border 0.3s;
-
-          &:hover {
-            background: lighten($gray, 5%);
-            border-left: 3px solid $blue;
-          }
-
-          p {
-            margin: 0;
-            font-size: 14px;
-            color: $white;
-          }
-
-          span {
-            font-size: 12px;
-            color: $gray;
-          }
-        }
-      }
-
-      .quickActions {
-        h2 {
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 20px;
-        }
-
-        .actionGrid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-
-          .actionButton {
-            background: $gray;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            color: $white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.3s, color 0.3s, transform 0.3s;
-
-            &:hover {
-              background: $blue;
-              color: $white;
-              transform: translateY(-3px);
-            }
-          }
-        }
-      }
-    }
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
   }
 }
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-between;
+  margin-top: $spacing-section;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-between;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-between;
+}
+
+/* === Panel / Section Wrappers === */
+.sectionWrapper {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30%;
+    height: 4px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.5;
+    transition: width 0.4s ease;
+    z-index: 1;
+  }
+
+  &:hover::before {
+    width: 100%;
+    opacity: 0.8;
+  }
+}
+
+/* === Typography === */
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: $white;
+  margin-bottom: 16px;
+}
+
+.sectionSubtitle {
+  font-size: 16px;
+  color: $gray;
+  margin-bottom: 24px;
+}
+
+/* === Grid Background Animation (subtle parallax) === */
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform: translate(0px, 0px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* === Reusable Buttons (for Quick Actions etc) === */
+.primaryButton {
+  background-color: $gold;
+  color: $black;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken($gold, 5%);
+    transform: translateY(-2px);
+  }
+}
+
+.secondaryButton {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: $white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $gold;
+    color: $gold;
+    transform: translateY(-2px);
+  }
+}
+
+/* === Notifications Panel Special === */
+.notificationsPanel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* === Notification Item === */
+.notificationItem {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .notificationText {
+    color: $white;
+    font-size: 14px;
+  }
+
+  .notificationTime {
+    color: $gray;
+    font-size: 12px;
+  }
+}
+

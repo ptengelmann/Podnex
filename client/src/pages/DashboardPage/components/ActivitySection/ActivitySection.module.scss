@@ -1,0 +1,20 @@
+@import '../../../../styles/variables';
+
+.activitySection {
+  margin-top: $spacing-large;
+  margin-bottom: $spacing-large;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: $spacing-inside;
+    color: $white;
+  }
+}
+
+.chartContainer {
+  background-color: lighten($black, 5%);
+  border: 1px solid $gray;
+  border-radius: 16px;
+  padding: $spacing-inside;
+}

@@ -21,10 +21,19 @@ const LoginPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+  
       localStorage.setItem('token', res.data.token);
+  
+      // 💥 NEW: Save the user info too!
+      localStorage.setItem('user', JSON.stringify({
+        _id: res.data._id,
+        name: res.data.name,
+        email: res.data.email
+      }));
+  
       navigate('/dashboard');
     } catch (error) {
       console.error(error.response.data.message);

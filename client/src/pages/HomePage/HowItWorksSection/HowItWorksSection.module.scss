@@ -2,55 +2,380 @@
 
 .howItWorks {
   width: 100%;
-  max-width: 1200px;
+  min-height: 100vh;
   padding: $spacing-section $spacing-between;
   text-align: center;
   background-color: $black;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-  .sectionTitle {
+// Animated grid background
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
+}
+
+.sectionHeader {
+  max-width: 800px;
+  margin-bottom: 80px;
+  position: relative;
+  z-index: 5;
+}
+
+// Badge styling
+.badgeWrapper {
+  margin-bottom: 24px;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  font-size: 56px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  color: $white;
+  line-height: 1.1;
+  letter-spacing: -1px;
+
+  @media (max-width: 768px) {
+    font-size: 42px;
+  }
+
+  @media (max-width: 480px) {
     font-size: 36px;
+  }
+}
+
+.highlight {
+  position: relative;
+  display: inline-block;
+  color: $white;
+  z-index: 1;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background-color: $gold;
+    bottom: 8px;
+    left: 0;
+    z-index: -1;
+    transform: skewX(-10deg);
+    opacity: 0.6;
+  }
+}
+
+.sectionSubtitle {
+  font-size: 20px;
+  color: $gray;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.stepsContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+// Progress line with nodes
+.progressLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+  padding: 0 40px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.progressNode {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  
+  &.active {
+    transform: scale(1.5);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(232, 197, 71, 0.5);
+  }
+}
+
+.progressConnector {
+  height: 2px;
+  flex: 1;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  margin: 0 20px;
+  max-width: 180px;
+}
+
+// Steps grid
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  margin-top: $spacing-between;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepCard {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.active {
+    border-color: rgba(232, 197, 71, 0.5);
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(232, 197, 71, 0.2);
+    
+    &:after {
+      opacity: 0.05;
+    }
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03));
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+  }
+}
+
+.iconContainer {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  transition: all 0.4s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 2;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.5), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+  }
+  
+  .stepCard:hover &:before {
+    opacity: 0.5;
+  }
+}
+
+.icon {
+  transition: all 0.4s ease;
+}
+
+.stepContent {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  
+  h3 {
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: $spacing-inside;
     color: $white;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
   }
-
-  .stepsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: $spacing-between;
-    margin-top: $spacing-between;
+  
+  p {
+    font-size: 16px;
+    color: $gray;
+    line-height: 1.6;
+    margin-bottom: 16px;
   }
+}
 
-  .stepCard {
-    background-color: lighten($black, 5%);
-    border: 1px solid $gray;
-    border-radius: 12px;
-    padding: $spacing-inside;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-inside;
-    transition: all 0.3s;
+.expandButton {
+  color: $gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 8px auto 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(232, 197, 71, 0.2);
+    color: $gold;
+  }
+  
+  .stepCard.active & {
+    background-color: rgba(232, 197, 71, 0.2);
+    color: $gold;
+  }
+}
 
-    &:hover {
-      border-color: $gold;
-      background-color: lighten($black, 10%);
+.detailsContainer {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 8px;
+  padding-top: 24px;
+  
+  ul {
+    text-align: left;
+    padding-left: 20px;
+    
+    li {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 8px;
+      
+      &:before {
+        content: '';
+        position: absolute;
+        left: -12px;
+        top: 10px;
+        width: 5px;
+        height: 5px;
+        background-color: $gold;
+        border-radius: 50%;
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
+  }
+}
 
-    h3 {
-      font-size: 22px;
-      font-weight: 700;
-      color: $white;
-    }
+.ctaContainer {
+  margin-top: 80px;
+  position: relative;
+  z-index: 5;
+}
 
-    p {
-      font-size: 16px;
-      color: $gray;
-      max-width: 300px;
-    }
+.ctaButton {
+  padding: 16px 36px;
+  background-color: $white;
+  color: $black;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    background-color: $gold;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(232, 197, 71, 0.3);
+  }
+  
+  &:focus {
+    outline: none;
+  }
+}
 
-    .icon {
-      color: $gold;
-    }
+// Floating animated shapes
+.floatingShape {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.07;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.8), transparent);
+    filter: blur(30px);
+  }
+  
+  &.shape2 {
+    bottom: 15%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.05), transparent);
+    filter: blur(35px);
   }
 }

@@ -1,0 +1,46 @@
+@import '../../../../styles/variables';
+
+.quickActionsPanel {
+  background-color: lighten($black, 5%);
+  border: 1px solid $gray;
+  border-radius: 16px;
+  padding: $spacing-inside;
+  margin-top: $spacing-large;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: $spacing-inside;
+  }
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: $spacing-inside;
+}
+
+.action {
+  background-color: lighten($black, 8%);
+  border: 1px solid $gray;
+  padding: $spacing-inside;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: $white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background: lighten($black, 12%);
+    border-color: $gold;
+    color: $gold;
+  }
+
+  svg {
+    margin-bottom: 8px;
+  }
+}

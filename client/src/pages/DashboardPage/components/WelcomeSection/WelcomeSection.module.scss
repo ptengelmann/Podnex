@@ -1,0 +1,62 @@
+@import '../../../../styles/variables';
+
+.welcomeSection {
+  width: 100%;
+  padding: $spacing-between;
+  position: relative;
+  overflow: hidden;
+  background: $black;
+  border-radius: 12px;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-between;
+}
+
+.backgroundAccent {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(232, 197, 71, 0.1), transparent 60%);
+  animation: floatAccent 10s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes floatAccent {
+  from {
+    transform: translate(0px, 0px);
+  }
+  to {
+    transform: translate(30px, 30px);
+  }
+}
+
+.greetingWrapper {
+  z-index: 2;
+  text-align: center;
+}
+
+.greeting {
+  font-size: 36px;
+  font-weight: 700;
+  color: $white;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.name {
+  color: $gold;
+}
+
+.messageContainer {
+  min-height: 40px;
+}
+
+.message {
+  font-size: 18px;
+  font-weight: 500;
+  color: $gray;
+}

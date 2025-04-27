@@ -8,10 +8,11 @@ const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'contributor' // default value
   });
 
-  const { name, email, password } = formData;
+  const { name, email, password, role } = formData;
 
   const onChange = (e) => {
     setFormData((prev) => ({
@@ -28,7 +29,8 @@ const RegisterPage = () => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify({
         name: res.data.name,
-        email: res.data.email
+        email: res.data.email,
+        role: res.data.role, // save role too
       }));
       navigate('/dashboard');
     } catch (error) {
@@ -65,6 +67,16 @@ const RegisterPage = () => {
           onChange={onChange}
           required
         />
+
+        <div className={styles.roleSelector}>
+          <label>Select Your Role:</label>
+          <select name="role" value={role} onChange={onChange}>
+            <option value="creator">Creator</option>
+            <option value="contributor">Contributor</option>
+            <option value="booster">Booster</option>
+          </select>
+        </div>
+
         <button type="submit">Register</button>
       </form>
     </div>
