@@ -1,0 +1,59 @@
+@import '../../../styles/variables';
+
+.card {
+  background-color: lighten($black, 5%);
+  border: 1px solid $gray;
+  padding: $spacing-inside;
+  border-radius: 12px;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-inside;
+
+  &:hover {
+    border-color: $gold;
+    background-color: lighten($black, 8%);
+  }
+}
+
+.status {
+  font-size: 12px;
+  color: $gold;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $white;
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role {
+  background-color: $gray;
+  color: $black;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.viewBtn {
+  margin-top: auto;
+  padding: 10px 20px;
+  background-color: $white;
+  color: $black;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: $gold;
+  }
+}

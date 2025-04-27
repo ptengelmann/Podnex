@@ -1,0 +1,23 @@
+@import '../../../styles/variables';
+
+.featured {
+  width: 100%;
+  max-width: 1200px;
+  padding: $spacing-section $spacing-between;
+  background-color: $black;
+  text-align: center;
+
+  .sectionTitle {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: $spacing-inside;
+    color: $white;
+  }
+
+  .podGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-between;
+    margin-top: $spacing-between;
+  }
+}
