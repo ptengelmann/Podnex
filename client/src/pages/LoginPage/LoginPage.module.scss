@@ -1,0 +1,55 @@
+@import '../../styles/variables';
+
+.loginPage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form {
+  background-color: lighten($black, 5%);
+  padding: $spacing-inside;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-inside;
+  width: 100%;
+  max-width: 400px;
+
+  h2 {
+    color: $white;
+    text-align: center;
+    margin-bottom: $spacing-inside;
+  }
+
+  input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid $gray;
+    background-color: transparent;
+    color: $white;
+
+    &:focus {
+      border-color: $gold;
+      outline: none;
+    }
+  }
+
+  button {
+    padding: 12px;
+    background-color: $gold;
+    color: $black;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+
+    &:hover {
+      background-color: darken($gold, 10%);
+    }
+  }
+}
