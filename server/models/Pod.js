@@ -13,6 +13,11 @@ const PodSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Pod', PodSchema);

@@ -22,12 +22,27 @@ const CreatePodPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
-      const res = await axios.post('http://localhost:5000/api/pods', formData);
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        alert('You must be logged in to create a Pod.');
+        navigate('/login');
+        return;
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const res = await axios.post('http://localhost:5000/api/pods', formData, config);
       console.log('Pod Created:', res.data);
-  
-      navigate('/explore', { replace: true });
+
+      navigate('/explore');
       window.location.reload();
     } catch (error) {
       console.error(error.response?.data?.message || error.message);

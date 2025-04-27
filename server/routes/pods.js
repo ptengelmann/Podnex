@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Pod = require('../models/Pod');
+const { protect } = require('../middleware/authMiddleware');
 
 // @route   POST /api/pods
 // @desc    Create a new Pod
-// @access  Public
-router.post('/', async (req, res) => {
+// @access  Private (requires login)
+router.post('/', protect, async (req, res) => {
   try {
     const { title, mission, rolesNeeded } = req.body;
 
@@ -17,6 +18,7 @@ router.post('/', async (req, res) => {
       title,
       mission,
       rolesNeeded: rolesNeeded.split(',').map(role => role.trim()),
+      creator: req.user._id, // 🔥 Attach logged-in user
     });
 
     await newPod.save();
@@ -28,11 +30,20 @@ router.post('/', async (req, res) => {
 });
 
 // @route   GET /api/pods
-// @desc    Get all Pods
+// @desc    Get all Pods (optionally filter by creator)
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const pods = await Pod.find().sort({ createdAt: -1 }); // Newest first
+    const { creator } = req.query;
+    let query = {};
+    if (creator) {
+      query.creator = creator;
+    }
+
+    const pods = await Pod.find(query)
+      .populate('creator', 'name') // <-- Add this
+      .sort({ createdAt: -1 });
+
     res.json(pods);
   } catch (error) {
     console.error(error.message);

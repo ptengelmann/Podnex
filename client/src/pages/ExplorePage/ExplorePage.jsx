@@ -26,12 +26,13 @@ const ExplorePage = () => {
         {pods.length > 0 ? (
           pods.map((pod) => (
             <PodCard
-              key={pod._id}
-              id={pod._id}
-              title={pod.title}
-              status="Open" // Placeholder, we'll expand statuses later
-              neededRoles={pod.rolesNeeded}
-            />
+            key={pod._id}
+            id={pod._id}
+            title={pod.title}
+            status="Open" 
+            neededRoles={pod.rolesNeeded}
+            creatorName={pod.creator?.name || 'Unknown'} // 👈 add this
+          />
           ))
         ) : (
           <p>No Pods available yet. Be the first to create one!</p>
