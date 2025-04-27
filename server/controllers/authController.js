@@ -6,9 +6,9 @@ const jwt = require('jsonwebtoken');
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body; // <-- added role here
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !role) { // <-- now also check role
     return res.status(400).json({ message: 'Please add all fields' });
   }
 
@@ -24,7 +24,8 @@ const registerUser = async (req, res) => {
   const user = await User.create({
     name,
     email,
-    password: hashedPassword
+    password: hashedPassword,
+    role // <-- save role into MongoDB
   });
 
   if (user) {
@@ -32,13 +33,13 @@ const registerUser = async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role, // <-- return role too
       token: generateToken(user._id)
     });
   } else {
     res.status(400).json({ message: 'Invalid user data' });
   }
 };
-
 // @desc    Authenticate a user
 // @route   POST /api/auth/login
 // @access  Public
@@ -52,13 +53,13 @@ const loginUser = async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role, // <-- return role on login too
       token: generateToken(user._id)
     });
   } else {
     res.status(400).json({ message: 'Invalid credentials' });
   }
 };
-
 // Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
