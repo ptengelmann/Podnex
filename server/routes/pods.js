@@ -56,12 +56,13 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const pod = await Pod.findById(req.params.id);
-
+    const pod = await Pod.findById(req.params.id)
+      .populate('creator', 'name'); // Add this line to populate creator info
+    
     if (!pod) {
       return res.status(404).json({ message: 'Pod not found' });
     }
-
+    
     res.json(pod);
   } catch (error) {
     console.error(error.message);

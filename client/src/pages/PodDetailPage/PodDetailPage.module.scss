@@ -5,38 +5,678 @@
   min-height: 100vh;
   background-color: $black;
   color: $white;
-  padding: $spacing-section;
+  position: relative;
+  overflow: hidden;
+}
+
+// Grid background
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+// Back navigation
+.backNavigation {
+  margin-bottom: 32px;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $gray;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-weight: 500;
+  
+  &:hover {
+    color: $white;
+  }
+}
+
+// Pod header section
+.podHeader {
+  margin-bottom: 40px;
+}
+
+.podHeaderContent {
   display: flex;
   flex-direction: column;
-  gap: $spacing-inside;
+  gap: 24px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
 
-  h1 {
+.podTitleSection {
+  flex: 1;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Status variations
+.statusOpen {
+  color: #34D399;
+  
+  .statusDot {
+    background-color: #34D399;
+    box-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+  }
+}
+
+.statusInProgress {
+  color: #FBBF24;
+  
+  .statusDot {
+    background-color: #FBBF24;
+    box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+  }
+}
+
+.statusLive {
+  color: #818CF8;
+  
+  .statusDot {
+    background-color: #818CF8;
+    box-shadow: 0 0 5px rgba(129, 140, 248, 0.5);
+  }
+}
+
+.statusDraft, .statusArchived, .statusPreLaunch {
+  @extend .statusInProgress;
+}
+
+.podTitle {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0 0 20px;
+  line-height: 1.2;
+  
+  @media (max-width: 768px) {
     font-size: 36px;
-    margin-bottom: $spacing-inside;
   }
+}
 
-  p {
-    font-size: 18px;
-    color: $gray;
+.creatorInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.creatorAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba($gold, 0.2);
+  color: $gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.creatorInfo p {
+  color: $gray;
+  margin: 0;
+  
+  span {
+    color: $white;
+    font-weight: 600;
   }
+}
 
-  .status {
-    color: $gold;
-    font-weight: bold;
-  }
-
-  .roles {
-    margin-top: $spacing-inside;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .role {
+.creationDate {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  color: $gray;
+  
+  &::before {
+    content: "";
+    width: 4px;
+    height: 4px;
     background-color: $gray;
-    color: $black;
-    padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+}
+
+.podActions {
+  display: flex;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    justify-content: flex-start;
+  }
+}
+
+.bookmarkBtn, .shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bookmarkBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $white;
+  
+  &:hover {
+    border-color: $gold;
+    color: $gold;
+  }
+  
+  &.bookmarked {
+    background-color: rgba($gold, 0.1);
+    color: $gold;
+    border-color: rgba($gold, 0.2);
+  }
+}
+
+.shareBtn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $white;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Tab navigation
+.tabNavigation {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 40px;
+  position: relative;
+  overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    height: 0;
+  }
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  color: $gray;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 24px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: $white;
+  }
+  
+  &.active {
+    color: $gold;
+  }
+}
+
+.activeIndicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: $gold;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+// Content area
+.contentArea {
+  min-height: 300px;
+}
+
+.aboutSection, .rolesSection, .updatesSection {
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: $white;
+  }
+  
+  p {
+    color: $gray;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-size: 16px;
+  }
+}
+
+.missionSection, .descriptionSection {
+  margin-bottom: 40px;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  
+  .detailCard {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      transform: translateY(-3px);
+    }
+    
+    h3 {
+      font-size: 14px;
+      color: $gray;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    p {
+      font-size: 18px;
+      color: $white;
+      margin: 0;
+    }
+  }
+}
+
+// Roles section
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.roleCard {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 3px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.4;
+    border-top-left-radius: 12px;
+  }
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: $white;
+  }
+  
+  p {
+    margin-bottom: 24px;
+  }
+}
+
+.applyButton {
+  width: 100%;
+  padding: 12px;
+  background-color: $gold;
+  color: $black;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba($gold, 0.3);
+  }
+}
+
+.noRolesMessage, .noUpdatesMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-top: 24px;
+  
+  svg {
+    margin-bottom: 16px;
+    color: $gray;
+    opacity: 0.5;
+  }
+  
+  p {
+    color: $gray;
+    margin: 0;
+  }
+}
+
+// Timeline section
+.timelineContainer {
+  position: relative;
+  margin-top: 32px;
+  padding-left: 28px;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.timelineItem {
+  position: relative;
+  margin-bottom: 32px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.timelineDot {
+  position: absolute;
+  left: -28px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: $gold;
+  border: 3px solid $black;
+  z-index: 1;
+}
+
+.timelineContent {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.updateDate {
+  font-size: 14px;
+  color: $gold;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.timelineContent h3 {
+  font-size: 18px;
+  margin: 0 0 12px;
+  color: $white;
+}
+
+// Loading state
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: $gold;
+  margin-bottom: 24px;
+}
+
+.loadingContainer p {
+  color: $gray;
+  font-size: 16px;
+}
+
+// Error state
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  padding: 0 24px;
+  
+  svg {
+    margin-bottom: 24px;
+    color: $gray;
+    opacity: 0.7;
+  }
+  
+  p {
+    color: $gray;
+    margin-bottom: 32px;
+    font-size: 18px;
+  }
+}
+
+.backToExploreBtn {
+  padding: 12px 24px;
+  background-color: $gold;
+  color: $black;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba($gold, 0.3);
+  }
+}
+
+// Modal
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.applyModal {
+  background-color: lighten($black, 5%);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h2 {
+    font-size: 20px;
+    margin: 0;
+    color: $white;
+  }
+}
+
+.closeModalButton {
+  background: transparent;
+  border: none;
+  color: $gray;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    color: $white;
+  }
+}
+
+.modalContent {
+  padding: 24px;
+}
+
+.applyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  label {
     font-size: 14px;
+    font-weight: 600;
+    color: $white;
+  }
+  
+  input, textarea {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: $white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: rgba($gold, 0.5);
+      box-shadow: 0 0 0 2px rgba($gold, 0.1);
+    }
+    
+    &::placeholder {
+      color: $gray;
+    }
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cancelButton, .submitButton {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $white;
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.submitButton {
+  background-color: $gold;
+  color: $black;
+  border: none;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba($gold, 0.3);
   }
 }
