@@ -1,49 +1,634 @@
 @import '../../styles/variables';
 
+// Main container
 .createPodPage {
   width: 100%;
   min-height: 100vh;
   background-color: $black;
   color: $white;
-  padding: $spacing-section;
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-inside;
-
-  h1 {
-    font-size: 36px;
-    margin-bottom: $spacing-section;
-  }
-
-  .form {
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-inside;
+    height: 4px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.6;
+  }
+}
 
-    input, textarea {
+// Page header with animation
+.pageHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: $gold;
+    border-radius: 3px;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: $white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .subtitle {
+    color: $gray;
+    font-size: 1.1rem;
+    font-weight: 400;
+  }
+}
+
+// Content wrapper for form and preview
+.contentWrapper {
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+
+// Form container
+.formContainer {
+  width: 100%;
+  padding: 2rem;
+  background-color: lighten($black, 3%);
+  border-radius: 12px;
+  border: 1px solid rgba($gray, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  // Decorative element similar to PodCard
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 4px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.6;
+  }
+}
+
+// Form styling
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background-color: rgba($gray, 0.3);
+  }
+}
+
+.formInput, .formTextarea, .formSelect, .rolesInput {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba($gray, 0.3);
+  border-radius: 8px;
+  background: lighten($black, 5%);
+  color: $white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: $gold;
+    box-shadow: 0 0 0 2px rgba($gold, 0.2);
+  }
+  
+  &::placeholder {
+    color: rgba($gray, 0.7);
+  }
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.statusSelectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.formSelect {
+  appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  
+  option {
+    background-color: lighten($black, 8%);
+    color: $white;
+  }
+}
+
+.statusIndicator {
+  position: absolute;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Roles input container
+.rolesInputContainer {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addRoleButton {
+  background-color: rgba($gold, 0.2);
+  color: $gold;
+  border: 1px solid rgba($gold, 0.3);
+  border-radius: 8px;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba($gold, 0.3);
+  }
+}
+
+// Roles preview
+.rolesPreview {
+  margin-top: 1rem;
+}
+
+.rolesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.roleTag {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: rgba($gray, 0.15);
+  color: $gray;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba($gray, 0.2);
+  
+  &:hover {
+    background-color: rgba($gray, 0.25);
+    border-color: rgba($gray, 0.3);
+    color: $white;
+  }
+  
+  .removeRoleBtn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    
+    &:hover {
+      background-color: rgba($white, 0.1);
+    }
+  }
+}
+
+// Form actions
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.previewButton, .submitButton, .backToEditButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.previewButton {
+  background-color: rgba($white, 0.1);
+  color: $white;
+  
+  &:hover {
+    background-color: rgba($white, 0.15);
+  }
+}
+
+.submitButton {
+  background-color: $gold;
+  color: $black;
+  flex: 1;
+  max-width: 200px;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.backToEditButton {
+  background-color: transparent;
+  color: $gray;
+  border: 1px solid rgba($gray, 0.3);
+  
+  &:hover {
+    color: $white;
+    border-color: rgba($white, 0.3);
+  }
+}
+
+// Loading spinner
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba($black, 0.3);
+  border-radius: 50%;
+  border-top-color: $black;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Preview container
+.previewContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $white;
+  }
+}
+
+// Pod card preview - similar to PodCard styling
+.podCardPreview {
+  background-color: lighten($black, 3%);
+  border: 1px solid rgba($gray, 0.3);
+  padding: 1.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  
+  // Decorative element in top left corner
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 4px;
+    background: linear-gradient(90deg, $gold, transparent);
+    opacity: 0.6;
+    transition: width 0.3s ease;
+  }
+  
+  &:hover {
+    border-color: rgba($gold, 0.6);
+    background-color: lighten($black, 5%);
+    
+    &::before {
       width: 100%;
-      padding: 12px;
-      border: 1px solid $gray;
-      border-radius: 8px;
-      background: lighten($black, 5%);
+      opacity: 1;
+    }
+    
+    .status {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .cardTitle {
       color: $white;
     }
-
-    button {
-      background-color: $gold;
-      color: $black;
-      font-weight: bold;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-
-      &:hover {
-        background-color: darken($gold, 10%);
+    
+    .viewPodIndicator {
+      svg {
+        transform: translateX(4px);
       }
     }
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.3s ease;
+}
+
+// Status variations - same as PodCard
+.statusOpen {
+  color: #34D399;
+  
+  .statusDot {
+    background-color: #34D399;
+    box-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+  }
+}
+
+.statusInProgress {
+  color: #FBBF24;
+  
+  .statusDot {
+    background-color: #FBBF24;
+    box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+  }
+}
+
+.statusLive {
+  color: #818CF8;
+  
+  .statusDot {
+    background-color: #818CF8;
+    box-shadow: 0 0 5px rgba(129, 140, 248, 0.5);
+  }
+}
+
+.statusDraft {
+  color: #9CA3AF;
+  
+  .statusDot {
+    background-color: #9CA3AF;
+    box-shadow: 0 0 5px rgba(156, 163, 175, 0.5);
+  }
+}
+
+.statusPreLaunch {
+  color: #F472B6;
+  
+  .statusDot {
+    background-color: #F472B6;
+    box-shadow: 0 0 5px rgba(244, 114, 182, 0.5);
+  }
+}
+
+.statusArchived {
+  color: #6B7280;
+  
+  .statusDot {
+    background-color: #6B7280;
+    box-shadow: 0 0 5px rgba(107, 114, 128, 0.5);
+  }
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.bookmarkBtn {
+  background: transparent;
+  border: none;
+  color: $gray;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    color: $white;
+  }
+}
+
+.cardTitle {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: $white;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+  transition: color 0.3s ease;
+}
+
+.creatorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+}
+
+.creatorAvatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background-color: rgba($gold, 0.2);
+  color: $gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.creator {
+  font-size: 0.875rem;
+  color: $gray;
+  margin: 0;
+}
+
+.missionPreview {
+  background-color: rgba($white, 0.03);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  border-left: 3px solid rgba($gold, 0.3);
+  
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba($white, 0.8);
+    line-height: 1.5;
+  }
+}
+
+.rolesSection {
+  margin-top: auto;
+  margin-bottom: 1.25rem;
+}
+
+.rolesSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+  color: rgba($white, 0.6);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  
+  svg {
+    opacity: 0.7;
+  }
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.role {
+  background-color: rgba($gray, 0.15);
+  color: $gray;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba($gray, 0.2);
+  
+  &:hover {
+    background-color: rgba($gray, 0.25);
+    border-color: rgba($gray, 0.3);
+    color: $white;
+  }
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba($gray, 0.1);
+}
+
+.viewPodIndicator {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  color: $gold;
+  font-size: 0.875rem;
+  font-weight: 600;
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+}
+
+.previewActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .pageHeader {
+    h1 {
+      font-size: 2.25rem;
+    }
+  }
+  
+  .formActions {
+    flex-direction: column;
+    
+    .submitButton {
+      max-width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .createPodPage {
+    padding: 2rem 1rem;
+  }
+  
+  .pageHeader {
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
+  
+  .formContainer {
+    padding: 1.25rem;
+  }
+  
+  .rolesInputContainer {
+    flex-direction: column;
   }
 }
