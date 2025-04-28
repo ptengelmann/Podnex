@@ -1,13 +1,18 @@
 @import '../../styles/variables';
 
 .layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 0 $spacing-between;
+  margin-top: 80px; /* Add space for the fixed navbar */
   
-  .mainContent {
-    flex: 1;
-    padding: 0 $spacing-between;
+  /* Adjust margin based on viewport size */
+  @media (max-width: 768px) {
+    margin-top: 70px;
   }
-  
+}

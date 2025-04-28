@@ -5,17 +5,401 @@
   min-height: 100vh;
   background-color: $black;
   color: $white;
-  padding: $spacing-section;
-  text-align: center;
+}
 
-  h1 {
+// Hero section with animated grid background
+.heroSection {
+  width: 100%;
+  padding: 100px 0 60px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
+}
+
+.heroContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.sectionTitleWrapper {
+  display: inline-block;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 48px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: $white;
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.5px;
+  
+  @media (max-width: 768px) {
     font-size: 36px;
-    margin-bottom: $spacing-section;
   }
 }
 
+.titleDecoration {
+  position: absolute;
+  height: 8px;
+  width: 60%;
+  background-color: $gold;
+  bottom: 12px;
+  left: 20%;
+  z-index: 1;
+  opacity: 0.3;
+  transform: skewX(-15deg);
+}
+
+.sectionDescription {
+  font-size: 18px;
+  color: $gray;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+}
+
+// Search and filters row
+.controlsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 40px 0 20px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+// Search container
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 50px;
+  transition: all 0.3s ease;
+  max-width: 400px;
+  width: 100%;
+  
+  &:focus-within {
+    border-color: rgba($gold, 0.5);
+    box-shadow: 0 0 0 2px rgba($gold, 0.1);
+  }
+  
+  svg {
+    color: $gray;
+    margin-right: 12px;
+  }
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  height: 100%;
+  flex: 1;
+  color: $white;
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &::placeholder {
+    color: $gray;
+  }
+}
+
+.clearSearchBtn {
+  background: transparent;
+  border: none;
+  color: $gray;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  
+  &:hover {
+    color: $white;
+  }
+}
+
+// Filters
+.filterContainer {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+  }
+}
+
+.filterButton {
+  background: transparent;
+  border: none;
+  color: $gray;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  text-transform: capitalize;
+  
+  &:hover {
+    color: $white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &.active {
+    color: $white;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.activeDot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: $gold;
+  border-radius: 50%;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+// Pods section
+.podsSection {
+  padding: 40px 0 80px;
+  min-height: 50vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+// Results header
+.resultsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.resultsCount {
+  color: $gray;
+  font-size: 14px;
+  margin: 0;
+  
+  span {
+    color: $white;
+    font-weight: 600;
+  }
+}
+
+.sortOptions {
+  display: flex;
+  align-items: center;
+}
+
+.sortButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: $gray;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: rgba($gold, 0.5);
+    color: $white;
+  }
+  
+  svg {
+    opacity: 0.7;
+  }
+}
+
+// Pod grid
 .podGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: $spacing-between;
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+// Loading state
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: $gray;
+  
+  p {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: $gold;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Error state
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: $gray;
+  
+  svg {
+    margin-bottom: 16px;
+    color: $gray;
+  }
+  
+  p {
+    margin-bottom: 24px;
+    font-size: 16px;
+  }
+}
+
+.retryButton {
+  padding: 10px 24px;
+  background-color: $gold;
+  color: $black;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  }
+}
+
+// No results state
+.noResultsContainer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  padding: 48px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  svg {
+    margin-bottom: 24px;
+    color: $gray;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    font-size: 24px;
+    color: $white;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: $gray;
+    margin-bottom: 24px;
+  }
+}
+
+.resetFiltersButton, .createPodButton {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resetFiltersButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: $white;
+  
+  &:hover {
+    border-color: $gold;
+    color: $gold;
+  }
+}
+
+.createPodButton {
+  background-color: $gold;
+  color: $black;
+  border: none;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  }
 }
