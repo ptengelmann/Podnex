@@ -1,0 +1,497 @@
+@import '../../../styles/variables';
+
+.ecosystem {
+  width: 100%;
+  max-width: 1200px;
+  padding: $spacing-section $spacing-between;
+  background-color: $black;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  
+  // Add subtle grid pattern to the section
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: center center;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+// Particle animation
+.particleContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: float linear infinite;
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px);
+    }
+    50% {
+      transform: translateY(-20px) translateX(0);
+    }
+    75% {
+      transform: translateY(-10px) translateX(-5px);
+    }
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+  }
+}
+
+.ecosystemContent {
+  position: relative;
+  z-index: 2;
+}
+
+.sectionTitleWrapper {
+  display: inline-block;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: $white;
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.5px;
+}
+
+.titleDecoration {
+  position: absolute;
+  height: 8px;
+  width: 60%;
+  background-color: $gold;
+  bottom: 8px;
+  left: 20%;
+  z-index: 1;
+  opacity: 0.3;
+  transform: skewX(-15deg);
+}
+
+.sectionDescription {
+  font-size: 18px;
+  color: $gray;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+// Stages buttons
+.stagesContainer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+  }
+}
+
+.stageButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: $gray;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  width: 120px;
+  height: 120px;
+  
+  &:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: $white;
+    
+    .stageIcon {
+      color: var(--stage-color);
+    }
+  }
+  
+  &.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--stage-color);
+    color: $white;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(var(--stage-color-rgb, 232, 197, 71), 0.2);
+    
+    .stageIcon {
+      color: var(--stage-color);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--stage-color);
+      border-radius: 4px 4px 0 0;
+    }
+  }
+  
+  &:nth-child(1) { --stage-color-rgb: 232, 197, 71; }
+  &:nth-child(2) { --stage-color-rgb: 52, 211, 153; }
+  &:nth-child(3) { --stage-color-rgb: 251, 191, 36; }
+  &:nth-child(4) { --stage-color-rgb: 129, 140, 248; }
+  &:nth-child(5) { --stage-color-rgb: 236, 72, 153; }
+  
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 100px;
+    padding: 12px;
+  }
+}
+
+.stageIcon {
+  margin-bottom: 12px;
+  color: $gray;
+  transition: all 0.3s ease;
+  
+  svg {
+    width: 32px;
+    height: 32px;
+    
+    @media (max-width: 768px) {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.stageTitle {
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+}
+
+.stageIndicator {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--stage-color);
+  border-radius: 50%;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px var(--stage-color);
+}
+
+// Stage detail
+.stageDetailOuter {
+  margin: 0 auto 60px;
+  max-width: 800px;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.stageDetail {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: left;
+  position: relative;
+  width: 100%;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--stage-color);
+    border-radius: 4px 4px 0 0;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      circle at top right,
+      rgba(var(--stage-color-rgb, 232, 197, 71), 0.1),
+      transparent 40%
+    );
+    pointer-events: none;
+    border-radius: 16px;
+  }
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.stageIconLarge {
+  margin-right: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  color: var(--stage-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.stageDetailTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: $white;
+  margin: 0;
+}
+
+.stageDescription {
+  font-size: 16px;
+  line-height: 1.6;
+  color: $gray;
+  margin-bottom: 24px;
+}
+
+.stageBullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+}
+
+.stageBullet {
+  font-size: 15px;
+  color: $white;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.bulletDot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--stage-color);
+  border-radius: 50%;
+  margin-right: 12px;
+  display: inline-block;
+}
+
+.stageActions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.learnMoreBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: $white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--stage-color);
+    color: var(--stage-color);
+    
+    svg {
+      transform: translateX(4px);
+    }
+  }
+}
+
+// Ecosystem flow visualization
+.ecosystemFlow {
+  position: relative;
+  height: 40px;
+  margin: 60px auto;
+  max-width: 80%;
+}
+
+.flowLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1)
+  );
+  transform: translateY(-50%);
+}
+
+.flowNode {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    border-color: var(--node-color);
+    
+    .flowNodeInner {
+      background-color: var(--node-color);
+    }
+  }
+  
+  &.activeNode {
+    transform: translate(-50%, -50%) scale(1.3);
+    border-color: var(--node-color);
+    
+    .flowNodeInner {
+      background-color: var(--node-color);
+    }
+    
+    .flowNodePulse {
+      opacity: 1;
+    }
+  }
+}
+
+.flowNodeInner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+}
+
+.flowNodePulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--node-color);
+  opacity: 0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+.joinEcosystem {
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+}
+
+.joinEcosystemBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: $white;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover {
+    border-color: $gold;
+    color: $gold;
+    
+    svg {
+      transform: translateX(4px);
+    }
+  }
+}
