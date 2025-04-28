@@ -5,11 +5,12 @@
   max-width: 1200px;
   padding: $spacing-section $spacing-between;
   background-color: $black;
-  text-align: center;
+  color: $white;
   position: relative;
+  margin: 0 auto;
   overflow: hidden;
   
-  // Add subtle grid pattern to the section
+  // Add subtle grid pattern background
   &::before {
     content: '';
     position: absolute;
@@ -27,6 +28,15 @@
   }
 }
 
+// Content wrapper
+.ecosystemContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 // Particle animation
 .particleContainer {
   position: absolute;
@@ -34,14 +44,15 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
   overflow: hidden;
+  z-index: 0;
 }
 
 .particle {
   position: absolute;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
+  z-index: 1;
   animation: float linear infinite;
   
   @keyframes float {
@@ -49,13 +60,13 @@
       transform: translateY(0) translateX(0);
     }
     25% {
-      transform: translateY(-10px) translateX(5px);
+      transform: translateY(-10px) translateX(10px);
     }
     50% {
       transform: translateY(-20px) translateX(0);
     }
     75% {
-      transform: translateY(-10px) translateX(-5px);
+      transform: translateY(-10px) translateX(-10px);
     }
     100% {
       transform: translateY(0) translateX(0);
@@ -63,57 +74,112 @@
   }
 }
 
-.ecosystemContent {
-  position: relative;
-  z-index: 2;
-}
-
+// Title styles
 .sectionTitleWrapper {
-  display: inline-block;
+  text-align: center;
+  margin-bottom: 16px;
   position: relative;
-  margin-bottom: 24px;
 }
 
 .sectionTitle {
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 800;
-  margin-bottom: 8px;
-  color: $white;
-  position: relative;
-  z-index: 2;
-  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, $white 30%, rgba(232, 197, 71, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
 }
 
 .titleDecoration {
-  position: absolute;
-  height: 8px;
-  width: 60%;
-  background-color: $gold;
-  bottom: 8px;
-  left: 20%;
-  z-index: 1;
-  opacity: 0.3;
-  transform: skewX(-15deg);
+  width: 80px;
+  height: 4px;
+  background: $gold;
+  margin: 0 auto;
+  position: relative;
+  
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 4px;
+    background: $gold;
+    border-radius: 50%;
+  }
+  
+  &::before {
+    left: -8px;
+  }
+  
+  &::after {
+    right: -8px;
+  }
 }
 
 .sectionDescription {
-  font-size: 18px;
+  max-width: 700px;
+  text-align: center;
   color: $gray;
-  max-width: 600px;
-  margin: 0 auto 40px;
+  font-size: 18px;
   line-height: 1.6;
+  margin-bottom: 48px;
 }
 
-// Stages buttons
+// View selector tabs
+.viewSelector {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+}
+
+.viewTab {
+  padding: 10px 20px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $gray;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  &.activeTab {
+    background: rgba(232, 197, 71, 0.1);
+    border-color: rgba(232, 197, 71, 0.3);
+    color: $gold;
+    box-shadow: 0 0 15px rgba(232, 197, 71, 0.15);
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+// Pod Lifecycle View Styles
 .stagesContainer {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px;
   margin-bottom: 40px;
   
   @media (max-width: 768px) {
-    gap: 10px;
+    flex-direction: column;
+    gap: 16px;
   }
 }
 
@@ -121,146 +187,119 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: $gray;
+  padding: 16px 8px;
+  background: transparent;
+  border: none;
+  color: $white;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
-  width: 120px;
-  height: 120px;
+  transition: all 0.3s ease;
+  flex: 1;
   
   &:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: $white;
-    
-    .stageIcon {
-      color: var(--stage-color);
-    }
+    transform: translateY(-5px);
   }
   
   &.active {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--stage-color);
-    color: $white;
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3),
-                0 0 15px rgba(var(--stage-color-rgb, 232, 197, 71), 0.2);
-    
     .stageIcon {
+      background-color: rgba(var(--stage-color-rgb), 0.2);
+      border-color: var(--stage-color);
       color: var(--stage-color);
     }
     
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--stage-color);
-      border-radius: 4px 4px 0 0;
+    .stageTitle {
+      color: var(--stage-color);
     }
   }
   
-  &:nth-child(1) { --stage-color-rgb: 232, 197, 71; }
-  &:nth-child(2) { --stage-color-rgb: 52, 211, 153; }
-  &:nth-child(3) { --stage-color-rgb: 251, 191, 36; }
-  &:nth-child(4) { --stage-color-rgb: 129, 140, 248; }
-  &:nth-child(5) { --stage-color-rgb: 236, 72, 153; }
-  
   @media (max-width: 768px) {
-    width: 100px;
-    height: 100px;
-    padding: 12px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 }
 
 .stageIcon {
-  margin-bottom: 12px;
-  color: $gray;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  margin-bottom: 14px;
   transition: all 0.3s ease;
+  color: $gray;
   
-  svg {
-    width: 32px;
-    height: 32px;
-    
-    @media (max-width: 768px) {
-      width: 24px;
-      height: 24px;
-    }
+  @media (max-width: 768px) {
+    margin-bottom: 0;
+    width: 50px;
+    height: 50px;
   }
 }
 
 .stageTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
+  text-align: center;
   transition: all 0.3s ease;
   
   @media (max-width: 768px) {
-    font-size: 12px;
+    text-align: left;
   }
 }
 
 .stageIndicator {
-  position: absolute;
   width: 8px;
   height: 8px;
   background-color: var(--stage-color);
   border-radius: 50%;
-  bottom: -4px;
+  position: absolute;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 0 10px var(--stage-color);
+  
+  @media (max-width: 768px) {
+    top: 50%;
+    left: auto;
+    right: 16px;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
 }
 
-// Stage detail
+// Stage detail styles
 .stageDetailOuter {
-  margin: 0 auto 60px;
-  max-width: 800px;
-  min-height: 300px;
-  display: flex;
-  justify-content: center;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 40px;
 }
 
 .stageDetail {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 32px;
-  text-align: left;
   position: relative;
-  width: 100%;
+  overflow: hidden;
   
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--stage-color);
-    border-radius: 4px 4px 0 0;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(
-      circle at top right,
-      rgba(var(--stage-color-rgb, 232, 197, 71), 0.1),
-      transparent 40%
-    );
-    pointer-events: none;
-    border-radius: 16px;
+    width: 6px;
+    height: 100%;
+    background-color: var(--stage-color);
   }
 }
 
@@ -271,26 +310,21 @@
 }
 
 .stageIconLarge {
-  margin-right: 16px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50%;
-  color: var(--stage-color);
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  svg {
-    width: 32px;
-    height: 32px;
-  }
+  background-color: rgba(var(--stage-color-rgb), 0.15);
+  border-radius: 12px;
+  margin-right: 20px;
+  color: var(--stage-color);
 }
 
 .stageDetailTitle {
   font-size: 24px;
   font-weight: 700;
-  color: $white;
+  color: var(--stage-color);
   margin: 0;
 }
 
@@ -304,71 +338,57 @@
 .stageBullets {
   list-style: none;
   padding: 0;
-  margin: 0 0 32px 0;
+  margin: 0 0 24px 0;
 }
 
 .stageBullet {
-  font-size: 15px;
-  color: $white;
-  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: $white;
 }
 
 .bulletDot {
   width: 8px;
   height: 8px;
-  background-color: var(--stage-color);
   border-radius: 50%;
+  background-color: var(--stage-color);
   margin-right: 12px;
   display: inline-block;
 }
 
 .stageActions {
   display: flex;
-  justify-content: flex-start;
-  margin-top: 16px;
+  justify-content: flex-end;
 }
 
 .learnMoreBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: $white;
+  gap: 10px;
+  background: rgba(var(--stage-color-rgb), 0.15);
+  color: var(--stage-color);
+  border: 1px solid rgba(var(--stage-color-rgb), 0.3);
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
   
-  svg {
-    transition: transform 0.3s ease;
-  }
-  
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--stage-color);
-    color: var(--stage-color);
-    
-    svg {
-      transform: translateX(4px);
-    }
+    background: rgba(var(--stage-color-rgb), 0.25);
   }
 }
 
-// Ecosystem flow visualization
+// Ecosystem flow
 .ecosystemFlow {
+  width: 100%;
+  max-width: 700px;
+  height: 60px;
   position: relative;
-  height: 40px;
-  margin: 60px auto;
-  max-width: 80%;
+  margin-bottom: 60px;
 }
 
 .flowLine {
@@ -377,60 +397,48 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.1)
-  );
+  background: linear-gradient(90deg, 
+    rgba(232, 197, 71, 0.5) 0%, 
+    rgba(52, 211, 153, 0.5) 25%, 
+    rgba(251, 191, 36, 0.5) 50%, 
+    rgba(129, 140, 248, 0.5) 75%, 
+    rgba(236, 72, 153, 0.5) 100%);
   transform: translateY(-50%);
 }
 
 .flowNode {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
   
-  &:hover {
-    transform: translate(-50%, -50%) scale(1.2);
-    border-color: var(--node-color);
-    
-    .flowNodeInner {
-      background-color: var(--node-color);
-    }
+  .flowNodeInner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $white;
+    transition: all 0.3s ease;
   }
   
   &.activeNode {
-    transform: translate(-50%, -50%) scale(1.3);
-    border-color: var(--node-color);
+    background: rgba(var(--node-color-rgb), 0.3);
     
     .flowNodeInner {
-      background-color: var(--node-color);
+      background: var(--node-color);
     }
     
     .flowNodePulse {
-      opacity: 1;
+      animation: pulse 2s infinite;
     }
   }
-}
-
-.flowNodeInner {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transition: all 0.3s ease;
 }
 
 .flowNodePulse {
@@ -438,60 +446,441 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid var(--node-color);
+  border: 1px solid var(--node-color);
   opacity: 0;
-  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
   0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.7;
-  }
-  70% {
-    transform: translate(-50%, -50%) scale(2);
-    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.5;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1.5);
     opacity: 0;
   }
 }
 
+// Join ecosystem button
 .joinEcosystem {
-  margin-top: 60px;
-  display: flex;
-  justify-content: center;
+  margin-top: 40px;
+  text-align: center;
 }
 
 .joinEcosystemBtn {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  background: $gold;
+  color: $black;
+  border: none;
+  border-radius: 30px;
   padding: 16px 32px;
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: $white;
+  font-size: 18px;
   font-weight: 600;
-  font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(232, 197, 71, 0.3);
+  }
   
   svg {
     transition: transform 0.3s ease;
   }
   
+  &:hover svg {
+    transform: translateX(5px);
+  }
+}
+
+// User Roles View Styles
+.rolesContainer {
+  width: 100%;
+}
+
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roleCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: var(--role-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
   &:hover {
-    border-color: $gold;
-    color: $gold;
+    transform: translateY(-5px);
     
-    svg {
-      transform: translateX(4px);
+    &::before {
+      opacity: 1;
     }
+    
+    .roleIconContainer {
+      background-color: rgba(var(--role-color-rgb), 0.3);
+    }
+  }
+  
+  &.activeRole {
+    border-color: rgba(var(--role-color-rgb), 0.3);
+    background: rgba(var(--role-color-rgb), 0.05);
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    .roleIconContainer {
+      background-color: rgba(var(--role-color-rgb), 0.3);
+    }
+    
+    .roleTitle {
+      color: var(--role-color);
+    }
+  }
+}
+
+.roleIconContainer {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  color: var(--role-color);
+}
+
+.roleTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  transition: color 0.3s ease;
+}
+
+.roleDescription {
+  font-size: 14px;
+  color: $gray;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// Profile Graph
+.profileGraph {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 24px;
+}
+
+.graphTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: $white;
+}
+
+.graphDescription {
+  font-size: 16px;
+  color: $gray;
+  margin-bottom: 24px;
+}
+
+.graphCategories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.graphCategory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.categoryIcon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.graphCategory h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: $white;
+}
+
+// Pod States View
+.statesContainer {
+  width: 100%;
+}
+
+.statesFlow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stateCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &.activeState {
+    border-color: rgba(var(--state-color-rgb), 0.4);
+    background: rgba(var(--state-color-rgb), 0.05);
+    
+    .stateTitle {
+      color: var(--state-color);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.stateHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 150px;
+}
+
+.stateColorIndicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.stateTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.stateDescription {
+  flex: 1;
+  font-size: 16px;
+  color: $gray;
+  margin: 0;
+}
+
+.stateArrow {
+  display: flex;
+  align-items: center;
+  color: $gray;
+  
+  @media (max-width: 768px) {
+    position: absolute;
+    bottom: -26px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+    z-index: 1;
+  }
+}
+
+.stateNote {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.noteIcon {
+  color: $gold;
+  flex-shrink: 0;
+}
+
+.noteText {
+  font-size: 16px;
+  line-height: 1.6;
+  color: $gray;
+  margin: 0;
+  
+  strong {
+    color: $white;
+  }
+}
+
+// Contributor Roles View
+.contributorRolesContainer {
+  width: 100%;
+}
+
+.contributorRole {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.roleBadge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(232, 197, 71, 0.15);
+  color: $gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contributorRoleTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: $white;
+}
+
+.contributorInfo {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 30px;
+}
+
+.infoTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.infoDescription {
+  font-size: 16px;
+  color: $gray;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.infoHighlight {
+  background: rgba(232, 197, 71, 0.1);
+  border-left: 4px solid $gold;
+  padding: 16px 24px;
+  border-radius: 0 8px 8px 0;
+  
+  p {
+    margin: 0;
+    color: $white;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}
+
+// Media queries
+@media (max-width: 1024px) {
+  .sectionTitle {
+    font-size: 36px;
+  }
+  
+  .stageButton {
+    padding: 12px 6px;
+  }
+  
+  .stageIcon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .stageTitle {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ecosystem {
+    padding: $spacing-section $spacing-between/2;
+  }
+  
+  .sectionTitle {
+    font-size: 30px;
+  }
+  
+  .sectionDescription {
+    font-size: 16px;
+  }
+  
+  .stageDetail {
+    padding: 24px;
+  }
+  
+  .stageDetailTitle {
+    font-size: 20px;
+  }
+  
+  .ecosystemFlow {
+    height: 40px;
+  }
+  
+  .joinEcosystemBtn {
+    padding: 14px 24px;
+    font-size: 16px;
   }
 }
