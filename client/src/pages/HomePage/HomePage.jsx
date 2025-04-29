@@ -4,6 +4,7 @@ import HeroSection from './HeroSection/HeroSection';
 import FeaturedPodsSection from './FeaturedPodsSection/FeaturedPodsSection';
 import HowItWorksSection from './HowItWorksSection/HowItWorksSection';
 import Ecosystem from './Ecosystem/Ecosystem';
+import Testimonials from './Testimonials/Testimonials';
 
 const HomePage = () => {
   return (
@@ -12,6 +13,7 @@ const HomePage = () => {
       <FeaturedPodsSection />
       <HowItWorksSection />
       <Ecosystem />
+      <Testimonials />
     </div>
   );
 };
