@@ -10,6 +10,7 @@ import ExplorePage from './pages/ExplorePage/ExplorePage';
 import PodDetailPage from './pages/PodDetailPage/PodDetailPage';
 import CreatePodPage from './pages/CreatePodPage/CreatePodPage';
 import HelpFeed from './pages/HelpFeed/HelpFeed';
+import AboutPage from './pages/AboutPage/AboutPage';
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/help-feed" element={<HelpFeed />} />
         <Route path="/pods/:id" element={<PodDetailPage />} /> {/* <-- Correct: /pods/:id */}
         <Route path="/create-pod" element={<CreatePodPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route
           path="/dashboard"
           element={

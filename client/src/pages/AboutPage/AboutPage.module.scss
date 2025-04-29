@@ -1,0 +1,373 @@
+/* AboutPage.module.scss - Simplified */
+
+.aboutPage {
+    width: 100%;
+    background-color: #0F0F0F;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Particle animation */
+  .particleContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+  
+  .particle {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    z-index: 1;
+    animation: float linear infinite;
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+      }
+      25% {
+        transform: translateY(-10px) translateX(10px);
+      }
+      50% {
+        transform: translateY(-20px) translateX(0);
+      }
+      75% {
+        transform: translateY(-10px) translateX(-10px);
+      }
+      100% {
+        transform: translateY(0) translateX(0);
+      }
+    }
+  }
+  
+  /* Navigation Pills */
+  .navigationPills {
+    position: fixed;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .pillsContainer {
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(5px);
+    border-radius: 40px;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  .pill {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      color: #FFFFFF;
+    }
+    
+    &.activePill {
+      background: rgba(232, 197, 71, 0.15);
+      color: #E8C547;
+    }
+  }
+  
+  .pillDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+  }
+  
+  .pillText {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Container and Layout */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .section {
+    padding: 120px 0;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* Section Headers */
+  .sectionTitleWrapper {
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  
+  .sectionTitle {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: #FFFFFF;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .titleDecoration {
+    position: absolute;
+    height: 8px;
+    width: 60%;
+    background-color: #E8C547;
+    bottom: 16px;
+    left: 20%;
+    z-index: 1;
+    opacity: 0.3;
+    transform: skewX(-15deg);
+  }
+  
+  .sectionTagline {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .taglineHighlight {
+    font-size: 24px;
+    color: #E8C547;
+    font-weight: 600;
+  }
+  
+  /* Vision Section */
+  .visionContent {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .visionLead {
+    font-size: 20px;
+    font-weight: 500;
+    color: #FFFFFF;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  
+  .visionText {
+    color: #848484;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  /* Values Section */
+  .valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .valueCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 32px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-5px);
+    }
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--value-color, #FFFFFF);
+    }
+    
+    p {
+      color: #848484;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+  
+  /* Team Section */
+  .teamContent {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .teamMember {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+  
+  .memberInfo {
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    
+    .memberRole {
+      font-size: 16px;
+      font-weight: 600;
+      color: #E8C547;
+      margin-bottom: 16px;
+    }
+    
+    .memberBio {
+      color: #848484;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+  
+  /* CTA Section */
+  .ctaSection {
+    padding: 80px 0;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
+  }
+  
+  .ctaContent {
+    background: linear-gradient(90deg, rgba(232, 197, 71, 0.15), rgba(232, 197, 71, 0.05));
+    border: 1px solid rgba(232, 197, 71, 0.2);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #FFFFFF;
+    }
+    
+    p {
+      color: #848484;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+  }
+  
+  .ctaButtons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    
+    @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
+  .primaryButton, .secondaryButton {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .primaryButton {
+    background-color: #E8C547;
+    color: #0F0F0F;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(232, 197, 71, 0.3);
+    }
+  }
+  
+  .secondaryButton {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    
+    &:hover {
+      border-color: rgba(232, 197, 71, 0.5);
+      color: #E8C547;
+      transform: translateY(-2px);
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 992px) {
+    .section {
+      padding: 80px 0;
+    }
+    
+    .sectionTitle {
+      font-size: 36px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .section {
+      padding: 60px 0;
+    }
+    
+    .sectionTitle {
+      font-size: 32px;
+    }
+    
+    .navigationPills {
+      top: 80px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .sectionTitle {
+      font-size: 28px;
+    }
+    
+    .taglineHighlight {
+      font-size: 20px;
+    }
+    
+    .visionLead {
+      font-size: 18px;
+    }
+    
+    .ctaContent {
+      padding: 30px 20px;
+    }
+  }
