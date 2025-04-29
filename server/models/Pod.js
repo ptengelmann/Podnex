@@ -1,53 +1,22 @@
 const mongoose = require('mongoose');
 
-const UpdateSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-});
-
 const PodSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  mission: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    default: '',
-  },
-  category: {
-    type: String,
-    default: '',
-  },
-  format: {
-    type: String,
-    default: '',
-  },
-  frequency: {
-    type: String,
-    default: '',
-  },
-  duration: {
-    type: String,
-    default: '',
-  },
-  status: {
-    type: String,
-    enum: ['Draft', 'Open', 'In Progress', 'Pre-Launch', 'Live', 'Archived'],
-    default: 'Draft',
-  },
-  rolesNeeded: {
-    type: [String],
-    default: [],
-  },
-  updates: {
-    type: [UpdateSchema],
-    default: [],
-  },
+  title: { type: String, required: true },
+  mission: { type: String, required: true },
+  description: { type: String },
+  category: { type: String },
+  format: { type: String },
+  frequency: { type: String },
+  duration: { type: String },
+  status: { type: String, default: 'draft' }, // New! default status
+  rolesNeeded: { type: [String], default: [] },
+  updates: [
+    {
+      date: { type: Date, default: Date.now },
+      title: { type: String },
+      description: { type: String },
+    }
+  ],
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
