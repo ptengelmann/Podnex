@@ -24,6 +24,10 @@ const PodDetailPage = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
+  const [experience, setExperience] = useState('');
+  const [motivation, setMotivation] = useState('');
+  const [portfolioLink, setPortfolioLink] = useState('');
+  const [submissionStatus, setSubmissionStatus] = useState(''); // '', 'success', or 'error'
 
   useEffect(() => {
     const fetchPod = async () => {
@@ -51,6 +55,52 @@ const PodDetailPage = () => {
   const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
     // Here you would typically make an API call to save this preference
+  };
+
+  const handleApplicationSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const token = localStorage.getItem('token'); // Assuming token is stored here after login
+      if (!token) {
+        throw new Error('User not logged in');
+      }
+  
+      const res = await axios.post(
+        'http://localhost:5000/api/applications',
+        {
+          podId: pod._id,
+          roleApplied: selectedRole,
+          experience,
+          motivation,
+          portfolioLink,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      console.log(res.data); // Application successfully sent
+      setSubmissionStatus('success');
+      
+      // Reset form
+      setExperience('');
+      setMotivation('');
+      setPortfolioLink('');
+  
+      // Auto-close modal after 2 seconds
+      setTimeout(() => {
+        setApplyModalOpen(false);
+        setSubmissionStatus('');
+        setSelectedRole('');
+      }, 2000);
+  
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+      setSubmissionStatus('error');
+    }
   };
   
   // Open apply modal with selected role
@@ -404,6 +454,28 @@ const PodDetailPage = () => {
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", duration: 0.5 }}
           >
+
+{submissionStatus === 'success' && (
+  <div className={styles.successMessage}>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+    <p>Thank you for applying! We'll get back to you soon.</p>
+  </div>
+)}
+
+
+{submissionStatus === 'error' && (
+  <div className={styles.errorMessage}>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+    </svg>
+    <p>Failed to submit application. Please try again.</p>
+  </div>
+)}
+
             <div className={styles.modalHeader}>
               <h2>Apply for {selectedRole}</h2>
               <button className={styles.closeModalButton} onClick={closeApplyModal}>
@@ -415,32 +487,38 @@ const PodDetailPage = () => {
             </div>
             
             <div className={styles.modalContent}>
-              <form className={styles.applyForm}>
-                <div className={styles.formField}>
+            <form className={styles.applyForm} onSubmit={handleApplicationSubmit}>
+            <div className={styles.formField}>
                   <label htmlFor="experience">Your experience as a {selectedRole}</label>
                   <textarea 
-                    id="experience" 
-                    placeholder="Tell us about your experience..."
-                    rows="4"
-                  ></textarea>
+  id="experience" 
+  placeholder="Tell us about your experience..."
+  rows="4"
+  value={experience}
+  onChange={(e) => setExperience(e.target.value)}
+></textarea>
                 </div>
                 
                 <div className={styles.formField}>
                   <label htmlFor="why">Why are you interested in this pod?</label>
                   <textarea 
-                    id="why" 
-                    placeholder="Share why you're excited about this project..."
-                    rows="3"
-                  ></textarea>
+  id="why" 
+  placeholder="Share why you're excited about this project..."
+  rows="3"
+  value={motivation}
+  onChange={(e) => setMotivation(e.target.value)}
+></textarea>
                 </div>
                 
                 <div className={styles.formField}>
                   <label htmlFor="portfolio">Portfolio link (optional)</label>
                   <input 
-                    type="url" 
-                    id="portfolio" 
-                    placeholder="https://your-portfolio.com"
-                  />
+  type="url" 
+  id="portfolio" 
+  placeholder="https://your-portfolio.com"
+  value={portfolioLink}
+  onChange={(e) => setPortfolioLink(e.target.value)}
+/>
                 </div>
                 
                 <div className={styles.formActions}>

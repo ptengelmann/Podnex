@@ -11,7 +11,8 @@ import PodDetailPage from './pages/PodDetailPage/PodDetailPage';
 import CreatePodPage from './pages/CreatePodPage/CreatePodPage';
 import HelpFeed from './pages/HelpFeed/HelpFeed';
 import AboutPage from './pages/AboutPage/AboutPage';
-
+import ContactUs from './pages/ContactUs/ContactPage';
+import ContactPage from './pages/ContactUs/ContactPage';
 const App = () => {
   return (
     <Layout>
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/pods/:id" element={<PodDetailPage />} /> {/* <-- Correct: /pods/:id */}
         <Route path="/create-pod" element={<CreatePodPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route
           path="/dashboard"
           element={

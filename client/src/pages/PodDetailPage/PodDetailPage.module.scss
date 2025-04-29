@@ -680,3 +680,38 @@
       box-shadow: 0 6px 15px rgba($gold, 0.3);
     }
   }
+
+  .successMessage {
+    color: #34D399;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 600;
+  }
+  
+  .errorMessage {
+    color: #f87171;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 600;
+  }
+
+  .successMessage, .errorMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 24px;
+    color: $white;
+    
+    svg {
+      color: $gold; // or red for error if you want
+    }
+  
+  
+    p {
+      font-size: 18px;
+      margin: 0;
+    }
+  }
+  

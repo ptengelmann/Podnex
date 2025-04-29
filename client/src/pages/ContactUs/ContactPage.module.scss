@@ -1,0 +1,677 @@
+@import '../../styles/variables';
+
+/* Main container */
+.contactPage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  color: $white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Particle animation */
+.particleContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  z-index: 1;
+  animation: float linear infinite;
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-10px) translateX(10px);
+    }
+    50% {
+      transform: translateY(-20px) translateX(0);
+    }
+    75% {
+      transform: translateY(-10px) translateX(-10px);
+    }
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+  }
+}
+
+/* Floating animated shapes */
+.floatingShape {
+  position: fixed;
+  z-index: 1;
+  opacity: 0.07;
+  pointer-events: none;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba($gold, 0.8), transparent);
+    filter: blur(30px);
+  }
+  
+  &.shape2 {
+    bottom: 15%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba($white, 0.05), transparent);
+    filter: blur(35px);
+  }
+}
+
+/* Container and Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* Hero Section */
+.heroSection {
+  padding: 120px 0 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mainTitle {
+  font-size: 56px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, $white 30%, rgba($gold, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block; /* Ensures gradient applies to the entire text */
+  
+  @media (max-width: 768px) {
+    font-size: 42px;
+  }
+}
+
+.highlight {
+  position: relative;
+  background: linear-gradient(135deg, $white 30%, rgba($gold, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    height: 8px;
+    width: 100%;
+    background-color: $gold;
+    bottom: 4px;
+    left: 0;
+    z-index: -1;
+    opacity: 0.3;
+    transform: skewX(-15deg);
+  }
+}
+
+.mainSubtitle {
+  font-size: 18px;
+  color: $gray;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Main Content */
+.mainContent {
+  padding: 60px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* Form Section */
+.formSection {
+  background: rgba($white, 0.03);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+  padding: 40px;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
+}
+
+.sectionHeader {
+  margin-bottom: 30px;
+  
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: $white;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+  }
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $white;
+  }
+  
+  .required {
+    color: $gold;
+  }
+  
+  input, textarea, select {
+    background: rgba($white, 0.05);
+    border: 1px solid rgba($white, 0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: $white;
+    font-size: 15px;
+    width: 100%;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $gold;
+      box-shadow: 0 0 0 2px rgba($gold, 0.2);
+    }
+    
+    &::placeholder {
+      color: rgba($white, 0.3);
+    }
+  }
+  
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23E8C547' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    cursor: pointer;
+    
+    option {
+      background-color: $black;
+      color: $white;
+    }
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+}
+
+.statusMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  
+  &.success {
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34D399;
+  }
+  
+  &.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #EF4444;
+  }
+}
+
+.submitButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: $gold;
+  color: $black;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .loadingText {
+    position: relative;
+    
+    &::after {
+      content: '...';
+      position: absolute;
+      animation: ellipsis 1.5s infinite;
+    }
+  }
+  
+  @keyframes ellipsis {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+  }
+}
+
+/* Info Section - Right Column */
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Contact Methods */
+.contactMethods {
+  background: rgba($white, 0.03);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+  padding: 30px;
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: $white;
+  }
+}
+
+.methodsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.contactMethod {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.3s ease;
+  padding: 16px;
+  border-radius: 12px;
+  
+  &:hover {
+    background: rgba($white, 0.05);
+    transform: translateY(-3px);
+  }
+}
+
+.methodIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgba(var(--method-color), 0.1);
+  color: var(--method-color, $gold);
+  flex-shrink: 0;
+}
+
+.methodContent {
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: $white;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+/* FAQs Accordion */
+.faqsSection {
+  background: rgba($white, 0.03);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+  padding: 30px;
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: $white;
+  }
+}
+
+.accordionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordionItem {
+  background: rgba($white, 0.02);
+  border: 1px solid rgba($white, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  
+  &.active {
+    .accordionHeader {
+      border-bottom: 1px solid rgba($white, 0.05);
+    }
+    
+    .accordionContent {
+      max-height: 500px;
+      padding: 16px;
+    }
+  }
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: $white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba($white, 0.03);
+  }
+}
+
+.accordionIcon {
+  color: $gold;
+  transition: transform 0.3s ease;
+  
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.accordionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding: 0 16px;
+  
+  p {
+    color: $gray;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+/* Team Availability Section */
+.availabilitySection {
+  padding: 60px 0 120px;
+  position: relative;
+  z-index: 2;
+}
+
+.availabilityContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.availabilityCard {
+  background: linear-gradient(135deg, rgba($gold, 0.15), rgba($gold, 0.05));
+  border: 1px solid rgba($gold, 0.2);
+  border-radius: 16px;
+  padding: 40px;
+  
+  @media (max-width: 768px) {
+    padding: 30px;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.iconContainer {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba($gold, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gold;
+  flex-shrink: 0;
+}
+
+.cardHeader h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: $white;
+  margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+}
+
+.cardDescription {
+  font-size: 16px;
+  color: $gray;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.teamStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba($white, 0.05);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background: rgba($white, 0.08);
+  }
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba($gold, 0.15);
+  color: $gold;
+  flex-shrink: 0;
+}
+
+.statContent {
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: $white;
+  }
+  
+  p {
+    font-size: 13px;
+    color: $gray;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .heroSection {
+    padding: 100px 0 40px;
+  }
+  
+  .mainContent {
+    padding: 40px 0;
+  }
+  
+  .availabilitySection {
+    padding: 40px 0 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 80px 0 30px;
+  }
+  
+  .mainTitle {
+    font-size: 36px;
+  }
+  
+  .mainSubtitle {
+    font-size: 16px;
+  }
+  
+  .formSection, 
+  .contactMethods, 
+  .faqsSection, 
+  .availabilityCard {
+    padding: 24px 20px;
+  }
+  
+  .contactMethod {
+    padding: 12px;
+  }
+  
+  .methodIcon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .methodContent {
+    h4 {
+      font-size: 15px;
+    }
+    
+    p {
+      font-size: 13px;
+    }
+  }
+  
+  .accordionHeader {
+    padding: 14px;
+    font-size: 14px;
+  }
+  
+  .accordionContent {
+    p {
+      font-size: 13px;
+    }
+  }
+  
+  .cardHeader h2 {
+    font-size: 20px;
+  }
+  
+  .cardDescription {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 60px 0 20px;
+  }
+  
+  .mainTitle {
+    font-size: 32px;
+  }
+  
+  .submitButton {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .methodsGrid {
+    grid-template-columns: 1fr;
+  }
+}
