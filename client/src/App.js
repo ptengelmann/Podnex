@@ -13,6 +13,8 @@ import HelpFeed from './pages/HelpFeed/HelpFeed';
 import AboutPage from './pages/AboutPage/AboutPage';
 import ContactUs from './pages/ContactUs/ContactPage';
 import ContactPage from './pages/ContactUs/ContactPage';
+import PricingSection from './pages/Pricing/PricingSection';
+
 const App = () => {
   return (
     <Layout>
@@ -26,6 +28,7 @@ const App = () => {
         <Route path="/create-pod" element={<CreatePodPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/pricing" element={<PricingSection />} />
         <Route
           path="/dashboard"
           element={

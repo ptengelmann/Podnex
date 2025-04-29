@@ -1,0 +1,589 @@
+@import '../../styles/variables';
+
+.pricingSection {
+  width: 100%;
+  min-height: 100vh;
+  padding: $spacing-section $spacing-between;
+  text-align: center;
+  background-color: $black;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Animated grid background
+.gridBackground {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
+}
+
+// Section Header
+.sectionHeader {
+  max-width: 800px;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 5;
+}
+
+// Badge styling
+.badgeWrapper {
+  margin-bottom: 24px;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  font-size: 60px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  color: $white;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, $white 30%, rgba(232, 197, 71, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  @media (max-width: 768px) {
+    font-size: 42px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 36px;
+  }
+}
+
+.highlight {
+  position: relative;
+  display: inline-block;
+  color: $white;
+  z-index: 1;
+  background: none;
+  -webkit-text-fill-color: $white;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background-color: $gold;
+    bottom: 8px;
+    left: 0;
+    z-index: -1;
+    transform: skewX(-10deg);
+    opacity: 0.6;
+  }
+}
+
+.sectionSubtitle {
+  font-size: 20px;
+  color: $gray;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+// Tab Selector
+.tabSelector {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 5;
+  
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  color: $gray;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  &.activeTab {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 0 20px rgba(232, 197, 71, 0.2);
+  }
+}
+
+// Pricing View
+.pricingView {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+// Role Introduction
+.roleIntro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  
+  h3 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 16px 0 8px;
+    color: $white;
+  }
+  
+  p {
+    font-size: 18px;
+    color: $gray;
+    margin-bottom: 24px;
+  }
+}
+
+.roleIconContainer {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.roleBenefits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.benefitTag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Pricing Cards Container
+.pricingCardsContainer {
+  position: relative;
+  width: 100%;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 197, 71, 0.2) 0%, rgba(232, 197, 71, 0) 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    z-index: -1;
+    filter: blur(50px);
+  }
+}
+
+.pricingCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    gap: 40px;
+  }
+}
+
+.pricingCard {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px 30px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  
+  &.recommended {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 10;
+    
+    @media (max-width: 768px) {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.recommendedTag {
+  position: absolute;
+  top: 0;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 0 0 8px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $black;
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.cardGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 20px;
+  filter: blur(40px);
+  z-index: -1;
+  transition: opacity 0.4s ease;
+}
+
+.planHeader {
+  margin-bottom: 30px;
+}
+
+.planName {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: $white;
+}
+
+.planPrice {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.currency {
+  font-size: 24px;
+  font-weight: 700;
+  color: $gray;
+  margin-right: 4px;
+}
+
+.amount {
+  font-size: 60px;
+  font-weight: 800;
+  color: $white;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.period {
+  font-size: 16px;
+  color: $gray;
+  margin-left: 4px;
+}
+
+.planFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  font-size: 15px;
+  color: $white;
+  
+  .featureIncluded {
+    flex-shrink: 0;
+  }
+  
+  .featureExcluded {
+    opacity: 0.3;
+    flex-shrink: 0;
+  }
+  
+  .featureMuted {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.planButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  width: 100%;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Compare Benefits section
+.compareBenefits {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
+}
+
+.benefitHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+  
+  h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 0;
+  }
+}
+
+.benefitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.benefitItem {
+  text-align: center;
+  
+  h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin: 12px 0 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.benefitIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+// CTA Section
+.ctaContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(232, 197, 71, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 40px;
+  margin-top: 80px;
+  max-width: 1000px;
+  width: 100%;
+  position: relative;
+  z-index: 5;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px 24px;
+  }
+}
+
+.ctaContent {
+  text-align: left;
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: $white;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 16px;
+    color: $gray;
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    text-align: center;
+  }
+}
+
+.ctaButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  background-color: $white;
+  color: $black;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    background-color: $gold;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(232, 197, 71, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.compareButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  color: $gray;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+    transform: translateY(-3px);
+  }
+}
+
+// Floating animated shapes
+.floatingShape {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.07;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.8), transparent);
+    filter: blur(30px);
+  }
+  
+  &.shape2 {
+    bottom: 15%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.05), transparent);
+    filter: blur(35px);
+  }
+  
+  &.shape3 {
+    top: 40%;
+    left: 15%;
+    width: 200px;
+    height: 200px;
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+    background: linear-gradient(45deg, rgba(78, 205, 196, 0.5), transparent);
+    filter: blur(30px);
+  }
+}
