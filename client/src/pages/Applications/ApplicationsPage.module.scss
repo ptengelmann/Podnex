@@ -1,0 +1,103 @@
+@import '../../styles/variables';
+
+.applicationsPage {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 24px;
+  background-color: $black;
+  color: $white;
+}
+
+h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 32px;
+  color: $gold;
+}
+
+.loading,
+.error,
+.noApplications {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  font-size: 18px;
+  color: $gray;
+}
+
+.applicationsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.applicationCard {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+
+  .applicationStatus {
+    margin-top: 12px;
+    font-weight: 600;
+    color: $gray;
+  
+  
+    span {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+  }
+  
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-5px);
+  }
+}
+
+.applicationHeader {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 20px;
+    margin: 0 0 8px;
+    color: $white;
+  }
+
+  p {
+    color: $gray;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.applicationBody {
+  margin-bottom: 16px;
+
+  p {
+    color: $white;
+    font-size: 16px;
+    margin: 8px 0;
+
+    a {
+      color: $gold;
+      text-decoration: underline;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.applicationStatus {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+  color: $gray;
+}

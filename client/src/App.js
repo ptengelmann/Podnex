@@ -15,6 +15,7 @@ import ContactUs from './pages/ContactUs/ContactPage';
 import ContactPage from './pages/ContactUs/ContactPage';
 import PricingSection from './pages/Pricing/PricingSection';
 import Community from './pages/Community/Community';
+import ApplicationsPage from './pages/Applications/ApplicationsPage';
 
 const App = () => {
   return (
@@ -32,13 +33,24 @@ const App = () => {
         <Route path="/pricing" element={<PricingSection />} />
         <Route path="/community" element={<Community />} />
         <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <DashboardPage />
+    </ProtectedRoute>
+  }
+/>
+
+
+<Route
+  path="/applications"
+  element={
+    <ProtectedRoute>
+      <ApplicationsPage />
+    </ProtectedRoute>
+  }
+/>
+
       </Routes>
     </Layout>
   );
