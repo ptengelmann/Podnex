@@ -3,6 +3,15 @@
 **Build Bold. Build Together.**  
 A brand-led, people-powered ecosystem where creators form Pods to build and launch real-world products collaboratively.
 
+
+🚨 Intellectual Property Disclaimer
+
+The Podnex codebase is shared for educational and community contribution purposes only.
+The Podnex name, brand identity, and platform concept are protected.
+
+You may not clone, rebrand, or commercialize any part of this project without express written permission.
+Please refer to the LICENSE for full terms.
+
 ---
 
 ## 🚀 What is Podnex?
