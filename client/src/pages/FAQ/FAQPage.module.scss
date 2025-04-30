@@ -1,0 +1,800 @@
+@import '../../styles/variables';
+
+.faqPage {
+  width: 100%;
+  background-color: $black;
+  position: relative;
+  overflow: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  min-height: 100vh;
+}
+
+// Animated grid background
+.gridBackground {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  transform-origin: center;
+  z-index: 0;
+  will-change: transform;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, transparent 0%, $black 70%);
+  }
+}
+
+// Floating animated shapes
+.floatingShape {
+  position: fixed;
+  z-index: 1;
+  opacity: 0.1;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 300px;
+    height: 300px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.8), transparent);
+    filter: blur(40px);
+  }
+  
+  &.shape2 {
+    bottom: 25%;
+    left: 10%;
+    width: 350px;
+    height: 350px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(78, 205, 196, 0.5), transparent);
+    filter: blur(40px);
+  }
+  
+  &.shape3 {
+    top: 60%;
+    right: 15%;
+    width: 250px;
+    height: 250px;
+    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+    background: linear-gradient(45deg, rgba(107, 91, 149, 0.5), transparent);
+    filter: blur(40px);
+  }
+}
+
+// Header Section
+.headerSection {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 40px 80px;
+  position: relative;
+  z-index: 10;
+  
+  @media (max-width: 768px) {
+    padding: 100px 20px 60px;
+  }
+}
+
+.headerContent {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.badgeWrapper {
+  margin-bottom: 24px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(232, 197, 71, 0.1);
+  border: 1px solid rgba(232, 197, 71, 0.2);
+  color: rgba(232, 197, 71, 0.9);
+  padding: 10px 20px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(232, 197, 71, 0.1);
+  display: inline-flex;
+  
+  svg {
+    color: $gold;
+  }
+}
+
+.pageTitle {
+  font-size: 60px;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  letter-spacing: -1.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 48px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 36px;
+  }
+}
+
+.highlight {
+  position: relative;
+  display: inline-block;
+  color: $white;
+  z-index: 1;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background-color: $gold;
+    bottom: 8px;
+    left: 0;
+    z-index: -1;
+    transform: skewX(-10deg);
+    opacity: 0.6;
+  }
+}
+
+.pageLead {
+  font-size: 20px;
+  color: $gray;
+  margin-bottom: 40px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+}
+
+// Search functionality
+.searchWrapper {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  height: 60px;
+  width: 100%;
+  padding: 0 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 3;
+  
+  &:focus-within {
+    border-color: rgba(232, 197, 71, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 30px rgba(232, 197, 71, 0.1);
+  }
+  
+  .searchIcon {
+    color: $gray;
+    margin-right: 15px;
+  }
+  
+  input {
+    background: transparent;
+    border: none;
+    color: $white;
+    font-size: 16px;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    outline: none;
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  .clearSearch {
+    background: none;
+    border: none;
+    color: $gray;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: $white;
+    }
+  }
+}
+
+.searchResults {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 2;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.searchResultsHeader {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+.searchResultsList {
+  padding: 10px 0;
+}
+
+.searchResultItem {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .resultCategory {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .resultQuestion {
+    font-size: 16px;
+    color: $white;
+    font-weight: 500;
+  }
+}
+
+.noResults {
+  padding: 40px 20px;
+  text-align: center;
+  
+  .noResultsIcon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: $gray;
+  }
+  
+  h4 {
+    font-size: 18px;
+    color: $white;
+    margin: 0 0 10px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+// Main Content Area
+.faqContent {
+  display: flex;
+  padding: 0 40px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  
+  @media (max-width: 992px) {
+    flex-direction: column;
+    padding: 0 20px 60px;
+  }
+}
+
+// Category Navigation
+.categoryNav {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  align-self: flex-start;
+  transition: all 0.3s ease;
+  z-index: 2;
+  
+  @media (max-width: 992px) {
+    width: 100%;
+    position: relative;
+    margin-bottom: 40px;
+    top: 0 !important;
+  }
+}
+
+.navHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $white;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  svg {
+    opacity: 0.7;
+  }
+}
+
+.navItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+  
+  @media (max-width: 992px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 15px;
+  color: $gray;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: $white;
+  }
+  
+  &.active {
+    font-weight: 600;
+  }
+  
+  @media (max-width: 992px) {
+    width: auto;
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+    justify-content: center;
+    flex: 1 0 45%;
+  }
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  @media (max-width: 480px) {
+    margin: 0 auto;
+  }
+}
+
+.navText {
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.navFooter {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  color: $gray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  
+  svg {
+    margin-bottom: 5px;
+    color: $gold;
+  }
+  
+  span {
+    color: $white;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 992px) {
+    flex-direction: row;
+    justify-content: center;
+    padding: 12px 20px;
+    gap: 10px;
+    
+    svg {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.contactLink {
+  color: $gold;
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: $gold;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover:after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+// FAQ Sections
+.faqSections {
+  flex: 1;
+  padding-left: 60px;
+  
+  @media (max-width: 992px) {
+    padding-left: 0;
+  }
+}
+
+.faqSection {
+  margin-bottom: 60px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.sectionIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  
+  @media (max-width: 480px) {
+    font-size: 24px;
+  }
+}
+
+.questionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.questionItem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  
+  &.open {
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.questionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  
+  @media (max-width: 480px) {
+    padding: 15px 20px;
+  }
+}
+
+.question {
+  font-size: 18px;
+  font-weight: 600;
+  color: $white;
+  margin: 0;
+  padding-right: 30px;
+  
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
+}
+
+.toggleIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.answerContainer {
+  overflow: hidden;
+}
+
+.answer {
+  padding: 0 24px 20px;
+  color: $gray;
+  font-size: 16px;
+  line-height: 1.6;
+  
+  p {
+    margin: 0 0 12px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 20px 15px;
+    font-size: 15px;
+  }
+}
+
+// Contact Section
+.contactSection {
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 80px 40px;
+  position: relative;
+  z-index: 10;
+  margin-top: 40px;
+  
+  @media (max-width: 768px) {
+    padding: 60px 20px;
+  }
+}
+
+.contactContent {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.contactIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(232, 197, 71, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  color: $gold;
+}
+
+.contactContent {
+  h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: 16px;
+    
+    @media (max-width: 480px) {
+      font-size: 28px;
+    }
+  }
+  
+  p {
+    font-size: 18px;
+    color: $gray;
+    margin-bottom: 30px;
+    
+    @media (max-width: 480px) {
+      font-size: 16px;
+    }
+  }
+}
+
+.contactButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.primaryBtn {
+  padding: 16px 32px;
+  background-color: $white;
+  color: $black;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    background-color: $gold;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(232, 197, 71, 0.3);
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+.secondaryBtn {
+  padding: 16px 32px;
+  background-color: rgba(255, 255, 255, 0.03);
+  color: $white;
+  font-weight: 600;
+  font-size: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &:hover {
+    border-color: $gold;
+    color: $gold;
+    background-color: rgba(232, 197, 71, 0.05);
+    transform: translateY(-5px);
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+// Scroll progress bar
+.scrollProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.scrollProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, $gold, #6B5B95);
+  width: 0;
+  transition: width 0.2s ease-out;
+}

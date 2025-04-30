@@ -142,7 +142,7 @@ const Footer = () => {
                 <Link to="/faq">FAQ</Link>
               </motion.li>
               <motion.li variants={footerLinkVariants} whileHover="hover" whileTap="tap">
-                <Link to="/discover">Discover Pods</Link>
+                <Link to="/explore">Discover Pods</Link>
               </motion.li>
             </ul>
           </div>

@@ -15,6 +15,7 @@ import AboutPage from './pages/AboutPage/AboutPage';
 import ContactPage from './pages/ContactUs/ContactPage';
 import PricingSection from './pages/Pricing/PricingSection';
 import Community from './pages/Community/Community';
+import FAQPage from './pages/FAQ/FAQPage';
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
@@ -91,6 +92,7 @@ const App = () => {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/pricing" element={<PricingSection />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/faq" element={<FAQPage />} />
         
         {/* Role-based dashboard route */}
         <Route
