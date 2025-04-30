@@ -407,32 +407,6 @@
   }
 }
 
-.applicantInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: left;
-}
-
-.applicantAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $white;
-}
-
-.applicantInfo span {
-  font-size: 15px;
-  color: $white;
-  font-weight: 500;
-}
-
 .cardPreview {
   padding: 16px 20px;
   text-align: left;
@@ -487,12 +461,6 @@
   gap: 8px;
 }
 
-.actionButtons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .detailsButton {
   display: flex;
   align-items: center;
@@ -511,54 +479,7 @@
   }
 }
 
-.statusActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Updated styles for Accept and Reject buttons for creators */
-.acceptButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.3);
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  color: #4ECDC4;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(78, 205, 196, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.2);
-  }
-}
-
-.rejectButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(235, 77, 75, 0.1);
-  border: 1px solid rgba(235, 77, 75, 0.3);
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  color: #EB4D4B;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(235, 77, 75, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(235, 77, 75, 0.2);
-  }
-}
-
-/* Updated styles for Withdraw button for contributors */
+/* Withdraw button for contributors */
 .withdrawButton {
   display: flex;
   align-items: center;
@@ -623,32 +544,6 @@
   }
 }
 
-.expandedActions {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.messageButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(232, 197, 71, 0.1);
-  border: 1px solid rgba(232, 197, 71, 0.3);
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  color: $gold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(232, 197, 71, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(232, 197, 71, 0.2);
-  }
-}
-
 // Loading state
 .loadingContainer {
   display: flex;
@@ -694,27 +589,61 @@
 .errorContainer p {
   font-size: 16px;
   color: $gray;
-  margin: 0 0 32px 0;
+  margin: 0 0 16px 0;
   line-height: 1.6;
 }
 
-.retryButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.errorDetails {
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 24px;
+  width: 100%;
+  text-align: left;
+  
+  small {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+  }
+}
+
+.errorActions {
+  display: flex;
+  gap: 16px;
+}
+
+.retryButton {
+  background-color: rgba(255, 255, 255, 0.1);
   color: $white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
+  }
+}
+
+.loginButton {
+  background-color: rgba(78, 205, 196, 0.1);
+  color: #4ECDC4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(78, 205, 196, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.1);
   }
 }
 

@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence, useInView, useAnimation } from 'framer-motion';
 import {
-  Users,
   User,
   Search,
   Filter,
@@ -19,20 +18,15 @@ import {
   AlertCircle,
   Hourglass
 } from 'lucide-react';
-import styles from './ApplicationsPage.module.scss';
+import styles from './ApplicationsContributor.module.scss';
 
-const ApplicationsPage = () => {
-  // State management
+const ApplicationsContributor = () => {
+  // State management with reliable initialization
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-  
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'accepted', 'rejected'
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('all');
   const [expandedApplication, setExpandedApplication] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -42,35 +36,17 @@ const ApplicationsPage = () => {
   });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
-  const userRole = user?.role;
-
+  
   // Refs and animations
   const sectionRef = useRef(null);
   const inView = useInView(sectionRef, { once: false, threshold: 0.2 });
   const controls = useAnimation();
+  const initialLoadCompleted = useRef(false);
 
   // Get application counts
   const pendingCount = applications.filter(app => app.status === 'Pending').length;
   const acceptedCount = applications.filter(app => app.status === 'Accepted').length;
   const rejectedCount = applications.filter(app => app.status === 'Rejected').length;
-
-  // Enhanced display titles based on role
-  const getPageTitle = () => {
-    if (userRole === 'creator') {
-      return 'Applications Received';
-    } else {
-      return 'My Applications';
-    }
-  };
-  
-  // Get badge text based on role
-  const getBadgeText = () => {
-    if (userRole === 'creator') {
-      return 'CREATOR APPLICATIONS';
-    } else {
-      return 'MY APPLICATIONS';
-    }
-  };
 
   // Mouse parallax effect
   useEffect(() => {
@@ -105,71 +81,122 @@ const ApplicationsPage = () => {
     }
   }, [controls, inView]);
 
-  // Fetch applications
+  // Add a listener for storage changes (in case user logs in/out in another tab)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' || e.key === 'token') {
+        // Reload page when localStorage changes
+        window.location.reload();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Fetch applications with robust authentication
   useEffect(() => {
     const fetchApplications = async () => {
       try {
+        setLoading(true);
+        
+        // Check both localStorage items directly
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-  
-        if (!token || !storedUser) throw new Error('User not authenticated');
-  
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-  
-        const res = await axios.get('http://localhost:5000/api/applications', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        setApplications(res.data);
-        setLoading(false);
+        
+        if (!token || !storedUser) {
+          console.error('Authentication error: Missing token or user data');
+          setError('User not authenticated');
+          setLoading(false);
+          return;
+        }
+        
+        // Parse user data from localStorage
+        let currentUser;
+        try {
+          currentUser = JSON.parse(storedUser);
+          
+          // Ensure user object is valid - for contributor page
+          if (!currentUser || typeof currentUser !== 'object') {
+            console.error('Invalid user data format, not an object:', currentUser);
+            setError('Invalid user data format');
+            setLoading(false);
+            return;
+          }
+          
+          // Verify this is a contributor
+          if (currentUser.role !== 'contributor') {
+            console.warn('Non-contributor attempting to access contributor page');
+            setError('You do not have contributor access');
+            setLoading(false);
+            return;
+          }
+          
+          // Set user state
+          setUser(currentUser);
+          console.log('Successfully loaded contributor data:', currentUser);
+        } catch (parseError) {
+          console.error('Error parsing user data:', parseError);
+          setError('Invalid user data. Please log in again.');
+          setLoading(false);
+          return;
+        }
+        
+        // Make API request with proper error handling
+        try {
+          const res = await axios.get('http://localhost:5000/api/applications', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            timeout: 10000
+          });
+    
+          setApplications(res.data);
+          initialLoadCompleted.current = true;
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          
+          if (apiError.response) {
+            if (apiError.response.status === 401 || apiError.response.status === 403) {
+              setError('Authentication failed. Please log in again.');
+            } else {
+              setError(`Server error: ${apiError.response.status}`);
+            }
+          } else if (apiError.request) {
+            setError('No response from server. Please check your connection.');
+          } else {
+            setError('Failed to fetch applications');
+          }
+          
+          throw apiError;
+        }
       } catch (err) {
-        console.error(err);
-        setError('Failed to fetch applications');
+        console.error('Overall fetch applications error:', err);
+      } finally {
         setLoading(false);
       }
     };
   
-    fetchApplications();
-  }, []);
-  
-  // Update application status
-  const updateApplicationStatus = async (applicationId, newStatus) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      
-      if (!token) throw new Error('User not authenticated');
-      
-      await axios.patch(`http://localhost:5000/api/applications/${applicationId}/status`, 
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      
-      // Update the local state to reflect the change
-      setApplications(prevApplications => 
-        prevApplications.map(app => 
-          app._id === applicationId 
-            ? { ...app, status: newStatus } 
-            : app
-        )
-      );
-      
-      setLoading(false);
-    } catch (err) {
-      console.error('Failed to update application status:', err);
-      setError('Failed to update application status. Please try again.');
-      setLoading(false);
+    // Fetch data only if component is mounted
+    let isMounted = true;
+    if (isMounted) {
+      fetchApplications();
     }
-  };
+    
+    // Set up an interval to periodically refresh data
+    const refreshInterval = setInterval(() => {
+      if (initialLoadCompleted.current && isMounted) {
+        fetchApplications();
+      }
+    }, 30000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(refreshInterval);
+    };
+  }, []);
 
-  // Withdraw application
+  // Withdraw application - specific to contributors
   const withdrawApplication = async (applicationId) => {
     try {
       setLoading(true);
@@ -206,9 +233,7 @@ const ApplicationsPage = () => {
     // Filter by search term
     const searchMatch = 
       app.roleApplied.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (app.pod?.title && app.pod.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (userRole === 'creator' && app.applicant?.name && 
-       app.applicant.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      (app.pod?.title && app.pod.title.toLowerCase().includes(searchTerm.toLowerCase()));
     
     // Filter by status
     const statusMatch = 
@@ -291,7 +316,7 @@ const ApplicationsPage = () => {
           transition={{ repeat: Infinity, duration: 2 }}
           className={styles.loadingText}
         >
-          Loading applications...
+          Loading your applications...
         </motion.p>
       </div>
     );
@@ -304,12 +329,51 @@ const ApplicationsPage = () => {
         <AlertCircle size={48} className={styles.errorIcon} />
         <h2>Oops! Something went wrong</h2>
         <p>{error}</p>
-        <button
-          className={styles.retryButton}
-          onClick={() => window.location.reload()}
-        >
-          Try Again
-        </button>
+        <div className={styles.errorDetails}>
+          <small>If you continue to experience issues, please contact support.</small>
+        </div>
+        <div className={styles.errorActions}>
+          <button
+            className={styles.retryButton}
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+          <button
+            className={styles.loginButton}
+            onClick={() => window.location.href = '/login'}
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Auth error - if no user data is loaded
+  if (!user) {
+    return (
+      <div className={styles.errorContainer}>
+        <AlertCircle size={48} className={styles.errorIcon} />
+        <h2>Authentication Error</h2>
+        <p>Your session appears to be invalid. Please log in again.</p>
+        <div className={styles.errorDetails}>
+          <small>Debug info: User data missing or invalid</small>
+        </div>
+        <div className={styles.errorActions}>
+          <button
+            className={styles.retryButton}
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+          <button
+            className={styles.loginButton}
+            onClick={() => window.location.href = '/login'}
+          >
+            Go to Login
+          </button>
+        </div>
       </div>
     );
   }
@@ -344,7 +408,7 @@ const ApplicationsPage = () => {
         transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
       />
       
-      {/* Section Header */}
+      {/* Section Header - Contributor Specific */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -353,18 +417,15 @@ const ApplicationsPage = () => {
       >
         <div className={styles.badgeWrapper}>
           <span className={styles.badge}>
-            {getBadgeText()}
+            MY APPLICATIONS
           </span>
         </div>
         <h2 className={styles.sectionTitle}>
-          <span>{getPageTitle()}</span>
+          <span>My Applications</span>
           <span className={styles.highlight}> Tracker</span>
         </h2>
         <p className={styles.sectionSubtitle}>
-          {userRole === 'creator' 
-            ? 'Manage applications for your pod roles and find the right contributors'
-            : 'Track your applications to different pods and their current status'
-          }
+          Track your applications to different pods and their current status
         </p>
       </motion.div>
 
@@ -427,7 +488,7 @@ const ApplicationsPage = () => {
           <Search size={18} className={styles.searchIcon} />
           <input
             type="text"
-            placeholder={userRole === 'creator' ? "Search by role, pod, or applicant..." : "Search by role or pod..."}
+            placeholder="Search by role or pod..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
@@ -564,18 +625,16 @@ const ApplicationsPage = () => {
           transition={{ duration: 0.5 }}
         >
           <div className={styles.emptyStateIcon}>
-            {userRole === 'creator' ? <Users size={64} /> : <Briefcase size={64} />}
+            <Briefcase size={64} />
           </div>
           <h3>{searchTerm ? 'No matching applications found' : 'No applications yet'}</h3>
           <p>
             {searchTerm 
               ? 'Try adjusting your search or filters to find what you\'re looking for'
-              : userRole === 'creator'
-                ? 'When contributors apply to your pods, they\'ll appear here'
-                : 'Find interesting pods to collaborate with and submit your applications'
+              : 'Find interesting pods to collaborate with and submit your applications'
             }
           </p>
-          {userRole !== 'creator' && !searchTerm && (
+          {!searchTerm && (
             <motion.button 
               className={styles.emptyStateButton}
               whileHover={{ scale: 1.05 }}
@@ -620,15 +679,6 @@ const ApplicationsPage = () => {
                 </div>
               </div>
               
-              {userRole === 'creator' && (
-                <div className={styles.applicantInfo}>
-                  <div className={styles.applicantAvatar}>
-                    <User size={20} />
-                  </div>
-                  <span>{application.applicant?.name || 'Anonymous'}</span>
-                </div>
-              )}
-              
               <div className={styles.cardPreview}>
                 <div className={styles.previewItem}>
                   <span className={styles.previewLabel}>Experience</span>
@@ -654,32 +704,8 @@ const ApplicationsPage = () => {
                 </div>
                 
                 <div className={styles.rightActions}>
-                  {/* Creator can accept or reject pending applications */}
-                  {userRole === 'creator' && application.status === 'Pending' && (
-                    <div className={styles.actionButtons}>
-                      <motion.button 
-                        className={styles.acceptButton}
-                        onClick={() => updateApplicationStatus(application._id, 'Accepted')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <CheckCircle size={16} />
-                        Accept
-                      </motion.button>
-                      <motion.button 
-                        className={styles.rejectButton}
-                        onClick={() => updateApplicationStatus(application._id, 'Rejected')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <XCircle size={16} />
-                        Reject
-                      </motion.button>
-                    </div>
-                  )}
-                  
-                  {/* Only contributors can withdraw pending applications */}
-                  {userRole === 'contributor' && application.status === 'Pending' && (
+                  {/* Contributors can withdraw pending applications */}
+                  {application.status === 'Pending' && (
                     <motion.button 
                       className={styles.withdrawButton}
                       onClick={() => withdrawApplication(application._id)}
@@ -726,19 +752,6 @@ const ApplicationsPage = () => {
                         </a>
                       </div>
                     )}
-                    
-                    <div className={styles.expandedActions}>
-                      {userRole === 'creator' && (
-                        <motion.button 
-                          className={styles.messageButton}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <MessageSquare size={16} />
-                          Message Applicant
-                        </motion.button>
-                      )}
-                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -750,4 +763,4 @@ const ApplicationsPage = () => {
   );
 };
 
-export default ApplicationsPage;
+export default ApplicationsContributor;
