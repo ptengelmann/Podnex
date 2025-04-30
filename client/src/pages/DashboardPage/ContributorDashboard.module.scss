@@ -1,0 +1,984 @@
+@import '../../styles/variables';
+
+.contributorDashboard {
+  width: 100%;
+  padding: 40px 32px;
+  color: $white;
+  position: relative;
+  overflow: hidden;
+  
+  // Animated grid background
+  .gridBackground {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    transform-origin: center;
+    z-index: 0;
+    will-change: transform;
+  }
+  
+  // Floating animated shapes
+  .floatingShape {
+    position: absolute;
+    z-index: 1;
+    opacity: 0.05;
+    
+    &.shape1 {
+      top: 15%;
+      right: 10%;
+      width: 250px;
+      height: 250px;
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      background: linear-gradient(45deg, rgba(232, 197, 71, 0.8), transparent);
+      filter: blur(30px);
+    }
+    
+    &.shape2 {
+      bottom: 15%;
+      left: 10%;
+      width: 300px;
+      height: 300px;
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      background: linear-gradient(45deg, rgba(255, 255, 255, 0.05), transparent);
+      filter: blur(35px);
+    }
+  }
+}
+
+// Loading State
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(232, 197, 71, 0.3);
+    border-top-color: $gold;
+    border-radius: 50%;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+// Dashboard Header
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .headerLeft {
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+    }
+    
+    .highlight {
+      position: relative;
+      display: inline-block;
+      color: $white;
+      z-index: 1;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 8px;
+        background-color: $gold;
+        bottom: 4px;
+        left: 0;
+        z-index: -1;
+        transform: skewX(-10deg);
+        opacity: 0.5;
+      }
+    }
+  }
+  
+  .userMeta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .planBadge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .trustLevel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: $gray;
+    font-size: 13px;
+  }
+  
+  .headerRight {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  .notificationBell {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .notificationCount {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background-color: $gold;
+      color: $black;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  .explorePodButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.8) 0%, rgba(78, 205, 196, 1) 100%);
+    color: $black;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+    }
+  }
+}
+
+// Section Headers & Structure
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  position: relative;
+  z-index: 2;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background-color: $gold;
+    border-radius: 2px;
+  }
+}
+
+.sectionHeaderWithAction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .viewAllLink {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: $gray;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: $gold;
+    }
+  }
+}
+
+// Stats Section
+.statsSection {
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  &:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    
+    &:after {
+      opacity: 0.1;
+    }
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+  }
+  
+  .statIconContainer {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  
+  h3 {
+    margin: 0 0 6px 0;
+    font-size: 28px;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: $gray;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Two Column Layout
+.twoColumnSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// XP Section
+.xpSection {
+  position: relative;
+  z-index: 2;
+}
+
+.xpCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  height: 100%;
+}
+
+.xpHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .tier {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+.xpProgressBar {
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  
+  .fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(232, 197, 71, 0.6) 0%, rgba(232, 197, 71, 1) 100%);
+    border-radius: 5px;
+    transition: width 0.8s ease-out;
+  }
+}
+
+.xpFooter {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: $gray;
+  margin-bottom: 24px;
+}
+
+.xpBenefits {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.benefitItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .benefitIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background-color: rgba(232, 197, 71, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gold;
+  }
+  
+  .benefitText {
+    font-size: 14px;
+    color: $gray;
+  }
+}
+
+// Your Pods Section
+.yourPodsSection {
+  position: relative;
+  z-index: 2;
+}
+
+.podsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.podItem {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.podHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .podMeta {
+    display: flex;
+    gap: 12px;
+    
+    .podRole {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background-color: rgba(78, 205, 196, 0.1);
+      color: #4ECDC4;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+  }
+}
+
+.podProgressSection {
+  margin-bottom: 16px;
+  
+  .podProgressLabel {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: $gray;
+    
+    .podProgressText {
+      color: $white;
+    }
+  }
+  
+  .podTeamMembers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+    
+    .teamLabel {
+      color: $gray;
+    }
+    
+    .teamCount {
+      color: $white;
+    }
+  }
+}
+
+.podDetailsLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 13px;
+  color: $white;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(78, 205, 196, 0.1);
+    color: #4ECDC4;
+  }
+}
+
+// Empty States
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 40px 20px;
+  text-align: center;
+  
+  .emptyIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: $gray;
+  }
+  
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    color: $gray;
+    max-width: 280px;
+  }
+  
+  .emptyStateButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: rgba(78, 205, 196, 0.1);
+    color: #4ECDC4;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(78, 205, 196, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Activity Section
+.activitySection {
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.activityFilter {
+  .activityFilterSelect {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: $white;
+    padding: 8px 16px;
+    font-size: 14px;
+    
+    option {
+      background-color: $black;
+    }
+  }
+}
+
+.activityFeed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .activityIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    background-color: rgba(78, 205, 196, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4ECDC4;
+    flex-shrink: 0;
+  }
+  
+  .activityContent {
+    flex: 1;
+    
+    .activityText {
+      margin-bottom: 6px;
+      font-size: 14px;
+      
+      strong {
+        color: $white;
+        font-weight: 600;
+      }
+    }
+    
+    .activityMeta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      
+      .activityTime {
+        font-size: 12px;
+        color: $gray;
+      }
+      
+      .activityStatus {
+        font-size: 12px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        
+        &.statusPending {
+          background-color: rgba(232, 197, 71, 0.1);
+          color: $gold;
+        }
+        
+        &.statusAccepted {
+          background-color: rgba(78, 205, 196, 0.1);
+          color: #4ECDC4;
+        }
+        
+        &.statusRejected {
+          background-color: rgba(255, 107, 107, 0.1);
+          color: #FF6B6B;
+        }
+      }
+    }
+  }
+  
+  .activityAction {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $white;
+    }
+  }
+}
+
+.emptyActivity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 40px 20px;
+  color: $gray;
+  gap: 16px;
+}
+
+// Insights Section
+.insightsSection {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 40px;
+}
+
+.proTag {
+  background-color: rgba(232, 197, 71, 0.1);
+  color: $gold;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.upgradePlanButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: rgba(232, 197, 71, 0.1);
+  color: $gold;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(232, 197, 71, 0.2);
+  }
+}
+
+.proLockedFeature {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  
+  .lockedIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: rgba(232, 197, 71, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: $gold;
+  }
+  
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    color: $gray;
+  }
+  
+  .proFeaturesList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    
+    li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: $gray;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .proFeatureButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, rgba(232, 197, 71, 0.8) 0%, rgba(232, 197, 71, 1) 100%);
+    color: $black;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 auto;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(232, 197, 71, 0.3);
+    }
+  }
+}
+
+.insightsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.insightCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+  }
+  
+  .insightHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+  }
+  
+  .insightContent {
+    text-align: center;
+    
+    .insightTitle {
+      font-size: 14px;
+      color: $gray;
+      margin-bottom: 8px;
+    }
+    
+    .insightValue {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #4ECDC4;
+    }
+    
+    .insightDescription {
+      font-size: 13px;
+      color: $gray;
+    }
+    
+    .insightEmpty {
+      color: $gray;
+      font-size: 14px;
+      padding: 16px 0;
+    }
+  }
+}
+
+// Quick Actions
+.quickActionsSection {
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+  }
+}
+
+.quickActionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actionCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .actionIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  
+  .actionText {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

@@ -4,7 +4,8 @@ import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import LoginPage from './pages/LoginPage/LoginPage';
-import DashboardPage from './pages/DashboardPage/DashboardPage';
+import CreatorDashboard from './pages/DashboardPage/CreatorDashboard';
+import ContributorDashboard from './pages/DashboardPage/ContributorDashboard';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import PodDetailPage from './pages/PodDetailPage/PodDetailPage';
@@ -14,12 +15,12 @@ import AboutPage from './pages/AboutPage/AboutPage';
 import ContactPage from './pages/ContactUs/ContactPage';
 import PricingSection from './pages/Pricing/PricingSection';
 import Community from './pages/Community/Community';
-// Import the new role-specific components
+// Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
 
-// RoleBasedRoute component for handling role-specific routing - UPDATED
-const RoleBasedRoute = ({ children }) => {
+// RoleBasedRoute component for handling role-specific routing
+const RoleBasedRoute = ({ componentType }) => {
   try {
     const storedUser = localStorage.getItem('user');
     
@@ -40,27 +41,36 @@ const RoleBasedRoute = ({ children }) => {
       // Add a default role to the user object in localStorage
       const updatedUser = { ...user, role: 'contributor' };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      return <ApplicationsContributor />;
+      
+      // Return appropriate component based on the requested component type
+      return componentType === 'dashboard' 
+        ? <ContributorDashboard /> 
+        : <ApplicationsContributor />;
     }
     
     // Normalize role to lowercase for case-insensitive comparison
     const normalizedRole = user.role.toLowerCase();
     console.log('Normalized role:', normalizedRole);
     
-    // Return the appropriate component based on normalized role
-    if (normalizedRole === 'contributor') {
-      return <ApplicationsContributor />;
-    } else if (normalizedRole === 'creator') {
-      return <ApplicationsCreator />;
+    // Return the appropriate component based on normalized role and component type
+    if (componentType === 'dashboard') {
+      if (normalizedRole === 'creator') {
+        return <CreatorDashboard />;
+      } else {
+        return <ContributorDashboard />;
+      }
+    } else if (componentType === 'applications') {
+      if (normalizedRole === 'creator') {
+        return <ApplicationsCreator />;
+      } else {
+        return <ApplicationsContributor />;
+      }
     } else {
-      console.warn(`Unknown role "${user.role}", defaulting to contributor view`);
-      // Update localStorage with a valid role
-      const updatedUser = { ...user, role: 'contributor' };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return <ApplicationsContributor />;
+      console.warn(`Unknown component type "${componentType}", defaulting to contributor view`);
+      return <ContributorDashboard />;
     }
   } catch (e) {
-    console.error('Error parsing user data for applications route:', e);
+    console.error(`Error parsing user data for ${componentType} route:`, e);
     // On error, redirect to login
     return <Navigate to="/login" />;
   }
@@ -81,11 +91,13 @@ const App = () => {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/pricing" element={<PricingSection />} />
         <Route path="/community" element={<Community />} />
+        
+        {/* Role-based dashboard route */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <RoleBasedRoute componentType="dashboard" />
             </ProtectedRoute>
           }
         />
@@ -95,7 +107,7 @@ const App = () => {
           path="/applications"
           element={
             <ProtectedRoute>
-              <RoleBasedRoute />
+              <RoleBasedRoute componentType="applications" />
             </ProtectedRoute>
           }
         />
