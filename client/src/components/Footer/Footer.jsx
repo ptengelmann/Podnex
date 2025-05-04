@@ -78,6 +78,20 @@ const Footer = () => {
                 <path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </motion.a>
+
+            <motion.a 
+  href="https://www.reddit.com/r/podnex/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  variants={socialIconVariants}
+  whileHover="hover"
+  whileTap="tap"
+  aria-label="Reddit"
+>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 12.256c0-1.188-.962-2.15-2.15-2.15a2.15 2.15 0 00-1.857 1.07c-1.022-.68-2.35-1.1-3.827-1.16l.61-2.87 2.03.48a1.618 1.618 0 001.6 1.34 1.613 1.613 0 100-3.226 1.61 1.61 0 00-1.57 1.235l-2.3-.55a.375.375 0 00-.454.28l-.71 3.36c-1.48.05-2.822.47-3.847 1.15a2.15 2.15 0 00-1.856-1.06 2.15 2.15 0 00-.003 4.3h.005c-.04.25-.06.51-.06.78 0 2.75 3.58 4.99 8 4.99s8-2.24 8-4.99c0-.27-.02-.53-.06-.78h.01ZM8.79 14.39a1.075 1.075 0 11.002-2.15 1.075 1.075 0 01-.002 2.15Zm6.42 0a1.075 1.075 0 110-2.15 1.075 1.075 0 010 2.15Zm-6.15 2.08c.91.62 2.18.95 3.44.95 1.26 0 2.53-.33 3.44-.95a.37.37 0 01.52.1.37.37 0 01-.1.52c-1.06.73-2.44 1.12-3.86 1.12s-2.8-.4-3.86-1.12a.37.37 0 01-.1-.52.37.37 0 01.52-.1Z" fill="currentColor"/>
+  </svg>
+</motion.a>
             <motion.a 
               href="https://instagram.com" 
               target="_blank" 

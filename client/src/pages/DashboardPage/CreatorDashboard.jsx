@@ -568,7 +568,7 @@ const CreatorDashboard = () => {
           </a>
           
           {!isPro ? (
-            <a href="/upgrade" className={styles.actionCard} style={{ backgroundColor: 'rgba(232, 197, 71, 0.08)' }}>
+            <a href="/pricing" className={styles.actionCard} style={{ backgroundColor: 'rgba(232, 197, 71, 0.08)' }}>
               <div className={styles.actionIcon} style={{ color: '#E8C547' }}>
                 <Zap size={24} />
               </div>
