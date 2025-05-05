@@ -8,6 +8,40 @@ APP_CONTAINER="podnex-app"
 APP_IMAGE="podnex-app:latest"
 MONGODB_IMAGE="mongo:latest"
 
+# JWT Secret management
+JWT_SECRET_FILE=".jwt_secret"
+JWT_ROTATION_FILE=".jwt_rotation"
+
+# Check if we need to rotate the JWT secret (weekly rotation)
+rotate_jwt_secret() {
+  if [ ! -f "$JWT_ROTATION_FILE" ]; then
+    # First time setup - create rotation timestamp
+    date +%s > "$JWT_ROTATION_FILE"
+    return 0
+  else
+    current_time=$(date +%s)
+    last_rotation=$(cat "$JWT_ROTATION_FILE")
+    # 604800 seconds = 1 week
+    if [ $((current_time - last_rotation)) -ge 604800 ]; then
+      echo "JWT secret is over a week old. Rotating..."
+      date +%s > "$JWT_ROTATION_FILE"
+      return 0
+    fi
+  fi
+  return 1
+}
+
+# Generate or retrieve JWT secret
+get_jwt_secret() {
+  if [ ! -f "$JWT_SECRET_FILE" ] || rotate_jwt_secret; then
+    echo "Generating new JWT secret..."
+    openssl rand -base64 64 | tr -d '\n' > "$JWT_SECRET_FILE"
+    chmod 600 "$JWT_SECRET_FILE"  # Secure the file with restrictive permissions
+  fi
+  
+  cat "$JWT_SECRET_FILE"
+}
+
 # Function to check if an image exists
 image_exists() {
   podman image exists "$1"
@@ -121,6 +155,10 @@ podman run --rm $APP_IMAGE ls -la /app/server/public || {
   echo "The React client may not be properly built or included."
 }
 
+# Get or generate JWT secret with weekly rotation
+JWT_SECRET=$(get_jwt_secret)
+echo "Using JWT secret from $JWT_SECRET_FILE (rotated weekly)"
+
 # Run the Podnex application container in the same pod
 echo "Starting Podnex application container in the pod..."
 podman run -d \
@@ -129,6 +167,8 @@ podman run -d \
   -e NODE_ENV=production \
   -e PORT=5000 \
   -e MONGO_URI="mongodb://podnex_admin:podnex_secure_password@localhost:27017/podnex?authSource=admin" \
+  -e JWT_SECRET="$JWT_SECRET" \
+  -e JWT_EXPIRE="30d" \
   $APP_IMAGE
 
 echo "Checking if Podnex application started correctly..."
