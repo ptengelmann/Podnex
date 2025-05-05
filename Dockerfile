@@ -35,6 +35,9 @@ RUN npm install
 # Copy server source code
 COPY server/ ./
 
+# Create public directory if it doesn't exist
+RUN mkdir -p ./public
+
 # ============================================================
 # Stage 3: Final production image
 # ============================================================
@@ -49,8 +52,14 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Copy server from server-builder stage
 COPY --from=server-builder /app/server /app/server
 
+# Explicitly create the public directory
+RUN mkdir -p /app/server/public
+
 # Copy built client files from client-builder stage to the server's public directory
-COPY --from=client-builder /app/client/build /app/server/public
+COPY --from=client-builder /app/client/build/ /app/server/public/
+
+# List the contents to verify files are copied correctly
+RUN ls -la /app/server/public/
 
 # Set ownership
 RUN chown -R appuser:appgroup /app
