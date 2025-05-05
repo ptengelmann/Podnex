@@ -47,7 +47,7 @@ const Footer = () => {
             <span className={styles.logoText}>PODNEX</span>
           </Link>
           <p className={styles.footerTagline}>
-            Connect, collaborate, and create amazing podcasts together
+            Connect, collaborate, and create amazing projects together
           </p>
           
           {/* Social Icons */}

@@ -1,634 +1,1714 @@
 @import '../../styles/variables';
 
-// Main container
 .createPodPage {
   width: 100%;
   min-height: 100vh;
   background-color: $black;
   color: $white;
-  padding: 3rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, $gold, transparent);
-    opacity: 0.6;
-  }
-}
-
-// Page header with animation
-.pageHeader {
-  text-align: center;
-  margin-bottom: 3rem;
-  position: relative;
-  
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background-color: $gold;
-    border-radius: 3px;
-  }
-  
-  h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: $white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  
-  .subtitle {
-    color: $gray;
-    font-size: 1.1rem;
-    font-weight: 400;
-  }
-}
-
-// Content wrapper for form and preview
-.contentWrapper {
-  width: 100%;
-  max-width: 800px;
-  position: relative;
-}
-
-// Form container
-.formContainer {
-  width: 100%;
-  padding: 2rem;
-  background-color: lighten($black, 3%);
-  border-radius: 12px;
-  border: 1px solid rgba($gray, 0.3);
   position: relative;
   overflow: hidden;
   
-  // Decorative element similar to PodCard
-  &::before {
-    content: "";
+  // Enhanced animated grid background
+  .gridBackground {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 40%;
-    height: 4px;
-    background: linear-gradient(90deg, $gold, transparent);
-    opacity: 0.6;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    transform-origin: center;
+    z-index: 0;
+    will-change: transform;
   }
-}
 
-// Form styling
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.formLabel {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: $white;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &::after {
-    content: "";
-    height: 1px;
-    flex: 1;
-    background-color: rgba($gray, 0.3);
+  // Floating shapes with premium effects
+  .floatingShape {
+    position: absolute;
+    z-index: 1;
+    opacity: 0.05;
+    
+    &.shape1 {
+      top: 10%;
+      right: 15%;
+      width: 400px;
+      height: 400px;
+      border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+      background: linear-gradient(135deg, rgba(232, 197, 71, 0.4), transparent);
+      filter: blur(60px);
+    }
+    
+    &.shape2 {
+      bottom: 15%;
+      left: 10%;
+      width: 350px;
+      height: 350px;
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), transparent);
+      filter: blur(50px);
+    }
   }
-}
 
-.formInput, .formTextarea, .formSelect, .rolesInput {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1px solid rgba($gray, 0.3);
-  border-radius: 8px;
-  background: lighten($black, 5%);
-  color: $white;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: $gold;
-    box-shadow: 0 0 0 2px rgba($gold, 0.2);
+  // Container
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 24px 60px;
+    position: relative;
+    z-index: 2;
+    
+    @media (max-width: 768px) {
+      padding: 80px 16px 40px;
+    }
   }
-  
-  &::placeholder {
-    color: rgba($gray, 0.7);
+
+  // Header Section
+  .headerSection {
+    margin-bottom: 60px;
   }
-}
 
-.formTextarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.statusSelectWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.formSelect {
-  appearance: none;
-  padding-right: 2.5rem;
-  cursor: pointer;
-  
-  option {
-    background-color: lighten($black, 8%);
-    color: $white;
-  }
-}
-
-.statusIndicator {
-  position: absolute;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-}
-
-.statusDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-// Roles input container
-.rolesInputContainer {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.addRoleButton {
-  background-color: rgba($gold, 0.2);
-  color: $gold;
-  border: 1px solid rgba($gold, 0.3);
-  border-radius: 8px;
-  padding: 0 1rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: rgba($gold, 0.3);
-  }
-}
-
-// Roles preview
-.rolesPreview {
-  margin-top: 1rem;
-}
-
-.rolesList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.roleTag {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  background-color: rgba($gray, 0.15);
-  color: $gray;
-  padding: 0.4rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border: 1px solid rgba($gray, 0.2);
-  
-  &:hover {
-    background-color: rgba($gray, 0.25);
-    border-color: rgba($gray, 0.3);
-    color: $white;
-  }
-  
-  .removeRoleBtn {
-    background: transparent;
-    border: none;
-    color: inherit;
+  .breadcrumbs {
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 2px;
+    gap: 8px;
+    font-size: 14px;
+    color: $gray;
+    margin-bottom: 40px;
+    
+    span {
+      cursor: pointer;
+      transition: color 0.2s ease;
+      
+      &:hover:not(.current) {
+        color: $white;
+      }
+      
+      &.current {
+        color: $gold;
+        font-weight: 500;
+      }
+    }
+    
+    svg {
+      opacity: 0.5;
+    }
+  }
+
+  .titleSection {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .iconWrapper {
+    display: inline-flex;
+    position: relative;
+    margin-bottom: 24px;
+    
+    svg {
+      color: $gold;
+    }
+  }
+
+  .iconGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: $gold;
     border-radius: 50%;
+    filter: blur(20px);
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+  }
+
+  h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, $white 40%, rgba(232, 197, 71, 0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+    
+    @media (max-width: 768px) {
+      font-size: 40px;
+    }
+  }
+
+  h1 + p {
+    font-size: 20px;
+    color: $gray;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  // Progress section
+  .progressSection {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .progressHeader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: $gray;
+    margin-bottom: 8px;
+    
+    span:last-child {
+      color: $gold;
+      font-weight: 600;
+    }
+  }
+
+  .progressBar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, $gold, #F59E0B);
+    border-radius: 8px;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        transparent 100%
+      );
+      animation: shimmer 2s infinite;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  // Content Area
+  .contentArea {
+    margin-top: 40px;
+  }
+
+  .formSection {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  // Tab Navigation
+  .tabNavigation {
+    display: flex;
+    gap: 2px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+  }
+
+  .tabButton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: $gray;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
     
     &:hover {
-      background-color: rgba($white, 0.1);
-    }
-  }
-}
-
-// Form actions
-.formActions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-  gap: 1rem;
-}
-
-.previewButton, .submitButton, .backToEditButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 0.75rem 1.25rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.previewButton {
-  background-color: rgba($white, 0.1);
-  color: $white;
-  
-  &:hover {
-    background-color: rgba($white, 0.15);
-  }
-}
-
-.submitButton {
-  background-color: $gold;
-  color: $black;
-  flex: 1;
-  max-width: 200px;
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.backToEditButton {
-  background-color: transparent;
-  color: $gray;
-  border: 1px solid rgba($gray, 0.3);
-  
-  &:hover {
-    color: $white;
-    border-color: rgba($white, 0.3);
-  }
-}
-
-// Loading spinner
-.loadingSpinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba($black, 0.3);
-  border-radius: 50%;
-  border-top-color: $black;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-// Preview container
-.previewContainer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.previewHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: $white;
-  }
-}
-
-// Pod card preview - similar to PodCard styling
-.podCardPreview {
-  background-color: lighten($black, 3%);
-  border: 1px solid rgba($gray, 0.3);
-  padding: 1.5rem;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  
-  // Decorative element in top left corner
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 40%;
-    height: 4px;
-    background: linear-gradient(90deg, $gold, transparent);
-    opacity: 0.6;
-    transition: width 0.3s ease;
-  }
-  
-  &:hover {
-    border-color: rgba($gold, 0.6);
-    background-color: lighten($black, 5%);
-    
-    &::before {
-      width: 100%;
-      opacity: 1;
-    }
-    
-    .status {
-      border-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .cardTitle {
+      background: rgba(255, 255, 255, 0.05);
       color: $white;
     }
     
-    .viewPodIndicator {
-      svg {
-        transform: translateX(4px);
+    &.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: $gold;
+    }
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .activeIndicator {
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: $gold;
+    border-radius: 3px 3px 0 0;
+  }
+
+  // Tab Content
+  .tabContent {
+    padding: 40px;
+    
+    @media (max-width: 768px) {
+      padding: 24px;
+    }
+  }
+
+  // Form Styles
+  .formGroup {
+    margin-bottom: 32px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .formLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $white;
+    margin-bottom: 12px;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $gold;
+    }
+    
+    .required {
+      color: #FF4D4D;
+      margin-left: 4px;
+    }
+  }
+
+  .inputWrapper {
+    position: relative;
+  }
+
+  .formInput, .formTextarea, .formSelect {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: $white;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    
+    &::placeholder {
+      color: rgba($gray, 0.6);
+    }
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: $gold;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba($gold, 0.1);
+    }
+    
+    &.error {
+      border-color: #FF4D4D;
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.1);
       }
     }
   }
-}
 
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.status {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 0.3s ease;
-}
-
-// Status variations - same as PodCard
-.statusOpen {
-  color: #34D399;
-  
-  .statusDot {
-    background-color: #34D399;
-    box-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+  .formTextarea {
+    min-height: 120px;
+    resize: vertical;
   }
-}
 
-.statusInProgress {
-  color: #FBBF24;
-  
-  .statusDot {
-    background-color: #FBBF24;
-    box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
-  }
-}
-
-.statusLive {
-  color: #818CF8;
-  
-  .statusDot {
-    background-color: #818CF8;
-    box-shadow: 0 0 5px rgba(129, 140, 248, 0.5);
-  }
-}
-
-.statusDraft {
-  color: #9CA3AF;
-  
-  .statusDot {
-    background-color: #9CA3AF;
-    box-shadow: 0 0 5px rgba(156, 163, 175, 0.5);
-  }
-}
-
-.statusPreLaunch {
-  color: #F472B6;
-  
-  .statusDot {
-    background-color: #F472B6;
-    box-shadow: 0 0 5px rgba(244, 114, 182, 0.5);
-  }
-}
-
-.statusArchived {
-  color: #6B7280;
-  
-  .statusDot {
-    background-color: #6B7280;
-    box-shadow: 0 0 5px rgba(107, 114, 128, 0.5);
-  }
-}
-
-.cardActions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.bookmarkBtn {
-  background: transparent;
-  border: none;
-  color: $gray;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    color: $white;
-  }
-}
-
-.cardTitle {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: $white;
-  margin-bottom: 1rem;
-  line-height: 1.3;
-  transition: color 0.3s ease;
-}
-
-.creatorInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  margin-bottom: 1.25rem;
-}
-
-.creatorAvatar {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  background-color: rgba($gold, 0.2);
-  color: $gold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-}
-
-.creator {
-  font-size: 0.875rem;
-  color: $gray;
-  margin: 0;
-}
-
-.missionPreview {
-  background-color: rgba($white, 0.03);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
-  border-left: 3px solid rgba($gold, 0.3);
-  
-  p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: rgba($white, 0.8);
-    line-height: 1.5;
-  }
-}
-
-.rolesSection {
-  margin-top: auto;
-  margin-bottom: 1.25rem;
-}
-
-.rolesSectionHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-bottom: 0.75rem;
-  color: rgba($white, 0.6);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  
-  svg {
-    opacity: 0.7;
-  }
-}
-
-.roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.role {
-  background-color: rgba($gray, 0.15);
-  color: $gray;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border: 1px solid rgba($gray, 0.2);
-  
-  &:hover {
-    background-color: rgba($gray, 0.25);
-    border-color: rgba($gray, 0.3);
-    color: $white;
-  }
-}
-
-.cardFooter {
-  margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid rgba($gray, 0.1);
-}
-
-.viewPodIndicator {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  color: $gold;
-  font-size: 0.875rem;
-  font-weight: 600;
-  
-  svg {
-    transition: transform 0.3s ease;
-  }
-}
-
-.previewActions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
-}
-
-// Responsive styles
-@media (max-width: 768px) {
-  .pageHeader {
-    h1 {
-      font-size: 2.25rem;
-    }
-  }
-  
-  .formActions {
-    flex-direction: column;
+  .formSelect {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+    cursor: pointer;
     
-    .submitButton {
-      max-width: 100%;
+    option {
+      background: $black;
+      color: $white;
+      padding: 8px;
     }
   }
-}
 
-@media (max-width: 480px) {
-  .createPodPage {
-    padding: 2rem 1rem;
+  .charCount {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    font-size: 12px;
+    color: $gray;
+    opacity: 0.6;
   }
-  
-  .pageHeader {
-    h1 {
-      font-size: 1.75rem;
+
+  .errorMessage {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #FF4D4D;
+  }
+
+  // Category Grid
+  .categoryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+
+  .categoryCard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    &.selected {
+      background: rgba($gold, 0.1);
+      border-color: rgba($gold, 0.3);
+      color: $gold;
     }
   }
-  
-  .formContainer {
-    padding: 1.25rem;
+
+  .categoryIcon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .selectedIndicator {
+    position: absolute;
+    inset: -1px;
+    border: 2px solid $gold;
+    border-radius: 16px;
+    pointer-events: none;
+  }
+
+  // Format Grid
+  .formatGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .formatCard {
+    position: relative;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    &.selected {
+      background: rgba($gold, 0.1);
+      border-color: rgba($gold, 0.3);
+    }
+    
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 14px;
+      color: $gray;
+      margin: 0;
+    }
+    
+    .checkIcon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: $gold;
+    }
+  }
+
+  // Role Management
+  .quickTemplates {
+    margin-bottom: 40px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 16px;
+    }
+  }
+
+  .templateGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .templateCard {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 14px;
+      color: $gray;
+      margin: 0;
+    }
+  }
+
+  .roleForm {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 24px;
+    }
+  }
+
+  .formRow {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .addButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: $gold;
+    border: none;
+    border-radius: 12px;
+    color: $black;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: lighten($gold, 5%);
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .rolesList {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 24px;
+    }
+  }
+
+  .rolesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .roleCard {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .roleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    
+    h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+    }
+  }
+
+  .removeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+    border-radius: 8px;
+    color: #FF4D4D;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 77, 77, 0.1);
+      border-color: rgba(255, 77, 77, 0.5);
+    }
+  }
+
+  .roleMeta {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: $gray;
+      
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  // Skills Section
+  .skillsSection {
+    margin-top: 32px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 16px;
+    }
+  }
+
+  .skillInputWrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .skillSuggestions {
+    margin-bottom: 24px;
+    
+    p {
+      font-size: 14px;
+      color: $gray;
+      margin-bottom: 12px;
+    }
+  }
+
+  .suggestionTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .suggestionTag {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: $gray;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: $white;
+    }
+  }
+
+  .addedSkills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .skillTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba($gold, 0.1);
+    border: 1px solid rgba($gold, 0.2);
+    border-radius: 20px;
+    color: $gold;
+    font-size: 13px;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .removeTagButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: 4px;
+    background: transparent;
+    border: none;
+    color: currentColor;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // Requirements Section
+  .requirementsSection {
+    margin-top: 40px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 16px;
+    }
+  }
+
+  .requirementInputWrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .requirementsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .requirementItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    
+    svg {
+      color: $gold;
+      flex-shrink: 0;
+    }
+    
+    span {
+      flex: 1;
+      font-size: 14px;
+      color: $white;
+    }
+    
+    .removeButton {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  // Milestones
+  .milestoneForm {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 24px;
+    }
+  }
+
+  .milestonesTimeline {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 24px;
+    }
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .timelineItem {
+    position: relative;
+    margin-bottom: 32px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .timelineDot {
+    position: absolute;
+    left: -32px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    background: $gold;
+    border: 3px solid $black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    
+    svg {
+      width: 10px;
+      height: 10px;
+      color: $black;
+    }
+  }
+
+  .timelineContent {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .timelineHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+    }
+  }
+
+  .timelineDate {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $gray;
+    margin-top: 12px;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Settings Tab
+  .settingsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .checkboxGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: $gold;
+    }
+    
+    span {
+      font-size: 14px;
+      color: $white;
+    }
+  }
+
+  .tagsSection {
+    margin-top: 40px;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 16px;
+    }
+  }
+
+  .tagInputWrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .addedTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: $white;
+    font-size: 13px;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $gray;
+    }
+  }
+
+  // Form Actions
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 24px 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      padding: 20px;
+    }
+  }
+
+  .previewButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: $white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .submitButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: $gold;
+    border: none;
+    border-radius: 12px;
+    color: $black;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: lighten($gold, 5%);
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  // Preview Mode
+  .previewMode {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 40px;
+    
+    @media (max-width: 768px) {
+      padding: 24px;
+    }
+  }
+
+  .previewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: $white;
+      margin: 0;
+    }
+  }
+
+  .backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: $white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  // Pod Preview Card (matches HelpFeed style)
+  .podPreviewCard {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+    
+    &:hover {
+      transform: translateY(-10px);
+      border-color: rgba($gold, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                  0 0 40px -15px $gold;
+    }
+  }
+
+  .cardHeader {
+    padding: 24px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .urgencyIndicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid currentColor;
+    
+    &.high {
+      color: #FF4D4D;
+      border-color: rgba(255, 77, 77, 0.3);
+    }
+    
+    &.medium {
+      color: #FBBF24;
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    
+    &.low {
+      color: #34D399;
+      border-color: rgba(52, 211, 153, 0.3);
+    }
+  }
+
+  .urgencyDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .matchBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(232, 197, 71, 0.1);
+    border: 1px solid rgba(232, 197, 71, 0.2);
+    border-radius: 20px;
+    color: $gold;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .podContent {
+    padding: 0 24px 24px;
+  }
+
+  .podTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: $white;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .podMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .metaItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $gray;
+    
+    svg {
+      opacity: 0.7;
+    }
+  }
+
+  .description {
+    font-size: 14px;
+    color: rgba($white, 0.8);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .rolesSection {
+    margin-bottom: 20px;
+    
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: $gray;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+  }
+
+  .rolesTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .roleTag {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    font-size: 13px;
+    color: $gray;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: $white;
+    }
+  }
+
+  .extraInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .infoItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $gray;
+    
+    svg {
+      opacity: 0.7;
+    }
+  }
+
+  .cardFooter {
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    gap: 12px;
+  }
+
+  .viewButton {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: $white;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .applyButton {
+    flex: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, $gold, #F59E0B);
+    border: none;
+    border-radius: 10px;
+    color: $black;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .previewActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 40px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+
+  .editButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: $white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .publishButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: $gold;
+    border: none;
+    border-radius: 12px;
+    color: $black;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: lighten($gold, 5%);
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  // Loading Spinner
+  .loadingSpinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba($black, 0.2);
+    border-top-color: $black;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Help Section
+  .helpSection {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .helpCard {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+    }
+    
+    > svg {
+      color: $gold;
+      flex-shrink: 0;
+    }
+  }
+
+  .helpContent {
+    flex: 1;
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 14px;
+      color: $gray;
+      margin-bottom: 16px;
+    }
+  }
+
+  .helpButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: $white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  // Success Modal
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .successModal {
+    background: $black;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: $white;
+      margin: 24px 0 16px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: $gray;
+      margin-bottom: 32px;
+    }
+  }
+
+  .successIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    background: rgba($gold, 0.1);
+    border-radius: 50%;
+    color: $gold;
+    
+    svg {
+      width: 64px;
+      height: 64px;
+    }
+  }
+
+  .celebrationEmojis {
+    font-size: 32px;
+    letter-spacing: 16px;
+  }
+
+  // Empty State
+  .emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    
+    svg {
+      color: $gray;
+      opacity: 0.3;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: $gray;
+      margin: 0;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 1200px) {
+    .container {
+      max-width: 1024px;
+    }
+    
+    .formatGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 992px) {
+    h1 {
+      font-size: 48px;
+    }
+    
+    .categoryGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 80px 16px 40px;
+    }
+    
+    h1 {
+      font-size: 36px;
+    }
+    
+    .headerSection {
+      margin-bottom: 40px;
+    }
+    
+    .tabNavigation {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+    
+    .tabContent {
+      padding: 24px;
+    }
+    
+    .categoryGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .formatGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .formRow {
+      grid-template-columns: 1fr;
+    }
+    
+    .settingsGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .container {
+      padding: 60px 16px 32px;
+    }
+    
+    h1 {
+      font-size: 28px;
+    }
+    
+    .breadcrumbs {
+      font-size: 12px;
+      margin-bottom: 32px;
+    }
+    
+    .tabButton {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+    
+    .categoryGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .roleForm {
+      padding: 20px;
+    }
+    
+    .rolesGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .formActions {
+      padding: 16px;
+    }
+    
+    .previewMode {
+      padding: 20px;
+    }
+  }
+
+  // Dark theme optimizations
+  @media (prefers-color-scheme: dark) {
+    .formInput, .formTextarea, .formSelect {
+      &:focus {
+        box-shadow: 0 0 0 3px rgba($gold, 0.15);
+      }
+    }
+    
+    .categoryCard, .formatCard, .templateCard {
+      &:hover {
+        background: rgba(255, 255, 255, 0.07);
+      }
+    }
+  }
+
+  // Animations and transitions
+  * {
+    transition-property: background-color, border-color, transform, box-shadow;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
   }
   
-  .rolesInputContainer {
-    flex-direction: column;
+  // Prevent layout shifts
+  img, svg {
+    display: block;
+    max-width: 100%;
+  }
+  
+  button, a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  // Focus styles for accessibility
+  :focus-visible {
+    outline: 2px solid $gold;
+    outline-offset: 2px;
+  }
+  
+  // Custom scrollbar
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
   }
 }
