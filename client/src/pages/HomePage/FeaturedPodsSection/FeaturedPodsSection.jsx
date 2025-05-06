@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { 
   Code, 
   Paintbrush, 
@@ -17,79 +18,76 @@ import {
   Layers,
   Filter,
   Eye,
-  Activity
+  Activity,
+  MessageSquare,
+  Briefcase
 } from 'lucide-react';
 import styles from './FeaturedPodsSection.module.scss';
 
 const FeaturedPodsSection = () => {
-  // Featured pods data
-  const featuredPods = [
-    {
-      id: 'pod1',
-      title: 'Nomad Tools — Remote Worker Kit',
-      description: 'Essential tools for digital nomads working remotely around the world.',
-      status: 'In Progress',
-      category: 'Development',
-      urgency: 'medium',
-      progress: 65,
-      memberCount: 8,
-      maxMembers: 12,
-      roles: ['UI Designer', 'Marketing Specialist', 'Frontend Developer'],
-      creator: {
-        name: 'Alex Morgan',
-        avatar: null
-      },
-      skills: ['React', 'UI/UX', 'Marketing'],
-      deadline: '2025-06-25T00:00:00.000Z',
-      featured: true
-    },
-    {
-      id: 'pod2',
-      title: 'EcoHome — Sustainable Living Products',
-      description: 'Products designed to reduce your environmental footprint at home.',
-      status: 'Open',
-      category: 'Design',
-      urgency: 'high',
-      progress: 30,
-      memberCount: 5,
-      maxMembers: 10,
-      roles: ['Sustainability Strategist', 'Content Writer', 'Product Tester'],
-      creator: {
-        name: 'Sam Chen',
-        avatar: null
-      },
-      skills: ['Sustainability', 'Content Creation', 'Product Design'],
-      deadline: '2025-07-15T00:00:00.000Z',
-      featured: true
-    },
-    {
-      id: 'pod3',
-      title: 'Pulse AI — Mental Health Tracker',
-      description: 'AI-powered app to track and improve mental wellbeing over time.',
-      status: 'Live',
-      category: 'Health Tech',
-      urgency: 'low',
-      progress: 100,
-      memberCount: 12,
-      maxMembers: 15,
-      roles: ['Marketing Specialist', 'Community Manager'],
-      creator: {
-        name: 'Jamie Williams',
-        avatar: null
-      },
-      skills: ['AI', 'Health Tech', 'Marketing'],
-      deadline: '2025-05-10T00:00:00.000Z',
-      featured: true
-    }
-  ];
-
+  // State for storing fetched pods
+  const [pods, setPods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [visiblePod, setVisiblePod] = useState(null);
+  
   // State for filters
   const [activeFilter, setActiveFilter] = useState('All');
-  const [visiblePod, setVisiblePod] = useState(featuredPods[0].id);
   const filters = ['All', 'Open', 'In Progress', 'Live'];
   
   // State for animation trigger
   const [isVisible, setIsVisible] = useState(false);
+
+  // Fetch pods from the backend
+  useEffect(() => {
+    const fetchPods = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get('http://localhost:5000/api/pods');
+        
+        // Sort by createdAt date (newest first) and take 5 most recent
+        const sortedPods = res.data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5);
+        
+        // Enhance pod data with default values for missing fields
+        const enhancedPods = sortedPods.map(pod => ({
+          ...pod,
+          id: pod._id, // Make sure we have id as a field
+          status: pod.status || 'Open',
+          category: pod.category || 'Development',
+          urgency: pod.urgency || 'medium',
+          progress: pod.progress || Math.floor(Math.random() * 70) + 20,
+          memberCount: pod.members?.length || 0,
+          maxMembers: pod.maxMembers || 10,
+          // Extract role titles if they are objects
+          roles: pod.rolesNeeded ? (
+            pod.rolesNeeded.map(role => 
+              typeof role === 'object' ? role.title : role
+            ).filter(Boolean)
+          ) : [],
+          creator: pod.creator || { name: 'Unknown Creator' },
+          skills: pod.skills || [],
+          featured: true
+        }));
+        
+        setPods(enhancedPods);
+        
+        // Set the first pod as visible if there are any pods
+        if (enhancedPods.length > 0) {
+          setVisiblePod(enhancedPods[0].id);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching pods:", err);
+        setError("Failed to load featured pods");
+        setLoading(false);
+      }
+    };
+    
+    fetchPods();
+  }, []);
 
   // Handle filter change
   const handleFilterChange = (filter) => {
@@ -98,11 +96,14 @@ const FeaturedPodsSection = () => {
 
   // Format deadline
   const formatDeadline = (date) => {
+    if (!date) return 'No deadline';
+    
     const deadline = new Date(date);
     const now = new Date();
     const diff = deadline - now;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
+    if (days < 0) return 'Expired';
     if (days < 1) return 'Today';
     if (days === 1) return 'Tomorrow';
     if (days < 7) return `${days} days left`;
@@ -112,6 +113,8 @@ const FeaturedPodsSection = () => {
 
   // Get category icon
   const getCategoryIcon = (category) => {
+    if (!category) return <Layers size={18} />;
+    
     switch(category.toLowerCase()) {
       case 'development':
         return <Code size={18} />;
@@ -119,6 +122,10 @@ const FeaturedPodsSection = () => {
         return <Paintbrush size={18} />;
       case 'marketing':
         return <TrendingUp size={18} />;
+      case 'content':
+        return <MessageSquare size={18} />;
+      case 'product':
+        return <Briefcase size={18} />;
       default:
         return <Layers size={18} />;
     }
@@ -126,6 +133,8 @@ const FeaturedPodsSection = () => {
 
   // Get status styling
   const getStatusColor = (status) => {
+    if (!status) return '#9CA3AF';
+    
     switch(status.toLowerCase()) {
       case 'open':
         return '#34D399';
@@ -140,6 +149,8 @@ const FeaturedPodsSection = () => {
 
   // Get urgency styling
   const getUrgencyColor = (urgency) => {
+    if (!urgency) return '#9CA3AF';
+    
     switch(urgency.toLowerCase()) {
       case 'high':
         return '#FF4D4D';
@@ -173,11 +184,61 @@ const FeaturedPodsSection = () => {
 
   // Filtered pods based on selected filter
   const filteredPods = activeFilter === 'All'
-    ? featuredPods
-    : featuredPods.filter(pod => pod.status === activeFilter);
+    ? pods
+    : pods.filter(pod => pod.status === activeFilter);
 
   // Get current pod
-  const currentPod = featuredPods.find(pod => pod.id === visiblePod);
+  const currentPod = pods.find(pod => pod.id === visiblePod) || (pods.length > 0 ? pods[0] : null);
+
+  // Loading state
+  if (loading) {
+    return (
+      <section className={styles.featuredSection}>
+        <div className={styles.container}>
+          <div className={styles.loadingState}>
+            <motion.div 
+              className={styles.loadingSpinner}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles size={24} />
+            </motion.div>
+            <p>Loading featured pods...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className={styles.featuredSection}>
+        <div className={styles.container}>
+          <div className={styles.errorState}>
+            <p>{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Empty state
+  if (pods.length === 0) {
+    return (
+      <section className={styles.featuredSection}>
+        <div className={styles.container}>
+          <div className={styles.emptyState}>
+            <h2>No Pods Available</h2>
+            <p>Be the first to create a pod!</p>
+            <Link to="/create-pod" className={styles.createButton}>
+              Create a Pod
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.featuredSection}>
@@ -268,7 +329,7 @@ const FeaturedPodsSection = () => {
           </motion.div>
         </motion.div>
         
-        {/* Featured Pods - New Layout */}
+        {/* Featured Pods - Layout */}
         <div className={styles.featuredPodsLayout}>
           {/* Pod Thumbnails */}
           <motion.div 
@@ -360,14 +421,16 @@ const FeaturedPodsSection = () => {
                   
                   <div className={styles.podCreator}>
                     <div className={styles.creatorAvatar}>
-                      {currentPod.creator.avatar || currentPod.creator.name.charAt(0)}
+                      {currentPod.creator.avatar || (currentPod.creator.name ? currentPod.creator.name.charAt(0) : 'U')}
                     </div>
                     <span>Created by {currentPod.creator.name}</span>
                   </div>
                 </div>
                 
                 <div className={styles.podBody}>
-                  <p className={styles.podDescription}>{currentPod.description}</p>
+                  <p className={styles.podDescription}>
+                    {currentPod.description || currentPod.mission || 'No description provided.'}
+                  </p>
                   
                   <div className={styles.podMetrics}>
                     <div className={styles.metricItem}>
@@ -389,7 +452,9 @@ const FeaturedPodsSection = () => {
                     <div className={styles.metricItem}>
                       <Target size={18} />
                       <div className={styles.metricContent}>
-                        <span className={styles.metricValue}>{currentPod.urgency.charAt(0).toUpperCase() + currentPod.urgency.slice(1)}</span>
+                        <span className={styles.metricValue}>
+                          {currentPod.urgency.charAt(0).toUpperCase() + currentPod.urgency.slice(1)}
+                        </span>
                         <span className={styles.metricLabel}>Priority</span>
                       </div>
                     </div>
@@ -410,45 +475,49 @@ const FeaturedPodsSection = () => {
                     </div>
                   </div>
                   
-                  <div className={styles.rolesSection}>
-                    <h3 className={styles.sectionLabel}>
-                      <Layers size={16} />
-                      <span>Roles Needed</span>
-                    </h3>
-                    <div className={styles.rolesList}>
-                      {currentPod.roles.map((role, index) => (
-                        <motion.span 
-                          key={index}
-                          className={styles.roleTag}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                        >
-                          {role}
-                        </motion.span>
-                      ))}
+                  {currentPod.roles && currentPod.roles.length > 0 && (
+                    <div className={styles.rolesSection}>
+                      <h3 className={styles.sectionLabel}>
+                        <Layers size={16} />
+                        <span>Roles Needed</span>
+                      </h3>
+                      <div className={styles.rolesList}>
+                        {currentPod.roles.map((role, index) => (
+                          <motion.span 
+                            key={index}
+                            className={styles.roleTag}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                          >
+                            {role}
+                          </motion.span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                   
-                  <div className={styles.skillsSection}>
-                    <h3 className={styles.sectionLabel}>
-                      <Zap size={16} />
-                      <span>Skills</span>
-                    </h3>
-                    <div className={styles.skillsList}>
-                      {currentPod.skills.map((skill, index) => (
-                        <motion.span 
-                          key={index}
-                          className={styles.skillTag}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                        >
-                          {skill}
-                        </motion.span>
-                      ))}
+                  {currentPod.skills && currentPod.skills.length > 0 && (
+                    <div className={styles.skillsSection}>
+                      <h3 className={styles.sectionLabel}>
+                        <Zap size={16} />
+                        <span>Skills</span>
+                      </h3>
+                      <div className={styles.skillsList}>
+                        {currentPod.skills.map((skill, index) => (
+                          <motion.span 
+                            key={index}
+                            className={styles.skillTag}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                          >
+                            {skill}
+                          </motion.span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 
                 <div className={styles.podFooter}>
@@ -457,18 +526,11 @@ const FeaturedPodsSection = () => {
                     <span>View Details</span>
                   </Link>
                   
-                  <motion.button 
-                    className={styles.applyButton}
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 10px 20px rgba(232, 197, 71, 0.2)"
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
+                  <Link to={`/pods/${currentPod.id}?apply=true`} className={styles.applyButton}>
                     <Zap size={18} />
                     <span>Apply Now</span>
                     <ArrowRight size={18} />
-                  </motion.button>
+                  </Link>
                 </div>
               </motion.div>
             )}

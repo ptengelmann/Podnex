@@ -289,83 +289,106 @@ const HelpFeed = () => {
     });
   };
 
-// Replace the existing stats section with this markup
-const StatsSection = () => {
-  const statsData = [
-    {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <circle cx="12" cy="12" r="6" />
-          <circle cx="12" cy="12" r="2" />
-        </svg>
-      ),
-      value: "17",
-      label: "Active Opportunities"
-    },
-    {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      ),
-      value: "2,500+",
-      label: "Community Members"
-    },
-    {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-          <polyline points="17 6 23 6 23 12"></polyline>
-        </svg>
-      ),
-      value: "89%",
-      label: "Success Rate"
-    },
-    {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="8" r="7"></circle>
-          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-        </svg>
-      ),
-      value: "$10k+",
-      label: "Avg. Project Value"
-    }
-  ];
-
-  return (
-    <motion.div 
-      className={styles.quickStats}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.7 }}
-    >
-      {statsData.map((stat, index) => (
-        <motion.div 
-          key={index}
-          className={styles.statItem}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 + (index * 0.1) }}
-          whileHover={{ y: -5 }}
-        >
-          <div className={styles.statIcon}>
-            {stat.icon}
-          </div>
-          <div className={styles.statContent}>
-            <span className={styles.statValue}>{stat.value}</span>
-            <span className={styles.statLabel}>{stat.label}</span>
-          </div>
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-};
-
+  const StatsSection = () => {
+    const statsData = [
+      {
+        icon: (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        ),
+        value: "17",
+        label: "Active Opportunities",
+        color: "#E8C547"
+      },
+      {
+        icon: (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        ),
+        value: "2,500+",
+        label: "Community Members",
+        color: "#3B82F6" 
+      },
+      {
+        icon: (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        ),
+        value: "89%",
+        label: "Success Rate",
+        color: "#10B981"
+      },
+      {
+        icon: (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+        ),
+        value: "$10k+",
+        label: "Avg. Project Value",
+        color: "#EC4899"
+      }
+    ];
+  
+    return (
+      <motion.div 
+        className="statsSection"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="statsGrid">
+          {statsData.map((stat, index) => (
+            <motion.div
+              key={index}
+              className="statCard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              whileHover={{ y: -8 }}
+              style={{ '--stat-color': stat.color }}
+            >
+              <div className="iconBox">
+                {stat.icon}
+                <div className="iconGlow"></div>
+              </div>
+              
+              <motion.div 
+                className="valueBox"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.span 
+                  className="statValue"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{ 
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  {stat.value}
+                </motion.span>
+                <span className="statLabel">{stat.label}</span>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
   // Format deadline for display
   const formatDeadline = (date) => {
     const deadline = new Date(date);
