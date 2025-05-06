@@ -237,125 +237,147 @@
     }
   }
 
-  // Quick stats section
-  .quickStats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-    
-    @media (max-width: 992px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-    }
+// Properly horizontally aligned stat cards styling to match the design
+.quickStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 60px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .statItem {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    padding: 28px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
-    position: relative;
-    overflow: hidden;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--stat-color), transparent);
-      opacity: 0.8;
-    }
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 40%;
-      background: linear-gradient(to top, rgba(var(--stat-color), 0.03), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    &:hover {
-      transform: translateY(-8px);
-      border-color: rgba(var(--stat-color), 0.3);
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      
-      &::after {
-        opacity: 1;
-      }
-      
-      .statGlow {
-        opacity: 0.3;
-        transform: scale(2);
-      }
-    }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
   }
+}
 
-  .statIconWrapper {
-    position: relative;
-  }
-
-  .statIcon {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    
-    svg {
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .statGlow {
+.statItem {
+  position: relative;
+  background: rgba(18, 18, 18, 0.4);
+  border: 1px solid rgba(50, 50, 50, 0.6);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  height: 100%;
+  transition: all 0.3s ease;
+  
+  // Subtle top border gradient
+  &::before {
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    filter: blur(15px);
-    opacity: 0.2;
-    transform: translate(-50%, -50%);
-    transition: all 0.4s ease;
-    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(var(--stat-color), 0.8), transparent 80%);
   }
-
-  .statContent {
-    h4 {
-      font-size: 32px;
-      font-weight: 800;
-      margin: 0 0 6px;
-      letter-spacing: -0.5px;
-      line-height: 1;
+  
+  &:hover {
+    transform: translateY(-5px);
+    border-color: rgba(var(--stat-color), 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  // First card (Golden/Yellow) - Target icon
+  &:nth-child(1) {
+    --stat-color: 232, 197, 71; // Gold
+    
+    .statIcon {
+      background: rgba(40, 38, 20, 1);
+      color: #E8C547;
+      border-color: rgba(232, 197, 71, 0.3);
     }
     
-    p {
-      font-size: 15px;
-      color: $gray;
-      margin: 0;
-      font-weight: 500;
-      letter-spacing: 0.2px;
+    .statValue {
+      color: #E8C547;
     }
   }
+  
+  // Second card (Blue) - Users icon
+  &:nth-child(2) {
+    --stat-color: 59, 130, 246; // Blue
+    
+    .statIcon {
+      background: rgba(23, 33, 50, 1);
+      color: #3B82F6;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    .statValue {
+      color: #3B82F6;
+    }
+  }
+  
+  // Third card (Green) - Chart icon
+  &:nth-child(3) {
+    --stat-color: 16, 185, 129; // Green
+    
+    .statIcon {
+      background: rgba(20, 42, 34, 1);
+      color: #10B981;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    
+    .statValue {
+      color: #10B981;
+    }
+  }
+  
+  // Fourth card (Pink/Purple) - Award icon
+  &:nth-child(4) {
+    --stat-color: 236, 72, 153; // Pink
+    
+    .statIcon {
+      background: rgba(45, 25, 35, 1);
+      color: #EC4899;
+      border-color: rgba(236, 72, 153, 0.3);
+    }
+    
+    .statValue {
+      color: #EC4899;
+    }
+  }
+}
+
+.statIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(var(--stat-color), 0.2);
+  margin-right: 30px;
+  flex-shrink: 0;
+  
+  svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.statValue {
+  font-size: 44px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 16px;
+  color: $gray;
+  margin: 0;
+  font-weight: 400;
+  opacity: 0.7;
+}
 
   // Filter Section
   .filterSection {
