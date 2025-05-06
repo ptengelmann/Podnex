@@ -346,7 +346,14 @@ const CreatePodPage = () => {
       }, 2000);
       
     } catch (error) {
-      console.error(error.response?.data?.message || error.message);
+      console.error("Full error object:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Status code:", error.response?.status);
+      // Display error to user
+      setValidationErrors(prev => ({
+        ...prev,
+        server: error.response?.data?.message || "Server error, please try again"
+      }));
       setIsSubmitting(false);
     }
   };

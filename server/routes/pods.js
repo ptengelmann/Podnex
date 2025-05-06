@@ -1,33 +1,79 @@
-  const express = require('express');
-  const router = express.Router();
-  const Pod = require('../models/Pod');
-  const { protect } = require('../middleware/authMiddleware');
+const express = require('express');
+const router = express.Router();
+const Pod = require('../models/Pod');
+const { protect } = require('../middleware/authMiddleware');
 
-  // @route   POST /api/pods
-  // @desc    Create a new Pod
-  // @access  Private (requires login)
-  router.post('/', protect, async (req, res) => {
-    try {
-      const { title, mission, rolesNeeded } = req.body;
+// @route   POST /api/pods
+// @desc    Create a new Pod
+// @access  Private (requires login)
+router.post('/', protect, async (req, res) => {
+  try {
+    // Destructure all the fields from your form
+    const {
+      title,
+      description,
+      mission,
+      category,
+      format,
+      status,
+      urgency,
+      budget,
+      commitment,
+      duration,
+      deadline,
+      rolesNeeded,
+      skills,
+      milestones,
+      requirements,
+      tags,
+      visibility,
+      timezone,
+      communication,
+      tools,
+      maxMembers,
+      applicationQuestions
+    } = req.body;
 
-      if (!title || !mission) {
-        return res.status(400).json({ message: 'Title and mission are required' });
-      }
-
-      const newPod = new Pod({
-        title,
-        mission,
-        rolesNeeded: rolesNeeded.split(',').map(role => role.trim()),
-        creator: req.user._id, // 🔥 Attach logged-in user
-      });
-
-      await newPod.save();
-      res.status(201).json(newPod);
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send('Server error');
+    // Basic validation
+    if (!title) {
+      return res.status(400).json({ message: 'Title is required' });
     }
-  });
+
+    // Create pod with all the data from the form
+    const newPod = new Pod({
+      title,
+      description,
+      mission: mission || "No mission provided", // Provide default for required field
+      category,
+      format,
+      status: status || 'draft',
+      rolesNeeded: Array.isArray(rolesNeeded) ? rolesNeeded : [], // Handle array of objects
+      skills: Array.isArray(skills) ? skills : [],
+      milestones: Array.isArray(milestones) ? milestones : [],
+      requirements: Array.isArray(requirements) ? requirements : [],
+      tags: Array.isArray(tags) ? tags : [],
+      visibility,
+      timezone,
+      communication: Array.isArray(communication) ? communication : [],
+      tools: Array.isArray(tools) ? tools : [],
+      maxMembers,
+      deadline,
+      budget,
+      commitment,
+      duration,
+      creator: req.user._id,
+    });
+
+    await newPod.save();
+    res.status(201).json(newPod);
+  } catch (error) {
+    console.error('Pod creation error:', error);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+});
 
   // @route   GET /api/pods
   // @desc    Get all Pods (optionally filter by creator)

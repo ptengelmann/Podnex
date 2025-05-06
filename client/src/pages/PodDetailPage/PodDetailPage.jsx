@@ -254,7 +254,9 @@ const PodDetailPage = () => {
   
   // Open apply modal with selected role
   const handleApplyClick = (role) => {
-    setSelectedRole(role);
+    // If role is an object, get the title, otherwise use the role string directly
+    const roleTitle = typeof role === 'object' ? role.title : role;
+    setSelectedRole(roleTitle);
     setApplyModalOpen(true);
   };
   
@@ -762,89 +764,105 @@ const PodDetailPage = () => {
             )}
             
             {activeTab === 'roles' && (
-              <motion.div 
-                key="roles"
-                className={styles.rolesSection}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className={styles.sectionHeader}>
-                  <h2>Open Positions</h2>
-                  <p>Join our team and help bring this project to life</p>
+  <motion.div 
+    key="roles"
+    className={styles.rolesSection}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.3 }}
+  >
+    <div className={styles.sectionHeader}>
+      <h2>Open Positions</h2>
+      <p>Join our team and help bring this project to life</p>
+    </div>
+    
+    {safelyAccessData(pod, 'rolesNeeded', []).length > 0 ? (
+      <div className={styles.rolesGrid}>
+        {safelyAccessData(pod, 'rolesNeeded', []).map((role, index) => {
+          // Get the role title correctly depending on whether role is an object or string
+          const roleTitle = typeof role === 'object' ? role.title : role;
+          
+          return (
+            <motion.div 
+              key={index}
+              className={styles.roleCard}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onHoverStart={() => setActiveRoleHover(index)}
+              onHoverEnd={() => setActiveRoleHover(null)}
+              whileHover={{ y: -8 }}
+              style={{
+                '--role-color': getRoleColor(roleTitle)
+              }}
+            >
+              <div className={styles.roleHeader}>
+                <div className={styles.roleIcon}>
+                  {roleIcons[roleTitle] || <Briefcase size={20} />}
                 </div>
-                
-                {safelyAccessData(pod, 'rolesNeeded', []).length > 0 ? (
-                  <div className={styles.rolesGrid}>
-                    {safelyAccessData(pod, 'rolesNeeded', []).map((role, index) => (
-                      <motion.div 
-                        key={index}
-                        className={styles.roleCard}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        onHoverStart={() => setActiveRoleHover(index)}
-                        onHoverEnd={() => setActiveRoleHover(null)}
-                        whileHover={{ y: -8 }}
-                        style={{
-                          '--role-color': getRoleColor(role)
-                        }}
-                      >
-                        <div className={styles.roleHeader}>
-                          <div className={styles.roleIcon}>
-                            {roleIcons[role] || <Briefcase size={20} />}
-                          </div>
-                          <h3>{role}</h3>
-                        </div>
-                        
-                        <p className={styles.roleDescription}>
-                          Join as a {role.toLowerCase()} and contribute your expertise to this amazing project.
-                        </p>
-                        
-                        <div className={styles.roleRequirements}>
-                          <h4>Requirements:</h4>
-                          <ul>
-                            <li>Experience in {role.toLowerCase()}</li>
-                            <li>Strong collaboration skills</li>
-                            <li>Ability to meet deadlines</li>
-                          </ul>
-                        </div>
-                        
-                        <motion.button 
-                          className={styles.applyButton}
-                          onClick={() => handleApplyClick(role)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Zap size={16} />
-                          Apply Now
-                        </motion.button>
-                        
-                        {activeRoleHover === index && (
-                          <motion.div 
-                            className={styles.roleGlow}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                          />
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <motion.div 
-                    className={styles.emptyState}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    <Users size={48} />
-                    <h3>No open positions</h3>
-                    <p>All roles have been filled for this pod. Check back later for new opportunities.</p>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
+                <h3>{roleTitle}</h3>
+              </div>
+              
+              <p className={styles.roleDescription}>
+                {typeof role === 'object' && role.description ? 
+                  role.description : 
+                  `Join as a ${roleTitle.toLowerCase()} and contribute your expertise to this amazing project.`
+                }
+              </p>
+              
+              <div className={styles.roleRequirements}>
+                <h4>Requirements:</h4>
+                <ul>
+                  {typeof role === 'object' && Array.isArray(role.requirements) && role.requirements.length > 0 ? 
+                    role.requirements.map((req, reqIndex) => (
+                      <li key={reqIndex}>{req}</li>
+                    ))
+                    : 
+                    <>
+                      <li>Experience in {roleTitle.toLowerCase()}</li>
+                      <li>Strong collaboration skills</li>
+                      <li>Ability to meet deadlines</li>
+                    </>
+                  }
+                </ul>
+              </div>
+              
+              <motion.button 
+                className={styles.applyButton}
+                onClick={() => handleApplyClick(role)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Zap size={16} />
+                Apply Now
+              </motion.button>
+              
+              {activeRoleHover === index && (
+                <motion.div 
+                  className={styles.roleGlow}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+    ) : (
+      <motion.div 
+        className={styles.emptyState}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <Users size={48} />
+        <h3>No open positions</h3>
+        <p>All roles have been filled for this pod. Check back later for new opportunities.</p>
+      </motion.div>
+    )}
+  </motion.div>
+)}
             
             {activeTab === 'roadmap' && (
               <motion.div 
