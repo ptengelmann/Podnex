@@ -19,7 +19,9 @@ import FAQPage from './pages/FAQ/FAQPage';
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
-import PodHelp from './pages/PodHelp/PodHelp'; 
+import PodHelp from './pages/PodHelp/PodHelp';
+// Import the new PodEnvironment component
+import PodEnvironment from './pages/PodEnvironment/PodEnvironment';
 
 // RoleBasedRoute component for handling role-specific routing
 const RoleBasedRoute = ({ componentType }) => {
@@ -95,6 +97,16 @@ const App = () => {
         <Route path="/community" element={<Community />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/pod-help" element={<PodHelp />} />
+        
+        {/* Pod Environment Route - Protected to ensure only logged-in users can access */}
+        <Route 
+          path="/pod-environment/:id" 
+          element={
+            <ProtectedRoute>
+              <PodEnvironment />
+            </ProtectedRoute>
+          } 
+        />
         
         {/* Role-based dashboard route */}
         <Route
