@@ -408,7 +408,7 @@ const FAQPage = () => {
           <div className={styles.navFooter}>
             <Shield size={16} />
             <span>Need more help?</span>
-            <a href="#contact" className={styles.contactLink}>Contact Support</a>
+            <a href="/contact" className={styles.contactLink}>Contact Support</a>
           </div>
         </motion.div>
         
@@ -518,6 +518,7 @@ const FAQPage = () => {
             <motion.button 
               className={styles.secondaryBtn}
               whileHover={{ scale: 1.05, borderColor: "#E8C547", color: "#E8C547" }}
+              
               whileTap={{ scale: 0.95 }}
             >
               Join Community

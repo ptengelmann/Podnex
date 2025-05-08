@@ -10,8 +10,8 @@ const HomePage = () => {
   return (
     <div className={styles.home}>
       <HeroSection />
-      <FeaturedPodsSection />
       <HowItWorksSection />
+      <FeaturedPodsSection />
       <Ecosystem />
       <Testimonials />
     </div>

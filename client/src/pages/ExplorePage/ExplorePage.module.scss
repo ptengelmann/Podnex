@@ -5,17 +5,24 @@
   min-height: 100vh;
   background-color: $black;
   color: $white;
-}
-
-// Hero section with animated grid background
-.heroSection {
-  width: 100%;
-  padding: 100px 0 60px;
   position: relative;
   overflow: hidden;
-  text-align: center;
 }
 
+// Container
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+  
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+}
+
+// Animated grid background
 .gridBackground {
   position: absolute;
   top: -50%;
@@ -32,31 +39,74 @@
   will-change: transform;
 }
 
-.heroContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  position: relative;
+// Floating shapes
+.floatingShape {
+  position: absolute;
   z-index: 1;
+  opacity: 0.05;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+    background: linear-gradient(135deg, rgba(232, 197, 71, 0.4), transparent);
+    filter: blur(70px);
+  }
+  
+  &.shape2 {
+    bottom: 20%;
+    left: 5%;
+    width: 450px;
+    height: 450px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), transparent);
+    filter: blur(60px);
+  }
+}
+
+// Hero section
+.heroSection {
+  padding: 110px 0 40px;
+  position: relative;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+// Title area
+.titleArea {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .sectionTitleWrapper {
-  display: inline-block;
   position: relative;
-  margin-bottom: 24px;
+  display: inline-block;
+  margin-bottom: 16px;
 }
 
 .sectionTitle {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: 800;
-  margin-bottom: 8px;
-  color: $white;
+  background: linear-gradient(135deg, $white 40%, rgba(232, 197, 71, 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
   position: relative;
   z-index: 2;
-  letter-spacing: -0.5px;
   
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 40px;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 32px;
   }
 }
 
@@ -75,8 +125,6 @@
 .sectionDescription {
   font-size: 18px;
   color: $gray;
-  max-width: 600px;
-  margin: 0 auto 32px;
   line-height: 1.6;
   
   @media (max-width: 768px) {
@@ -84,32 +132,73 @@
   }
 }
 
-// Search and filters row
-.controlsRow {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin: 40px 0 20px;
+// Featured pod section
+.featuredPodSection {
+  position: relative;
+  margin: 20px auto 40px;
+  max-width: 800px;
+}
+
+.featuredLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, rgba($gold, 0.2), rgba($gold, 0.05));
+  border: 1px solid rgba($gold, 0.3);
+  border-radius: 30px;
+  padding: 8px 16px;
+  color: $gold;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
   
-  @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  svg {
+    color: $gold;
   }
 }
 
-// Search container
+.featuredPodCard {
+  transform: scale(1.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 30px rgba($gold, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  
+  &:hover {
+    transform: scale(1.05) translateY(-5px);
+  }
+}
+
+// Search controls bar
+.searchControlsBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px 16px;
+  
+  @media (max-width: 1024px) {
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .searchContainer {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   padding: 0 16px;
   height: 50px;
   transition: all 0.3s ease;
-  max-width: 400px;
-  width: 100%;
+  flex: 1;
+  min-width: 250px;
   
   &:focus-within {
     border-color: rgba($gold, 0.5);
@@ -120,6 +209,10 @@
     color: $gray;
     margin-right: 12px;
   }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .searchInput {
@@ -128,7 +221,7 @@
   height: 100%;
   flex: 1;
   color: $white;
-  font-size: 16px;
+  font-size: 15px;
   
   &:focus {
     outline: none;
@@ -153,115 +246,540 @@
   }
 }
 
-// Filters
-.filterContainer {
+.filtersButton {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-  
-  @media (min-width: 768px) {
-    justify-content: flex-end;
-  }
-}
-
-.filterButton {
-  background: transparent;
-  border: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   color: $gray;
-  font-size: 14px;
   font-weight: 600;
-  padding: 8px 16px;
+  font-size: 15px;
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
-  border-radius: 6px;
-  text-transform: capitalize;
   
   &:hover {
+    border-color: rgba(255, 255, 255, 0.15);
     color: $white;
-    background: rgba(255, 255, 255, 0.05);
   }
   
   &.active {
-    color: $white;
     background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-.activeDot {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background-color: $gold;
-  border-radius: 50%;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-// Pods section
-.podsSection {
-  padding: 40px 0 80px;
-  min-height: 50vh;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-// Results header
-.resultsHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
-  
-  @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.resultsCount {
-  color: $gray;
-  font-size: 14px;
-  margin: 0;
-  
-  span {
+    border-color: rgba(255, 255, 255, 0.15);
     color: $white;
-    font-weight: 600;
+  }
+  
+  &.filtersApplied {
+    color: $gold;
+    border-color: rgba($gold, 0.3);
+    
+    .filtersCount {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 18px;
+      height: 18px;
+      background: $gold;
+      border-radius: 50%;
+      color: $black;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    flex-grow: 1;
   }
 }
 
-.sortOptions {
-  display: flex;
-  align-items: center;
+// Fixed positioning to prevent dropdown from overlapping with pod cards
+
+.searchControlsBar {
+  position: relative;
+  z-index: 100; // Increased z-index for the entire control bar
+  margin-bottom: 40px; // Added margin to create space for the dropdown
+}
+
+.sortDropdown {
+  position: relative;
+  z-index: 100; // Ensure dropdown has high z-index
 }
 
 .sortButton {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 8px 16px;
-  color: $gray;
-  font-size: 14px;
+  padding: 12px 20px;
+  background: rgba(30, 30, 30, 0.7);
+  border: 1px solid rgba(50, 50, 50, 0.8);
+  border-radius: 30px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
   &:hover {
-    border-color: rgba($gold, 0.5);
-    color: $white;
+    border-color: rgba(70, 70, 70, 0.9);
   }
   
   svg {
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  svg:last-child {
+    margin-left: 4px;
+    transition: transform 0.2s ease;
+  }
+}
+
+.sortOptions {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 200px;
+  background: rgba(25, 25, 25, 0.98);
+  border: 1px solid rgba(50, 50, 50, 0.8);
+  border-radius: 12px;
+  padding: 8px;
+  z-index: 200; // Increased z-index to be above everything
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(5px);
+  transition: all 0.15s ease;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+// Additional styling to ensure dropdown doesn't get cut off
+.heroSection {
+  position: relative;
+  z-index: 50; // Lower than the dropdown but higher than other content
+  padding-bottom: 60px; // Increase padding to make room for dropdown
+}
+
+// Ensure pod sections have lower z-index
+.trendingSection, 
+.podsSection {
+  position: relative;
+  z-index: 10; // Lower z-index to prevent overlap with dropdown
+}
+
+.sortDropdown:hover .sortOptions,
+.sortDropdown:focus-within .sortOptions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.sortOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  &.active {
+    color: $gold;
+    
+    &::before {
+      content: "•";
+      color: $gold;
+      font-size: 18px;
+      margin-right: 2px;
+      margin-left: -5px;
+    }
+  }
+  
+  svg {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.createPodButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, $gold, #F59E0B);
+  border: none;
+  border-radius: 12px;
+  color: $black;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba($gold, 0.3);
+  }
+  
+  @media (max-width: 1024px) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// Filters panel
+.filtersPanel {
+  background: rgba(20, 20, 20, 0.97);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 0;
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+.filtersPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: $white;
+    margin: 0;
+    
+    svg {
+      color: $gold;
+    }
+  }
+}
+
+.closeFiltersButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: $gray;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
+  }
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.filterGroup {
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 16px;
+  }
+}
+
+.filterOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterOption {
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  color: $gray;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: capitalize;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: $white;
+  }
+  
+  &.active {
+    background: rgba($gold, 0.1);
+    border-color: rgba($gold, 0.3);
+    color: $gold;
+  }
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+.resetFiltersButton, .applyFiltersButton {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+}
+
+.resetFiltersButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: $white;
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.applyFiltersButton {
+  background: $gold;
+  border: none;
+  color: $black;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba($gold, 0.3);
+  }
+}
+
+// Trending Section
+.trendingSection {
+  padding: 40px 0;
+  margin-bottom: 20px;
+}
+
+.sectionHeader {
+  margin-bottom: 30px;
+}
+
+.sectionTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 700;
+    color: $white;
+    margin: 0;
+    
+    svg {
+      color: $gold;
+    }
+  }
+}
+
+.titleBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba($gold, 0.1);
+  border: 1px solid rgba($gold, 0.2);
+  border-radius: 30px;
+  color: $gold;
+  font-size: 12px;
+  font-weight: 500;
+  
+  svg {
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.trendingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Main Pods Section
+.podsSection {
+  padding: 40px 0 80px;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.resultsInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: $white;
+    margin: 0;
+  }
+  
+  svg {
+    color: $gold;
+  }
+}
+
+.resultsCount {
+  color: $gray;
+  font-size: 15px;
+  margin: 0;
+  
+  .countHighlight {
+    color: $gold;
+    font-weight: 600;
+  }
+}
+
+.clearFiltersButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: $gray;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover svg {
+    transform: rotate(180deg);
+  }
+}
+
+// Active filters pills
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filterPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba($gold, 0.1);
+  border: 1px solid rgba($gold, 0.2);
+  border-radius: 30px;
+  color: $gold;
+  font-size: 13px;
+  font-weight: 500;
+  
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: currentColor;
+    cursor: pointer;
+    padding: 0;
+    
+    &:hover {
+      opacity: 0.7;
+    }
   }
 }
 
@@ -297,13 +815,6 @@
   border: 3px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   border-top-color: $gold;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 // Error state
@@ -313,32 +824,51 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  color: $gray;
+  text-align: center;
   
   svg {
     margin-bottom: 16px;
-    color: $gray;
+    color: #FF4D4D;
+  }
+  
+  h3 {
+    font-size: 24px;
+    color: $white;
+    margin-bottom: 8px;
   }
   
   p {
+    color: $gray;
     margin-bottom: 24px;
     font-size: 16px;
   }
 }
 
 .retryButton {
-  padding: 10px 24px;
-  background-color: $gold;
-  color: $black;
-  border: none;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: $white;
   font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
+    background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  }
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover svg {
+    transform: rotate(180deg);
   }
 }
 
@@ -354,7 +884,7 @@
   padding: 48px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 16px;
   
   svg {
     margin-bottom: 24px;
@@ -371,35 +901,40 @@
   p {
     color: $gray;
     margin-bottom: 24px;
+    max-width: 500px;
   }
 }
 
-.resetFiltersButton, .createPodButton {
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.resetFiltersButton {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+// Scroll to top button
+.scrollTopButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
   
   &:hover {
+    background: $gold;
+    color: $black;
     border-color: $gold;
-    color: $gold;
+    box-shadow: 0 10px 30px rgba($gold, 0.3);
   }
-}
-
-.createPodButton {
-  background-color: $gold;
-  color: $black;
-  border: none;
   
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  @media (max-width: 576px) {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
   }
 }
