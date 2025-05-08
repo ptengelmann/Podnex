@@ -21,6 +21,8 @@ import ApplicationsContributor from './pages/Applications/ApplicationsContributo
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
 import PodHelp from './pages/PodHelp/PodHelp';
 // Import the new PodEnvironment component
+import PodEnvironment from './pages/PodEnvironment/PodEnvironment';
+
 // RoleBasedRoute component for handling role-specific routing
 const RoleBasedRoute = ({ componentType }) => {
   try {
@@ -95,6 +97,16 @@ const App = () => {
         <Route path="/community" element={<Community />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/pod-help" element={<PodHelp />} />
+        
+        {/* New route for PodEnvironment */}
+        <Route
+          path="/pod-environment/:podId"
+          element={
+            <ProtectedRoute>
+              <PodEnvironment />
+            </ProtectedRoute>
+          }
+        />
         
         {/* Role-based dashboard route */}
         <Route

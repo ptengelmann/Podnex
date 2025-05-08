@@ -1,0 +1,2698 @@
+@import '../../styles/variables';
+
+// Variables for Pod Environment
+$pod-gold: #FFD700;
+$pod-blue: #3B82F6;
+$pod-green: #34D399;
+$pod-red: #F87171;
+$pod-orange: #FB923C;
+$pod-purple: #A78BFA;
+
+// Status colors
+$status-todo: rgba(59, 130, 246, 0.7);
+$status-in-progress: rgba(251, 146, 60, 0.7);
+$status-completed: rgba(52, 211, 153, 0.7);
+
+.podEnvironment {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $black;
+  color: $white;
+  position: relative;
+  overflow-x: hidden;
+  
+  // Background elements
+  .backgroundWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+    
+    .gridBackground {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      right: -50%;
+      bottom: -50%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: center center;
+      transform: rotate(5deg) scale(1.5);
+      z-index: 0;
+    }
+    
+    .bgGlow1 {
+      position: absolute;
+      top: 10%;
+      right: 10%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba($pod-gold, 0.15) 0%, rgba($pod-gold, 0) 70%);
+      filter: blur(80px);
+      opacity: 0.5;
+      z-index: 1;
+    }
+    
+    .bgGlow2 {
+      position: absolute;
+      bottom: 10%;
+      left: 5%;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba($pod-blue, 0.15) 0%, rgba($pod-blue, 0) 70%);
+      filter: blur(80px);
+      opacity: 0.5;
+      z-index: 1;
+    }
+  }
+  
+  // Page container
+  .pageContainer {
+    position: relative;
+    z-index: 2;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 24px;
+    
+    @media (max-width: 768px) {
+      padding: 0 16px;
+    }
+  }
+  
+  // Header styles
+  .header {
+    padding: 40px 0 20px;
+    
+    @media (max-width: 768px) {
+      padding: 24px 0 16px;
+    }
+    
+    .headerContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      
+      .breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: $gray;
+        
+        span {
+          cursor: pointer;
+          transition: color 0.2s ease;
+          
+          &:hover:not(.current) {
+            color: $white;
+          }
+          
+          &.current {
+            color: $pod-gold;
+            font-weight: 500;
+          }
+        }
+        
+        svg {
+          opacity: 0.5;
+        }
+      }
+      
+      .headerActions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        
+        .mobileMenuToggle {
+          display: none;
+          color: $white;
+          cursor: pointer;
+          
+          @media (max-width: 992px) {
+            display: block;
+          }
+        }
+        
+        .notifications {
+          position: relative;
+          color: $white;
+          cursor: pointer;
+          
+          .notificationBadge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: $pod-red;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+          }
+        }
+        
+        .userMenu {
+          display: flex;
+          align-items: center;
+          
+          .avatar {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            
+            .initials {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: $pod-purple;
+              color: $white;
+              font-weight: 600;
+              font-size: 14px;
+            }
+            
+            .statusIndicator {
+              position: absolute;
+              bottom: 0;
+              right: 0;
+              width: 10px;
+              height: 10px;
+              border-radius: 50%;
+              background: $pod-green;
+              border: 2px solid $black;
+            }
+          }
+        }
+      }
+    }
+    
+    .podDetailsBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .podBasicInfo {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        
+        .podIcon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: rgba($pod-gold, 0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: $pod-gold;
+          flex-shrink: 0;
+        }
+        
+        h1 {
+          font-size: 28px;
+          font-weight: 700;
+          margin: 0 0 8px;
+          
+          @media (max-width: 768px) {
+            font-size: 22px;
+          }
+        }
+        
+        p {
+          font-size: 15px;
+          color: $gray;
+          margin: 0;
+          max-width: 600px;
+          
+          @media (max-width: 768px) {
+            font-size: 14px;
+          }
+        }
+      }
+      
+      .podMeta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        
+        @media (max-width: 768px) {
+          margin-left: 56px;
+        }
+        
+        .metaItem {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: $gray;
+          
+          svg {
+            color: $pod-gold;
+          }
+        }
+        
+        .editButton {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 6px;
+          padding: 6px 12px;
+          color: $white;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+    }
+    
+    .progressBar {
+      margin: 20px 0;
+      
+      .progressTrack {
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+        
+        .progressFill {
+          height: 100%;
+          background: linear-gradient(90deg, rgba($pod-gold, 0.7), $pod-gold);
+          border-radius: 6px;
+          position: relative;
+          
+          .progressLabel {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: $black;
+            white-space: nowrap;
+            
+            @media (max-width: 768px) {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Content layout
+  .contentWrapper {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 60px;
+    
+    @media (max-width: 992px) {
+      position: relative;
+    }
+  }
+  
+  // Sidebar styles
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    
+    @media (max-width: 992px) {
+      position: fixed;
+      top: 0;
+      left: -290px;
+      bottom: 0;
+      width: 280px;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.9);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 80px;
+      overflow-y: auto;
+      
+      &.mobileActive {
+        left: 0;
+      }
+    }
+    
+    .sidebarContent {
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      
+      @media (max-width: 992px) {
+        position: relative;
+        top: 0;
+      }
+      
+      .navSection {
+        margin-bottom: 32px;
+        
+        h3 {
+          font-size: 15px;
+          font-weight: 600;
+          color: $gray;
+          margin: 0 0 12px;
+          padding: 0 16px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .navList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          
+          li {
+            margin-bottom: 2px;
+            
+            button {
+              width: 100%;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 12px 16px;
+              border-radius: 8px;
+              border: none;
+              background: transparent;
+              color: $gray;
+              font-size: 15px;
+              text-align: left;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              
+              span {
+                flex: 1;
+              }
+              
+              svg {
+                flex-shrink: 0;
+              }
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.05);
+                color: $white;
+              }
+            }
+            
+            &.active button {
+              background: rgba($pod-gold, 0.15);
+              color: $pod-gold;
+              font-weight: 500;
+            }
+          }
+        }
+        
+        .membersList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          
+          li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            
+            .memberAvatar {
+              position: relative;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              overflow: hidden;
+              flex-shrink: 0;
+              
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+              
+              .memberInitials {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                color: $white;
+                font-weight: 600;
+                font-size: 12px;
+              }
+              
+              .memberStatus {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                border: 1px solid $black;
+                
+                &.online {
+                  background: $pod-green;
+                }
+                
+                &.away {
+                  background: $pod-orange;
+                }
+                
+                &.offline {
+                  background: $gray;
+                }
+              }
+            }
+            
+            .memberInfo {
+              flex: 1;
+              overflow: hidden;
+              
+              .memberName {
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: $white;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              
+              .memberRole {
+                display: block;
+                font-size: 12px;
+                color: $gray;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+            }
+            
+            .memberActions {
+              display: flex;
+              align-items: center;
+              
+              .memberActionButton {
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.05);
+                border: none;
+                border-radius: 6px;
+                color: $gray;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                
+                &:hover {
+                  background: rgba(255, 255, 255, 0.1);
+                  color: $white;
+                }
+              }
+            }
+          }
+        }
+        
+        .addMemberButton {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          width: calc(100% - 32px);
+          margin: 8px 16px 0;
+          padding: 8px 0;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: 6px;
+          color: $gray;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: $white;
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+        }
+        
+        .externalLinksList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          
+          li {
+            margin-bottom: 4px;
+            
+            a {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px 16px;
+              text-decoration: none;
+              color: $gray;
+              font-size: 14px;
+              border-radius: 8px;
+              transition: all 0.2s ease;
+              
+              .linkIcon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 6px;
+              }
+              
+              span {
+                flex: 1;
+              }
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.05);
+                color: $white;
+              }
+            }
+          }
+        }
+        
+        .addLinkButton {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          width: calc(100% - 32px);
+          margin: 8px 16px 0;
+          padding: 8px 0;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: 6px;
+          color: $gray;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: $white;
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+      
+      .sidebarFooter {
+        margin-top: 40px;
+        padding: 0 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        .settingsButton, .leaveButton {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          padding: 10px 0;
+          background: transparent;
+          border: none;
+          border-radius: 6px;
+          color: $gray;
+          font-size: 14px;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            color: $white;
+          }
+        }
+        
+        .leaveButton {
+          color: $pod-red;
+          
+          &:hover {
+            color: lighten($pod-red, 10%);
+          }
+        }
+      }
+    }
+  }
+  
+  // Main content styles
+  .mainContent {
+    flex: 1;
+    min-width: 0; // Prevent flex items from overflowing
+    
+    @media (max-width: 992px) {
+      width: 100%;
+    }
+    
+    .tabHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: $white;
+        margin: 0;
+      }
+      
+      .tabActions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+        }
+        
+        .searchBar {
+          position: relative;
+          
+          input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: $white;
+            font-size: 14px;
+            width: 200px;
+            
+            @media (max-width: 768px) {
+              width: 100%;
+            }
+            
+            &:focus {
+              outline: none;
+              border-color: rgba($pod-gold, 0.4);
+              box-shadow: 0 0 0 2px rgba($pod-gold, 0.1);
+            }
+            
+            &::placeholder {
+              color: $gray;
+            }
+          }
+        }
+        
+        .primaryButton {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: $pod-gold;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          color: $black;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: lighten($pod-gold, 10%);
+          }
+        }
+      }
+    }
+    
+    // Dashboard specific styles
+    .dashboardTab {
+      .dashboardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        
+        h2 {
+          font-size: 24px;
+          font-weight: 700;
+          color: $white;
+          margin: 0;
+        }
+        
+        .dashboardActions {
+          .refreshButton {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: $gray;
+            font-size: 13px;
+            cursor: pointer;
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.08);
+              color: $white;
+            }
+          }
+        }
+      }
+      
+      .dashboardStats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+        
+        @media (max-width: 992px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        
+        @media (max-width: 576px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .statCard {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          
+          .statIcon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.06);
+            color: $pod-gold;
+          }
+          
+          .statInfo {
+            .statValue {
+              display: block;
+              font-size: 24px;
+              font-weight: 700;
+              color: $white;
+              margin-bottom: 4px;
+            }
+            
+            .statLabel {
+              font-size: 13px;
+              color: $gray;
+            }
+          }
+        }
+      }
+      
+      .dashboardContent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        
+        @media (max-width: 992px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .dashboardColumn {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        
+        .dashboardSection {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 20px;
+          
+          .sectionHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            
+            h3 {
+              font-size: 18px;
+              font-weight: 600;
+              color: $white;
+              margin: 0;
+            }
+            
+            .viewAllButton {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              background: transparent;
+              border: none;
+              color: $pod-gold;
+              font-size: 13px;
+              cursor: pointer;
+              padding: 0;
+              
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+          
+          .milestonesList {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            
+            .milestoneCard {
+              background: rgba(255, 255, 255, 0.02);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              border-radius: 8px;
+              padding: 12px;
+              
+              .milestoneHeader {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 12px;
+                
+                .milestoneStatus {
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  
+                  &.completed {
+                    background: $status-completed;
+                  }
+                  
+                  &.in-progress {
+                    background: $status-in-progress;
+                  }
+                  
+                  &.not-started {
+                    background: $status-todo;
+                  }
+                }
+                
+                h4 {
+                  font-size: 16px;
+                  font-weight: 600;
+                  color: $white;
+                  margin: 0;
+                }
+              }
+              
+              .milestoneProgress {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+                
+                .progressTrack {
+                  flex: 1;
+                  height: 6px;
+                  background: rgba(255, 255, 255, 0.05);
+                  border-radius: 3px;
+                  overflow: hidden;
+                  
+                  .progressFill {
+                    height: 100%;
+                    background: $pod-gold;
+                    border-radius: 3px;
+                  }
+                }
+                
+                .progressPercentage {
+                  font-size: 12px;
+                  font-weight: 600;
+                  color: $pod-gold;
+                  min-width: 36px;
+                  text-align: right;
+                }
+              }
+              
+              .milestoneMeta {
+                .metaItem {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 12px;
+                  color: $gray;
+                  
+                  svg {
+                    color: $pod-gold;
+                  }
+                }
+              }
+            }
+          }
+          
+          .activityFeed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            
+            .activityItem {
+              display: flex;
+              align-items: flex-start;
+              gap: 12px;
+              
+              .activityAvatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+                
+                .activityInitials {
+                  width: 100%;
+                  height: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(255, 255, 255, 0.1);
+                  color: $white;
+                  font-weight: 600;
+                  font-size: 12px;
+                }
+              }
+              
+              .activityContent {
+                flex: 1;
+                
+                p {
+                  margin: 0 0 4px;
+                  font-size: 14px;
+                  line-height: 1.5;
+                  color: $white;
+                  
+                  .activityUser {
+                    font-weight: 600;
+                    color: $white;
+                  }
+                  
+                  .activityAction {
+                    color: $gray;
+                    margin: 0 4px;
+                  }
+                  
+                  .activityObject {
+                    color: $pod-gold;
+                  }
+                }
+                
+                .activityTime {
+                  font-size: 12px;
+                  color: $gray;
+                }
+              }
+            }
+          }
+          
+          .tasksOverview {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            
+            .taskStatusGroup {
+              .statusHeader {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 12px;
+                
+                .statusIndicator {
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  
+                  &.todo {
+                    background: $status-todo;
+                  }
+                  
+                  &.inProgress {
+                    background: $status-in-progress;
+                  }
+                  
+                  &.completed {
+                    background: $status-completed;
+                  }
+                }
+                
+                h4 {
+                  font-size: 15px;
+                  font-weight: 600;
+                  color: $white;
+                  margin: 0;
+                  flex: 1;
+                }
+                
+                .statusCount {
+                  font-size: 13px;
+                  font-weight: 600;
+                  color: $gray;
+                  background: rgba(255, 255, 255, 0.05);
+                  border-radius: 12px;
+                  padding: 2px 8px;
+                }
+              }
+              
+              .tasksList {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                
+                .taskCard {
+                  background: rgba(255, 255, 255, 0.02);
+                  border: 1px solid rgba(255, 255, 255, 0.08);
+                  border-radius: 8px;
+                  padding: 12px;
+                  
+                  h5 {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: $white;
+                    margin: 0 0 8px;
+                  }
+                  
+                  .taskMeta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    
+                    .metaItem {
+                      display: flex;
+                      align-items: center;
+                      gap: 4px;
+                      font-size: 12px;
+                      color: $gray;
+                      
+                      svg {
+                        color: $pod-gold;
+                      }
+                    }
+                    
+                    .taskAssignees {
+                      display: flex;
+                      align-items: center;
+                      
+                      .taskAssignee {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        margin-left: -6px;
+                        border: 2px solid rgba(0, 0, 0, 0.8);
+                        
+                        &:first-child {
+                          margin-left: 0;
+                        }
+                        
+                        img {
+                          width: 100%;
+                          height: 100%;
+                          object-fit: cover;
+                        }
+                        
+                        .assigneeInitials {
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: rgba(255, 255, 255, 0.1);
+                          color: $white;
+                          font-weight: 600;
+                          font-size: 10px;
+                        }
+                      }
+                    }
+                  }
+                }
+                
+                .moreTasksIndicator {
+                  font-size: 12px;
+                  color: $pod-gold;
+                  padding: 6px 12px;
+                  text-align: center;
+                  cursor: pointer;
+                  
+                  &:hover {
+                    text-decoration: underline;
+                  }
+                }
+              }
+            }
+          }
+          
+          .recentMessages {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            
+            .messageCard {
+              display: flex;
+              align-items: flex-start;
+              gap: 12px;
+              
+              .messageAvatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+                
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                }
+                
+                .messageInitials {
+                  width: 100%;
+                  height: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(255, 255, 255, 0.1);
+                  color: $white;
+                  font-weight: 600;
+                  font-size: 12px;
+                }
+              }
+              
+              .messageContent {
+                flex: 1;
+                
+                .messageMeta {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 4px;
+                  
+                  .messageSender {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: $white;
+                  }
+                  
+                  .messageTime {
+                    font-size: 11px;
+                    color: $gray;
+                  }
+                }
+                
+                .messageText {
+                  margin: 0;
+                  font-size: 13px;
+                  line-height: 1.5;
+                  color: $gray;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Tasks specific styles
+    .tasksTab {
+      .taskCategories {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        
+        @media (max-width: 1200px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .taskCategory {
+          .categoryHeader {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            
+            .statusIndicator {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              
+              &.todo {
+                background: $status-todo;
+              }
+              
+              &.inProgress {
+                background: $status-in-progress;
+              }
+              
+              &.completed {
+                background: $status-completed;
+              }
+            }
+            
+            h3 {
+              font-size: 16px;
+              font-weight: 600;
+              color: $white;
+              margin: 0;
+              flex: 1;
+            }
+            
+            .taskCount {
+              font-size: 13px;
+              font-weight: 600;
+              color: $gray;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              padding: 2px 8px;
+            }
+          }
+          
+          .categoryTasks {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            
+            .taskItem {
+              background: rgba(255, 255, 255, 0.03);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              border-radius: 10px;
+              overflow: hidden;
+              transition: all 0.2s ease;
+              
+              &.expanded {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.1);
+              }
+              
+              .taskHeader {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                cursor: pointer;
+                
+                .taskTitle {
+                  display: flex;
+                  align-items: center;
+                  flex-wrap: wrap;
+                  gap: 8px;
+                  
+                  h4 {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: $white;
+                    margin: 0;
+                  }
+                  
+                  .highPriorityTag {
+                    font-size: 11px;
+                    color: $white;
+                    background: rgba($pod-red, 0.3);
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                  }
+                }
+                
+                .taskCollapse {
+                  color: $gray;
+                }
+              }
+              
+              .taskDetails {
+                padding: 0 16px 16px;
+                overflow: hidden;
+                
+                .taskDescription {
+                  margin-bottom: 16px;
+                  
+                  p {
+                    font-size: 14px;
+                    line-height: 1.5;
+                    color: $gray;
+                    margin: 0;
+                  }
+                }
+                
+                .taskMetadata {
+                  background: rgba(0, 0, 0, 0.2);
+                  border-radius: 8px;
+                  padding: 12px;
+                  margin-bottom: 16px;
+                  
+                  .metadataRow {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                    margin-bottom: 12px;
+                    
+                    &:last-child {
+                      margin-bottom: 0;
+                    }
+                    
+                    .metaItem {
+                      display: flex;
+                      align-items: center;
+                      flex-wrap: wrap;
+                      gap: 6px;
+                      font-size: 13px;
+                      color: $gray;
+                      
+                      svg {
+                        color: $pod-gold;
+                        flex-shrink: 0;
+                      }
+                      
+                      .assigneesList {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        
+                        .assigneeTag {
+                          display: flex;
+                          align-items: center;
+                          gap: 6px;
+                          background: rgba(255, 255, 255, 0.05);
+                          border-radius: 16px;
+                          padding: 2px 10px 2px 2px;
+                          
+                          img {
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            object-fit: cover;
+                          }
+                          
+                          .smallInitials {
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(255, 255, 255, 0.1);
+                            color: $white;
+                            font-size: 9px;
+                            font-weight: 600;
+                          }
+                          
+                          span {
+                            font-size: 12px;
+                            color: $white;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                
+                .taskComments {
+                  margin-bottom: 16px;
+                  
+                  h5 {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: $white;
+                    margin: 0 0 12px;
+                  }
+                  
+                  .noComments {
+                    font-size: 13px;
+                    color: $gray;
+                    margin: 0 0 12px;
+                    font-style: italic;
+                  }
+                  
+                  .commentsSection {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                    margin-bottom: 16px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    
+                    .commentItem {
+                      display: flex;
+                      align-items: flex-start;
+                      gap: 10px;
+                      
+                      .commentAvatar {
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        flex-shrink: 0;
+                        
+                        img {
+                          width: 100%;
+                          height: 100%;
+                          object-fit: cover;
+                        }
+                        
+                        .commentInitials {
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: rgba(255, 255, 255, 0.1);
+                          color: $white;
+                          font-size: 10px;
+                          font-weight: 600;
+                        }
+                      }
+                      
+                      .commentContent {
+                        flex: 1;
+                        
+                        .commentMeta {
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: center;
+                          margin-bottom: 4px;
+                          
+                          .commentAuthor {
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: $white;
+                          }
+                          
+                          .commentDate {
+                            font-size: 11px;
+                            color: $gray;
+                          }
+                        }
+                        
+                        .commentText {
+                          font-size: 13px;
+                          line-height: 1.5;
+                          color: $gray;
+                          margin: 0;
+                        }
+                      }
+                    }
+                  }
+                  
+                  .addCommentForm {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    
+                    textarea {
+                      width: 100%;
+                      background: rgba(255, 255, 255, 0.03);
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                      border-radius: 8px;
+                      padding: 10px;
+                      color: $white;
+                      font-size: 13px;
+                      resize: vertical;
+                      
+                      &:focus {
+                        outline: none;
+                        border-color: rgba($pod-gold, 0.4);
+                      }
+                      
+                      &::placeholder {
+                        color: $gray;
+                      }
+                    }
+                    
+                    .commentButton {
+                      align-self: flex-end;
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      background: $pod-gold;
+                      border: none;
+                      border-radius: 6px;
+                      padding: 6px 12px;
+                      color: $black;
+                      font-size: 13px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      
+                      &:hover {
+                        background: lighten($pod-gold, 5%);
+                      }
+                    }
+                  }
+                }
+                
+                .taskActions {
+                  display: flex;
+                  justify-content: flex-end;
+                  gap: 12px;
+                  
+                  .secondaryButton {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                    padding: 8px 14px;
+                    color: $white;
+                    font-size: 13px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    
+                    &:hover {
+                      background: rgba(255, 255, 255, 0.08);
+                    }
+                  }
+                  
+                  .primaryButton {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: $pod-gold;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 8px 14px;
+                    color: $black;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    
+                    &:hover {
+                      background: lighten($pod-gold, 5%);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Milestones specific styles
+    .milestonesTab {
+      .milestoneTimeline {
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 24px;
+          bottom: 24px;
+          left: 24px;
+          width: 2px;
+          background: rgba(255, 255, 255, 0.1);
+          z-index: 0;
+          
+          @media (max-width: 576px) {
+            left: 15px;
+          }
+        }
+        
+        .milestoneTimelineItem {
+          position: relative;
+          display: flex;
+          margin-bottom: 40px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          &.completed {
+            .milestoneMarker {
+              background: $pod-green;
+              color: $black;
+            }
+          }
+          
+          &.in-progress {
+            .milestoneMarker {
+              background: $pod-orange;
+              color: $black;
+            }
+            
+            .milestoneTimelineConnector .connector {
+              background: linear-gradient(to bottom, $pod-orange 0%, rgba(255, 255, 255, 0.1) 100%);
+            }
+          }
+          
+          &.not-started {
+            .milestoneMarker {
+              background: rgba(255, 255, 255, 0.1);
+              color: $white;
+            }
+          }
+          
+          .milestoneTimelineConnector {
+            position: relative;
+            width: 50px;
+            flex-shrink: 0;
+            
+            @media (max-width: 576px) {
+              width: 30px;
+            }
+            
+            .connector {
+              position: absolute;
+              top: 24px;
+              bottom: -40px;
+              left: 24px;
+              width: 2px;
+              background: rgba(255, 255, 255, 0.1);
+              z-index: 0;
+              
+              @media (max-width: 576px) {
+                left: 15px;
+              }
+            }
+            
+            .milestoneMarker {
+              position: relative;
+              z-index: 1;
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 12px;
+              
+              @media (max-width: 576px) {
+                margin-left: 3px;
+              }
+              
+              .milestoneNumber {
+                font-size: 12px;
+                font-weight: 600;
+              }
+            }
+          }
+          
+          .milestoneTimelineContent {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            
+            .milestoneHeader {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 12px;
+              
+              @media (max-width: 576px) {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+              }
+              
+              h3 {
+                font-size: 18px;
+                font-weight: 600;
+                color: $white;
+                margin: 0;
+              }
+              
+              .milestoneDueDate {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+                color: $gray;
+                
+                svg {
+                  color: $pod-gold;
+                }
+              }
+            }
+            
+            .milestoneDescription {
+              font-size: 14px;
+              line-height: 1.5;
+              color: $gray;
+              margin: 0 0 20px;
+            }
+            
+            .milestoneProgress {
+              margin-bottom: 24px;
+              
+              .progressLabel {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+                
+                .progressText {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: $white;
+                }
+                
+                .progressPercentage {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: $pod-gold;
+                }
+              }
+              
+              .progressTrack {
+                height: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 4px;
+                overflow: hidden;
+                
+                .progressFill {
+                  height: 100%;
+                  background: $pod-gold;
+                  border-radius: 4px;
+                }
+              }
+            }
+            
+            .milestoneTasks {
+              .milestonesTasksHeader {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                
+                h4 {
+                  font-size: 15px;
+                  font-weight: 600;
+                  color: $white;
+                  margin: 0;
+                }
+                
+                .smallActionButton {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: rgba(255, 255, 255, 0.05);
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  border-radius: 6px;
+                  padding: 6px 10px;
+                  color: $white;
+                  font-size: 12px;
+                  cursor: pointer;
+                  
+                  &:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                  }
+                }
+              }
+              
+              .milestonesTasksList {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                
+                .milestoneTask {
+                  background: rgba(255, 255, 255, 0.02);
+                  border: 1px solid rgba(255, 255, 255, 0.08);
+                  border-radius: 8px;
+                  padding: 12px;
+                  
+                  &.completed {
+                    border-left: 3px solid $status-completed;
+                    
+                    .taskStatusDot {
+                      background: $status-completed;
+                    }
+                  }
+                  
+                  &.in-progress {
+                    border-left: 3px solid $status-in-progress;
+                    
+                    .taskStatusDot {
+                      background: $status-in-progress;
+                    }
+                  }
+                  
+                  &.to-do {
+                    border-left: 3px solid $status-todo;
+                    
+                    .taskStatusDot {
+                      background: $status-todo;
+                    }
+                  }
+                  
+                  .milestoneTaskHeader {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 12px;
+                    
+                    .taskStatusDot {
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 50%;
+                      flex-shrink: 0;
+                    }
+                    
+                    h5 {
+                      font-size: 14px;
+                      font-weight: 600;
+                      color: $white;
+                      margin: 0;
+                      flex: 1;
+                    }
+                    
+                    .taskActions {
+                      .iconButton {
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(255, 255, 255, 0.05);
+                        border: none;
+                        border-radius: 4px;
+                        color: $gray;
+                        cursor: pointer;
+                        
+                        &:hover {
+                          background: rgba(255, 255, 255, 0.1);
+                          color: $white;
+                        }
+                      }
+                    }
+                  }
+                  
+                  .milestoneTaskMeta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    
+                    .metaItem {
+                      display: flex;
+                      align-items: center;
+                      gap: 4px;
+                      font-size: 12px;
+                      color: $gray;
+                      
+                      svg {
+                        color: $pod-gold;
+                      }
+                    }
+                    
+                    .assigneesList {
+                      display: flex;
+                      align-items: center;
+                      
+                      .taskAssignee {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        margin-left: -6px;
+                        border: 2px solid rgba(0, 0, 0, 0.8);
+                        
+                        &:first-child {
+                          margin-left: 0;
+                        }
+                        
+                        img {
+                          width: 100%;
+                          height: 100%;
+                          object-fit: cover;
+                        }
+                        
+                        .assigneeInitials {
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: rgba(255, 255, 255, 0.1);
+                          color: $white;
+                          font-weight: 600;
+                          font-size: 10px;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Communication specific styles
+    .communicationTab {
+      .chatInterface {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 250px);
+        min-height: 400px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        overflow: hidden;
+        
+        .chatMessages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          
+          .chatMessage {
+            display: flex;
+            gap: 12px;
+            max-width: 80%;
+            
+            &.incoming {
+              align-self: flex-start;
+              
+              .messageBubble {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px 12px 12px 0;
+              }
+            }
+            
+            &.outgoing {
+              align-self: flex-end;
+              flex-direction: row-reverse;
+              
+              .messageBubble {
+                background: rgba($pod-gold, 0.15);
+                border-radius: 12px 12px 0 12px;
+                color: $white;
+              }
+              
+              .messageInfo {
+                text-align: right;
+              }
+            }
+            
+            .messageAvatar {
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              overflow: hidden;
+              flex-shrink: 0;
+              
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+              
+              .messageInitials {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                color: $white;
+                font-weight: 600;
+                font-size: 13px;
+              }
+            }
+            
+            .messageContent {
+              flex: 1;
+              
+              .messageBubble {
+                padding: 12px 16px;
+                
+                p {
+                  margin: 0;
+                  font-size: 14px;
+                  line-height: 1.5;
+                  color: inherit;
+                }
+              }
+              
+              .messageInfo {
+                margin-top: 4px;
+                display: flex;
+                gap: 8px;
+                
+                .messageSender {
+                  font-size: 12px;
+                  font-weight: 500;
+                  color: $white;
+                }
+                
+                .messageTime {
+                  font-size: 11px;
+                  color: $gray;
+                }
+              }
+            }
+          }
+        }
+        
+        .chatInput {
+          padding: 16px;
+          background: rgba(0, 0, 0, 0.2);
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          
+          form {
+            .inputWrapper {
+              position: relative;
+              
+              textarea {
+                width: 100%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 12px 90px 12px 12px;
+                color: $white;
+                font-size: 14px;
+                resize: none;
+                
+                &:focus {
+                  outline: none;
+                  border-color: rgba($pod-gold, 0.4);
+                }
+                
+                &::placeholder {
+                  color: $gray;
+                }
+              }
+              
+              .inputActions {
+                position: absolute;
+                top: 50%;
+                right: 12px;
+                transform: translateY(-50%);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                
+                .attachButton, .sendButton {
+                  width: 32px;
+                  height: 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border-radius: 50%;
+                  border: none;
+                  cursor: pointer;
+                  
+                  &:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                  }
+                }
+                
+                .attachButton {
+                  background: rgba(255, 255, 255, 0.1);
+                  color: $white;
+                  
+                  &:hover:not(:disabled) {
+                    background: rgba(255, 255, 255, 0.15);
+                  }
+                }
+                
+                .sendButton {
+                  background: $pod-gold;
+                  color: $black;
+                  
+                  &:hover:not(:disabled) {
+                    background: lighten($pod-gold, 5%);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Resources specific styles
+    .resourcesTab {
+      .resourcesGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        
+        @media (max-width: 576px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .resourceCard {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-3px);
+          }
+          
+          .resourceIcon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $pod-gold;
+            flex-shrink: 0;
+          }
+          
+          .resourceInfo {
+            flex: 1;
+            min-width: 0; // Prevent flex items from overflowing
+            
+            h4 {
+              font-size: 15px;
+              font-weight: 600;
+              color: $white;
+              margin: 0 0 6px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .resourceMeta {
+              display: flex;
+              gap: 12px;
+              margin-bottom: 6px;
+              
+              .resourceSize, .resourceDate {
+                font-size: 12px;
+                color: $gray;
+              }
+            }
+            
+            .resourceUploader {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              
+              img {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                object-fit: cover;
+              }
+              
+              .uploaderInitials {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                color: $white;
+                font-size: 9px;
+                font-weight: 600;
+              }
+              
+              span {
+                font-size: 12px;
+                color: $gray;
+              }
+            }
+          }
+          
+          .resourceActions {
+            display: flex;
+            gap: 8px;
+            
+            .iconButton {
+              width: 28px;
+              height: 28px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(255, 255, 255, 0.05);
+              border: none;
+              border-radius: 6px;
+              color: $gray;
+              cursor: pointer;
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: $white;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Analytics specific styles
+    .analyticsTab {
+      .analyticsGrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        
+        @media (max-width: 992px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .analyticsCard {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 20px;
+          
+          h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: $white;
+            margin: 0 0 16px;
+          }
+          
+          .taskCompletionStats {
+            display: flex;
+            gap: 24px;
+            
+            @media (max-width: 576px) {
+              flex-direction: column;
+              align-items: center;
+            }
+            
+            .completionRateCircle {
+              position: relative;
+              width: 120px;
+              height: 120px;
+              flex-shrink: 0;
+              
+              .completionRateLabel {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                
+                .ratePercentage {
+                  display: block;
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: $white;
+                }
+                
+                .rateText {
+                  font-size: 12px;
+                  color: $gray;
+                }
+              }
+            }
+            
+            .tasksBreakdown {
+              flex: 1;
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              
+              .taskStat {
+                .statLabel {
+                  display: block;
+                  font-size: 12px;
+                  color: $gray;
+                  margin-bottom: 4px;
+                }
+                
+                .statValue {
+                  display: block;
+                  font-size: 20px;
+                  font-weight: 700;
+                  color: $white;
+                }
+              }
+            }
+          }
+          
+          .milestoneStats {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            
+            .milestoneStat {
+              .milestoneInfo {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+                
+                .milestoneName {
+                  font-size: 14px;
+                  color: $white;
+                }
+                
+                .milestonePercentage {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: $pod-gold;
+                }
+              }
+              
+              .milestoneStatTrack {
+                height: 6px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 3px;
+                overflow: hidden;
+                
+                .milestoneStatFill {
+                  height: 100%;
+                  background: $pod-gold;
+                  border-radius: 3px;
+                }
+              }
+            }
+          }
+          
+          .memberPerformance {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            
+            .memberPerformanceRow {
+              display: flex;
+              align-items: center;
+              gap: 16px;
+              
+              @media (max-width: 576px) {
+                flex-direction: column;
+                align-items: flex-start;
+              }
+              
+              .memberBasicInfo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 200px;
+                
+                @media (max-width: 576px) {
+                  width: 100%;
+                }
+                
+                .memberAvatar {
+                  width: 32px;
+                  height: 32px;
+                  border-radius: 50%;
+                  overflow: hidden;
+                  flex-shrink: 0;
+                  
+                  img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                  }
+                  
+                  .memberInitials {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: $white;
+                    font-weight: 600;
+                    font-size: 12px;
+                  }
+                }
+                
+                .memberNameRole {
+                  .memberName {
+                    display: block;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $white;
+                  }
+                  
+                  .memberRole {
+                    display: block;
+                    font-size: 12px;
+                    color: $gray;
+                  }
+                }
+              }
+              
+              .memberTasksProgress {
+                flex: 1;
+                
+                @media (max-width: 576px) {
+                  width: 100%;
+                }
+                
+                .progressInfo {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 6px;
+                  
+                  .progressFraction {
+                    font-size: 13px;
+                    color: $gray;
+                  }
+                  
+                  .progressPercentage {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: $pod-gold;
+                  }
+                }
+                
+                .progressTrack {
+                  height: 6px;
+                  background: rgba(255, 255, 255, 0.05);
+                  border-radius: 3px;
+                  overflow: hidden;
+                  
+                  .progressFill {
+                    height: 100%;
+                    background: $pod-gold;
+                    border-radius: 3px;
+                  }
+                }
+              }
+            }
+          }
+          
+          .timeCompletion {
+            display: flex;
+            gap: 24px;
+            
+            @media (max-width: 576px) {
+              flex-direction: column;
+              align-items: center;
+            }
+            
+            .timeCircle {
+              position: relative;
+              width: 120px;
+              height: 120px;
+              flex-shrink: 0;
+              
+              .timeLabel {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                
+                .daysValue {
+                  display: block;
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: $white;
+                }
+                
+                .daysText {
+                  font-size: 12px;
+                  color: $gray;
+                }
+              }
+            }
+            
+            .timeStats {
+              flex: 1;
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              
+              .timeStat {
+                .statLabel {
+                  display: block;
+                  font-size: 12px;
+                  color: $gray;
+                  margin-bottom: 4px;
+                }
+                
+                .statValue {
+                  display: block;
+                  font-size: 16px;
+                  font-weight: 600;
+                  color: $white;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Reusable component styles
+.iconButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 6px;
+  color: $gray;
+  cursor: pointer;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+  }
+}
+
+.secondaryButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: $white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.primaryButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $pod-gold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: $black;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  
+  &:hover {
+    background: lighten($pod-gold, 5%);
+  }
+}
+
+// Status colors for various elements
+.todo, .not-started {
+  .taskStatusDot, .statusIndicator {
+    background: $status-todo;
+  }
+}
+
+.in-progress {
+  .taskStatusDot, .statusIndicator {
+    background: $status-in-progress;
+  }
+}
+
+.completed {
+  .taskStatusDot, .statusIndicator {
+    background: $status-completed;
+  }
+}
+
+// Mobile styles
+@media (max-width: 992px) {
+  .podEnvironment {
+    .contentWrapper {
+      .mainContent {
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+// Animation styles
+.fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.slideIn {
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
