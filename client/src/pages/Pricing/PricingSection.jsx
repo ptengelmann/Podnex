@@ -17,7 +17,8 @@ import {
   ArrowRight,
   Sparkles,
   BadgeCheck,
-  Megaphone
+  Megaphone,
+  X
 } from 'lucide-react';
 
 const PricingSection = () => {
@@ -25,8 +26,10 @@ const PricingSection = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hoveredCard, setHoveredCard] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   
   const sectionRef = useRef(null);
+  const modalRef = useRef(null);
   const inView = useInView(sectionRef, { once: false, threshold: 0.2 });
   const controls = useAnimation();
 
@@ -233,6 +236,29 @@ const PricingSection = () => {
     }
   };
 
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.8,
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.16, 1, 0.3, 1], // Custom easing
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      transition: {
+        duration: 0.3,
+        ease: [0.36, 0, 0.66, -0.56], // Custom easing
+      }
+    }
+  };
+
   // Check viewport size
   useEffect(() => {
     const handleResize = () => {
@@ -265,6 +291,88 @@ const PricingSection = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target) && isCompareModalOpen) {
+        // Make sure we're not clicking on the compare button itself
+        if (!event.target.closest(`.${styles.compareButton}`)) {
+          setIsCompareModalOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isCompareModalOpen]);
+
+  // Close modal on escape key
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape' && isCompareModalOpen) {
+        setIsCompareModalOpen(false);
+        // Add a small delay to re-enable click handlers
+        setTimeout(() => {
+          const compareBtn = document.querySelector(`.${styles.compareButton}`);
+          if (compareBtn) {
+            compareBtn.style.pointerEvents = 'auto';
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, [isCompareModalOpen]);
+
+  // Prevent body scroll when modal is open and handle button re-enabling
+  useEffect(() => {
+    if (isCompareModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+      // Re-enable the compare button when modal closes
+      setTimeout(() => {
+        const compareBtn = document.querySelector(`.${styles.compareButton}`);
+        if (compareBtn) {
+          compareBtn.style.pointerEvents = 'auto';
+        }
+      }, 100);
+    }
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isCompareModalOpen]);
+
+  // Function to handle opening the compare modal
+  const handleCompareClick = (e) => {
+    e.stopPropagation(); // Prevent event from bubbling
+    setIsCompareModalOpen(true);
+  };
+
+  // Get all unique features for comparison
+  const getAllUniqueFeatures = () => {
+    const featuresSet = new Set();
+    
+    Object.keys(pricingData).forEach(roleKey => {
+      pricingData[roleKey].plans.forEach(plan => {
+        plan.features.forEach(feature => {
+          featuresSet.add(feature.text);
+        });
+      });
+    });
+    
+    return Array.from(featuresSet);
+  };
+
+  // Check if a plan has a specific feature
+  const planHasFeature = (roleKey, planIndex, featureText) => {
+    const plan = pricingData[roleKey].plans[planIndex];
+    const feature = plan.features.find(f => f.text === featureText);
+    return feature ? feature.included : false;
+  };
 
   return (
     <section className={styles.pricingSection} ref={sectionRef}>
@@ -559,17 +667,160 @@ const PricingSection = () => {
         </motion.button>
       </motion.div>
       
-      {/* Compare Plans */}
+      {/* Compare Plans Button */}
       <motion.button
         className={styles.compareButton}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.5 }}
         whileHover={{ y: -5 }}
+        onClick={handleCompareClick}
+        id="compare-all-plans-button"
       >
         <Award size={18} />
         Compare All Plans
       </motion.button>
+      
+      {/* Compare Modal */}
+      <AnimatePresence>
+        {isCompareModalOpen && (
+          <motion.div 
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onAnimationComplete={(definition) => {
+              // Re-enable compare button when modal animation completes
+              if (definition === "exit") {
+                const compareBtn = document.querySelector(`.${styles.compareButton}`);
+                if (compareBtn) {
+                  compareBtn.style.pointerEvents = 'auto';
+                }
+              }
+            }}
+          >
+            <motion.div 
+              className={styles.compareModal}
+              ref={modalRef}
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className={styles.modalHeader}>
+                <h3>Compare All Plans</h3>
+                <button 
+                  className={styles.closeModalButton} 
+                  onClick={() => {
+                    setIsCompareModalOpen(false);
+                    // Ensure the compare button is clickable again
+                    setTimeout(() => {
+                      const compareBtn = document.querySelector(`.${styles.compareButton}`);
+                      if (compareBtn) {
+                        compareBtn.style.pointerEvents = 'auto';
+                      }
+                    }, 100);
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className={styles.compareTableWrapper}>
+                <table className={styles.compareTable}>
+                  <thead>
+                    <tr>
+                      <th className={styles.featureColumn}>Features</th>
+                      {Object.keys(pricingData).map(roleKey => (
+                        pricingData[roleKey].plans.map((plan, planIndex) => (
+                          <th 
+                            key={`${roleKey}-${planIndex}`}
+                            className={plan.recommended ? styles.recommendedColumn : ''}
+                            style={{ 
+                              borderColor: plan.recommended ? `${plan.color}50` : 'transparent',
+                              backgroundColor: plan.recommended ? `${plan.color}10` : 'transparent' 
+                            }}
+                          >
+                            <div className={styles.planColumnHeader}>
+                              {plan.recommended && (
+                                <div className={styles.recommendedPill} style={{ backgroundColor: plan.color }}>
+                                  <Crown size={12} />
+                                  Recommended
+                                </div>
+                              )}
+                              <div className={styles.roleIndicator} style={{ color: pricingData[roleKey].color }}>
+                                {roleKey === 'podCreator' ? (
+                                  <RocketIcon size={14} />
+                                ) : roleKey === 'contributor' ? (
+                                  <UsersIcon size={14} />
+                                ) : (
+                                  <Megaphone size={14} />
+                                )}
+                                {pricingData[roleKey].title}
+                              </div>
+                              <div className={styles.planTitleCompare}>{plan.name}</div>
+                              <div className={styles.planPriceCompare}>
+                                <span className={styles.currencyCompare}>$</span>
+                                <span className={styles.amountCompare}>{plan.price}</span>
+                                <span className={styles.periodCompare}>/mo</span>
+                              </div>
+                            </div>
+                          </th>
+                        ))
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getAllUniqueFeatures().map((feature, index) => (
+                      <tr key={index} className={index % 2 === 0 ? styles.evenRow : styles.oddRow}>
+                        <td className={styles.featureColumn}>{feature}</td>
+                        {Object.keys(pricingData).map(roleKey => (
+                          pricingData[roleKey].plans.map((plan, planIndex) => {
+                            const hasFeature = planHasFeature(roleKey, planIndex, feature);
+                            return (
+                              <td 
+                                key={`${roleKey}-${planIndex}`}
+                                className={plan.recommended ? styles.recommendedColumn : ''}
+                              >
+                                {hasFeature ? (
+                                  <CheckCircle size={18} className={styles.featureIncludedCompare} style={{ color: plan.color }} />
+                                ) : (
+                                  <XCircle size={18} className={styles.featureExcludedCompare} />
+                                )}
+                              </td>
+                            );
+                          })
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className={styles.modalActions}>
+                <motion.button 
+                  className={styles.modalCloseButton}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    setIsCompareModalOpen(false);
+                    // Ensure the compare button is clickable again
+                    setTimeout(() => {
+                      const compareBtn = document.querySelector(`.${styles.compareButton}`);
+                      if (compareBtn) {
+                        compareBtn.style.pointerEvents = 'auto';
+                      }
+                    }, 100);
+                  }}
+                >
+                  Close Comparison
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
