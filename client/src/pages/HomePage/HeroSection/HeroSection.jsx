@@ -1,40 +1,60 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Rocket, Award, Globe, ArrowRight, Github, ChevronDown } from 'lucide-react';
+import { 
+  Rocket, 
+  Users, 
+  ArrowRight, 
+  Star, 
+  ChevronDown, 
+  Zap,
+  Briefcase,
+  TrendingUp,
+  BarChart,
+  Lock,
+  Sparkles
+} from 'lucide-react';
 import styles from './HeroSection.module.scss';
 
 const HeroSection = () => {
+  // State management
   const [email, setEmail] = useState('');
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [currentValueProp, setCurrentValueProp] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isTyping, setIsTyping] = useState(true);
-  const [currentWord, setCurrentWord] = useState(0);
-  const [typedText, setTypedText] = useState('');
+  const [showPitch, setShowPitch] = useState(false);
   
+  // Refs
   const sectionRef = useRef(null);
   
-  // Value propositions that will rotate
-  const valueProps = [
-    "Build real products with verified contributors.",
-    "Reputation is the foundation of opportunity.",
-    "No fake equity, only real ownership.",
-    "Systems outperform tools and hustle."
+  // Core benefits - key selling points
+  const coreBenefits = [
+    {
+      title: "Build Together",
+      description: "Create collaborative teams with transparent contribution tracking",
+      icon: <Users size={20} />,
+      color: "#3B82F6"
+    },
+    {
+      title: "Launch Products",
+      description: "Take ideas to market with combined skills and resources",
+      icon: <Rocket size={20} />,
+      color: "#EC4899"
+    },
+    {
+      title: "Share Revenue",
+      description: "Earn based on your verified contributions",
+      icon: <BarChart size={20} />,
+      color: "#10B981"
+    },
+    {
+      title: "Build Reputation",
+      description: "Showcase your real work and impact",
+      icon: <Star size={20} />,
+      color: "#F59E0B"
+    }
   ];
-  
-  // Words that will be typed in animation
-  const boldWords = ['Bold', 'Together', 'Transparently'];
-  
-  // Animation interval for value props
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentValueProp((prev) => (prev + 1) % valueProps.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [valueProps.length]);
-  
-  // Mouse movement effect for grid background
+
+  // Mouse parallax effect for grid background
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({
@@ -47,50 +67,53 @@ const HeroSection = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
   
-  // Typewriter effect
+  // Show pitch after slight delay for marketing impact
   useEffect(() => {
-    if (!isTyping) return;
-    
-    const word = boldWords[currentWord];
-    
-    if (typedText.length < word.length) {
-      const timeout = setTimeout(() => {
-        setTypedText(word.substring(0, typedText.length + 1));
-      }, 150);
-      return () => clearTimeout(timeout);
-    } else {
-      const timeout = setTimeout(() => {
-        setIsTyping(false);
-        setTimeout(() => {
-          setTypedText('');
-          setCurrentWord((currentWord + 1) % boldWords.length);
-          setIsTyping(true);
-        }, 1500);
-      }, 1000);
-      return () => clearTimeout(timeout);
-    }
-  }, [typedText, isTyping, currentWord]);
-  
+    const timer = setTimeout(() => {
+      setShowPitch(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Form submission handler
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (email) {
       setShowModal(true);
     }
   };
   
-  // Scroll to next section
+  // Scroll to next section without auto-scroll issues
   const scrollToNextSection = () => {
     if (sectionRef.current) {
-      window.scrollTo({
-        top: sectionRef.current.offsetHeight,
-        behavior: 'smooth'
-      });
+      const nextSection = sectionRef.current.nextElementSibling;
+      if (nextSection) {
+        // Using scrollIntoView with options to avoid auto-scroll issues
+        nextSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start'
+        });
+        
+        // Prevent default scroll events temporarily
+        const preventScroll = (e) => {
+          e.preventDefault();
+        };
+        
+        window.addEventListener('wheel', preventScroll, { passive: false });
+        window.addEventListener('touchmove', preventScroll, { passive: false });
+        
+        // Remove event listeners after animation completes
+        setTimeout(() => {
+          window.removeEventListener('wheel', preventScroll);
+          window.removeEventListener('touchmove', preventScroll);
+        }, 1000);
+      }
     }
   };
   
   return (
     <section ref={sectionRef} className={styles.hero}>
-      {/* Animated grid background */}
+      {/* Animated grid background with parallax */}
       <div 
         className={styles.gridBackground}
         style={{
@@ -98,7 +121,7 @@ const HeroSection = () => {
         }}
       />
       
-      {/* Floating animated shapes */}
+      {/* Animated blob shapes for visual interest */}
       <motion.div
         className={`${styles.floatingShape} ${styles.shape1}`}
         animate={{
@@ -130,288 +153,208 @@ const HeroSection = () => {
       />
       
       {/* Main hero content container */}
-      <motion.div
-        className={styles.heroContent}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        {/* Badge */}
-        <motion.div 
-          className={styles.badgeWrapper}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <span className={styles.badge}>The Creator-Driven Ecosystem</span>
-        </motion.div>
-        
-        {/* Main heading */}
-        <motion.h1
-          className={styles.title}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
-          Build <span className={styles.highlight}>
-            <span className={isTyping ? styles.typewriterText : ''}>{typedText}</span>
-          </span>
-          <br />
-          Ideas With Real People
-        </motion.h1>
-        
-        {/* Animated value propositions */}
-        <div className={styles.valuePropsContainer}>
-          <AnimatePresence mode="wait">
+      <div className={styles.heroContent}>
+        <div className={styles.heroMainSection}>
+          {/* Left column: main headline, description, and CTAs */}
+          <div className={styles.heroMainContent}>
+            {/* Clear primary brand badge */}
+            <motion.div 
+              className={styles.badgeWrapper}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <span className={styles.badge}>
+                <Zap size={14} className={styles.badgeIcon} />
+                <span>Creator Collaboration Ecosystem</span>
+              </span>
+            </motion.div>
+            
+            {/* Bold, clear primary headline */}
+            <motion.h1
+              className={styles.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <span>Form a Pod.</span>
+              <br />
+              <span className={styles.highlight}>Build & Launch.</span>
+              <br />
+              <span>Share Revenue.</span>
+            </motion.h1>
+            
+            {/* Clear, concise value proposition */}
             <motion.p
-              key={currentValueProp}
-              className={styles.valueProp}
+              className={styles.mainSubtitle}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+            >
+              PODNEX connects creators in collaborative teams called "Pods" to build, launch, and earn together. 
+            Every contribution is tracked, validated, and tied directly to revenue.
+          </motion.p>
+            {/* Primary & secondary CTAs */}
+            <motion.div 
+              className={styles.actions}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+            >
+              <motion.a 
+                href="/register"
+                className={styles.primaryBtn}
+                whileHover={{ scale: 1.05, backgroundColor: "#E8C547" }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Start a Pod
+                <ArrowRight size={18} />
+              </motion.a>
+              
+              <motion.a 
+                href="/explore"
+                className={styles.secondaryBtn}
+                whileHover={{ scale: 1.05, borderColor: "#E8C547", color: "#E8C547" }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Explore Pods
+              </motion.a>
+            </motion.div>
+            
+            {/* Quick benefits immediately visible */}
+            <motion.div 
+              className={styles.quickBenefits}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              transition={{ delay: 1, duration: 0.6 }}
             >
-              {valueProps[currentValueProp]}
-            </motion.p>
-          </AnimatePresence>
+              {coreBenefits.map((benefit, index) => (
+                <motion.div 
+                  key={index}
+                  className={styles.benefitItem}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 + (index * 0.1), duration: 0.4 }}
+                >
+                  <div className={styles.benefitIcon} style={{ color: benefit.color, backgroundColor: `${benefit.color}15` }}>
+                    {benefit.icon}
+                  </div>
+                  <div className={styles.benefitText}>
+                    <h4>{benefit.title}</h4>
+                    <p>{benefit.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
           
-          {/* Indicator dots */}
-          <div className={styles.indicatorContainer}>
-            {valueProps.map((_, index) => (
-              <div 
-                key={index} 
-                className={`${styles.indicator} ${currentValueProp === index ? styles.active : ''}`}
-                onClick={() => setCurrentValueProp(index)}
-              />
-            ))}
+          {/* Right column: platform stats, testimonial, or email signup */}
+          <div className={styles.heroVisualContent}>
+            {/* Platform stats cards */}
+            <motion.div 
+              className={styles.statsCards}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+            >
+              <div className={styles.statCard} style={{ '--stat-color': '#3B82F6' }}>
+                <div className={styles.statIcon}>
+                  <Users size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statNumber}>250+</span>
+                  <span className={styles.statLabel}>Active Pods</span>
+                </div>
+              </div>
+              
+              <div className={styles.statCard} style={{ '--stat-color': '#EC4899' }}>
+                <div className={styles.statIcon}>
+                  <Briefcase size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statNumber}>120+</span>
+                  <span className={styles.statLabel}>Products Launched</span>
+                </div>
+              </div>
+              
+              <div className={styles.statCard} style={{ '--stat-color': '#10B981' }}>
+                <div className={styles.statIcon}>
+                  <TrendingUp size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statNumber}>$1.2M+</span>
+                  <span className={styles.statLabel}>Creator Revenue</span>
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Email signup for early access */}
+            <AnimatePresence>
+              {showPitch && (
+                <motion.div 
+                  className={styles.emailPitch}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                >
+                  <div className={styles.pitchContent}>
+                    <div className={styles.pitchBadge}>
+                      <Lock size={14} />
+                      <span>Private Beta Access</span>
+                    </div>
+                    <h3>Join the next generation of creative collaboration</h3>
+                    <form className={styles.emailCaptureForm} onSubmit={handleSubmit}>
+                      <div className={`${styles.inputWrapper} ${isEmailFocused ? styles.focused : ''}`}>
+                        <input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          onFocus={() => setIsEmailFocused(true)}
+                          onBlur={() => setIsEmailFocused(false)}
+                          required
+                        />
+                        <button type="submit" className={styles.submitBtn}>
+                          Get Early Access
+                        </button>
+                      </div>
+                    </form>
+                    <div className={styles.emailStatus}>
+                      <div className={styles.statusBar}>
+                        <div className={styles.statusFill}></div>
+                      </div>
+                      <div className={styles.statusText}>
+                        <Sparkles size={14} className={styles.statusIcon} />
+                        <span>68% of beta spots remaining</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Social proof section */}
+            <motion.div 
+              className={styles.testimonialCard}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 0.8 }}
+            >
+              <div className={styles.testimonialContent}>
+                "PODNEX completely changed how I collaborate. My contributions are recognized, and I'm earning real revenue from my work."
+              </div>
+              <div className={styles.testimonialAuthor}>
+                <div className={styles.authorAvatar}></div>
+                <div className={styles.authorInfo}>
+                  <span className={styles.authorName}>Sarah Chen</span>
+                  <span className={styles.authorRole}>Product Designer</span>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
-        
-        {/* Email signup */}
-        <motion.div 
-          className={styles.ctaFunnel}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
-        >
-          <div className={styles.emailCaptureForm}>
-            <div className={`${styles.inputWrapper} ${isEmailFocused ? styles.focused : ''}`}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setIsEmailFocused(true)}
-                onBlur={() => setIsEmailFocused(false)}
-              />
-              <button 
-                onClick={handleSubmit} 
-                className={styles.submitBtn}
-              >
-                Get Early Access
-              </button>
-            </div>
-          </div>
-        </motion.div>
-        
-        {/* Action buttons */}
-        <motion.div 
-          className={styles.actions}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.8 }}
-        >
-          <motion.a 
-            href="/register"
-            className={styles.primaryBtn}
-            whileHover={{ scale: 1.05, backgroundColor: "#E8C547" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Start Your Pod
-          </motion.a>
-          
-          <motion.a 
-            href="/explore"
-            className={styles.secondaryBtn}
-            whileHover={{ scale: 1.05, borderColor: "#E8C547", color: "#E8C547" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Explore Pods
-          </motion.a>
-        </motion.div>
-        
-        {/* Features highlight row */}
-        <motion.div 
-          className={styles.featuresRow}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-        >
-          <motion.div 
-            className={styles.featureItem}
-            whileHover={{ 
-              scale: 1.1, 
-              backgroundColor: "rgba(232, 197, 71, 0.1)",
-              y: -2
-            }}
-          >
-            <motion.div
-              whileHover={{ rotate: 15 }}
-              animate={{ 
-                scale: [1, 1.15, 1],
-                rotate: [0, 0, 0]
-              }}
-              transition={{ 
-                repeat: Infinity, 
-                duration: 3,
-                repeatDelay: 1
-              }}
-            >
-              <Award size={18} className={styles.featureIcon} />
-            </motion.div>
-            <span>No fake equity</span>
-          </motion.div>
-          
-          <motion.div 
-            className={styles.featureItem}
-            whileHover={{ 
-              scale: 1.1, 
-              backgroundColor: "rgba(232, 197, 71, 0.1)",
-              y: -2
-            }}
-          >
-            <motion.div
-              whileHover={{ rotate: 15 }}
-              animate={{ 
-                y: [0, -3, 0],
-                scale: [1, 1.15, 1]
-              }}
-              transition={{ 
-                repeat: Infinity, 
-                duration: 3,
-                repeatDelay: 1.5,
-                delay: 0.5
-              }}
-            >
-              <Rocket size={18} className={styles.featureIcon} />
-            </motion.div>
-            <span>Launch-focused Pods</span>
-          </motion.div>
-          
-          <motion.div 
-            className={styles.featureItem}
-            whileHover={{ 
-              scale: 1.1, 
-              backgroundColor: "rgba(232, 197, 71, 0.1)",
-              y: -2
-            }}
-          >
-            <motion.div
-              whileHover={{ rotate: 15 }}
-              animate={{ 
-                scale: [1, 1.15, 1],
-                x: [0, 3, 0]
-              }}
-              transition={{ 
-                repeat: Infinity, 
-                duration: 3,
-                repeatDelay: 1,
-                delay: 1
-              }}
-            >
-              <Users size={18} className={styles.featureIcon} />
-            </motion.div>
-            <span>Transparent XP & rep</span>
-          </motion.div>
-          
-          <motion.div 
-            className={styles.featureItem}
-            whileHover={{ 
-              scale: 1.1, 
-              backgroundColor: "rgba(232, 197, 71, 0.1)",
-              y: -2
-            }}
-          >
-            <motion.div
-              whileHover={{ rotate: 15 }}
-              animate={{ 
-                rotate: [0, 360, 360],
-                scale: [1, 1.15, 1]
-              }}
-              transition={{ 
-                repeat: Infinity, 
-                duration: 5,
-                repeatDelay: 2,
-                delay: 1.5,
-                ease: "easeInOut" 
-              }}
-            >
-              <Globe size={18} className={styles.featureIcon} />
-            </motion.div>
-            <span>Built in public</span>
-          </motion.div>
-        </motion.div>
-        
-        {/* Social proof section */}
-        <motion.div 
-          className={styles.socialProof}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.3, duration: 0.8 }}
-        >
-          <div className={styles.creators}>
-            <div className={styles.avatarGroup}>
-              {[1, 2, 3, 4, 5].map((num) => (
-                <div key={num} className={styles.avatar} />
-              ))}
-            </div>
-            <p>
-              <span>250+</span> Creators have launched Pods
-            </p>
-          </div>
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.number}>120+</span>
-              <span className={styles.label}>Live Products</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.number}>$1.2M</span>
-              <span className={styles.label}>Creator Revenue</span>
-            </div>
-          </div>
-        </motion.div>
-        
-        {/* GitHub link - Positioned within the social proof section */}
-        <motion.a
-          href="https://github.com/ptengelmann/Podnex"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.githubLink}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
-          whileHover={{ 
-            scale: 1.05,
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: "#E8C547"
-          }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <motion.div 
-            className={styles.githubIconWrapper}
-            whileHover={{ rotate: 15 }}
-          >
-            <Github size={24} className={styles.githubIcon} />
-          </motion.div>
-          <span>View on GitHub</span>
-          <motion.div
-            animate={{ x: [0, 3, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          >
-            <ArrowRight size={16} />
-          </motion.div>
-        </motion.a>
-      </motion.div>
+      </div>
       
       {/* Scroll indicator */}
       <motion.div 
@@ -435,17 +378,40 @@ const HeroSection = () => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
           >
-            <h3>You're on the list!</h3>
-            <p>We'll notify you as soon as PODNEX launches.</p>
+            <div className={styles.modalIcon}>
+              <Star size={48} />
+            </div>
+            <h3>You're on the waitlist!</h3>
+            <p>We'll notify you as soon as your exclusive PODNEX access is ready.</p>
             <p className={styles.emailConfirm}>{email}</p>
-            <motion.button 
-              onClick={() => setShowModal(false)}
-              className={styles.closeBtn}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Continue Exploring
-            </motion.button>
+            <div className={styles.referralBonus}>
+              <div className={styles.referralIcon}>
+                <Zap size={16} />
+              </div>
+              <div className={styles.referralText}>
+                <h4>Want priority access?</h4>
+                <p>Refer 3 friends and jump to the top of the waitlist!</p>
+              </div>
+            </div>
+            <div className={styles.modalActions}>
+              <motion.button 
+                onClick={() => setShowModal(false)}
+                className={styles.primaryModalBtn}
+                whileHover={{ scale: 1.05, backgroundColor: "#E8C547" }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Share & Earn Priority
+                <ArrowRight size={16} />
+              </motion.button>
+              <motion.button 
+                onClick={() => setShowModal(false)}
+                className={styles.secondaryModalBtn}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Continue Exploring
+              </motion.button>
+            </div>
           </motion.div>
         </div>
       )}
