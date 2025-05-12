@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios'; // Add this import
 import { 
   Sparkles,
   Users,
@@ -34,7 +35,8 @@ import {
   UserPlus,
   Menu,
   LogOut,
-  Archive
+  Archive,
+  Crown // Add this import
 } from 'lucide-react';
 import styles from './PodEnvironment.module.scss';
 
@@ -264,28 +266,103 @@ const mockResources = [
 ];
 
 const PodEnvironment = () => {
-  const navigate = useNavigate();
-  const { podId } = useParams();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [expandedTask, setExpandedTask] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
-  const [currentUser, setCurrentUser] = useState(mockPod.members[0]); // Simulate current user (the creator for this demo)
-  const [isCreator, setIsCreator] = useState(true); // Simulated current user role check
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const messagesEndRef = useRef(null);
+    const navigate = useNavigate();
+    const { podId } = useParams();
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [expandedTask, setExpandedTask] = useState(null);
+    const [newMessage, setNewMessage] = useState('');
+    const [currentUser, setCurrentUser] = useState(mockPod.members[0]); // Simulate current user (the creator for this demo)
+    const [isCreator, setIsCreator] = useState(true); // Simulated current user role check
+    const [searchQuery, setSearchQuery] = useState('');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const messagesEndRef = useRef(null);
+    
+    // Add these new state variables
+    const [podMembers, setPodMembers] = useState([]);
+    const [isMember, setIsMember] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    const [loading, setLoading] = useState(false); // Add this for loading state
+    const [error, setError] = useState(null); // Add this for error state
   
   // Filter tasks based on status
   const todoTasks = mockTasks.filter(task => task.status === 'to-do');
   const inProgressTasks = mockTasks.filter(task => task.status === 'in-progress');
   const completedTasks = mockTasks.filter(task => task.status === 'completed');
   
-  // Auto-scroll to bottom of messages
-  useEffect(() => {
-    if (messagesEndRef.current && activeTab === 'communication') {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+// Auto-scroll to bottom of messages and fetch pod members 
+useEffect(() => {
+  if (messagesEndRef.current && activeTab === 'communication') {
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }
+      
+  const fetchPodData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+            
+      if (!token || !userData) {
+        console.error('No auth token or user data found');
+        setLoading(false);
+        return;
+      }
+            
+      const user = JSON.parse(userData);
+      setCurrentUser(user);
+            
+      try {
+        // Fetch pod details
+        const podResponse = await axios.get(`http://localhost:5000/api/pods/${podId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+                
+        const pod = podResponse.data;
+                
+        // Check if user is creator
+        if (pod.creator && pod.creator._id === user._id) {
+          setIsCreator(true);
+        } else {
+          setIsCreator(false); // Reset in case of changes
+        }
+                
+        // Fetch pod members
+        try {
+          const membersResponse = await axios.get(`http://localhost:5000/api/pods/${podId}/members`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+                    
+          setPodMembers(membersResponse.data);
+                    
+          // Check if current user is a member
+          const memberCheck = membersResponse.data.find(member =>
+            member.user._id === user._id
+          );
+                    
+          if (memberCheck) {
+            setIsMember(true);
+            setUserRole(memberCheck.role);
+          } else {
+            setIsMember(false); // Reset in case of changes
+          }
+        } catch (membersError) {
+          console.error('Error fetching pod members:', membersError);
+        }
+              
+      } catch (podError) {
+        console.error('Error fetching pod details:', podError);
+        setError(podError.message || 'Failed to load pod details');
+      }
+            
+      setLoading(false);
+    } catch (error) {
+      console.error('Error in pod environment setup:', error);
+      setError(error.message || 'An error occurred');
+      setLoading(false);
     }
-  }, [activeTab, mockMessages]);
+  };
+          
+  fetchPodData();
+}, [podId, activeTab]);
   
   // Toggle task expanded state
   const toggleTaskExpanded = (taskId) => {
@@ -295,6 +372,8 @@ const PodEnvironment = () => {
       setExpandedTask(taskId);
     }
   };
+
+  
   
   // Get user by ID (helper function)
   const getUserById = (userId) => {
@@ -421,15 +500,41 @@ const PodEnvironment = () => {
           </div>
           
           <div className={styles.podDetailsBar}>
-            <div className={styles.podBasicInfo}>
-              <div className={styles.podIcon}>
-                <Sparkles size={20} />
-              </div>
-              <div>
-                <h1>{mockPod.title}</h1>
-                <p>{mockPod.mission}</p>
-              </div>
-            </div>
+  <div className={styles.podBasicInfo}>
+    <div className={styles.podIcon}>
+      <Sparkles size={20} />
+    </div>
+    <div>
+      <h1>{mockPod.title}</h1>
+      <p>{mockPod.mission}</p>
+    </div>
+  </div>
+  
+  {/* Add the membership status here */}
+  <div className={styles.membershipStatus}>
+    {isCreator ? (
+      <div className={styles.creatorBadge}>
+        <Crown size={16} />
+        <span>Creator</span>
+      </div>
+    ) : isMember ? (
+      <div className={styles.memberBadge}>
+        <CheckCircle size={16} />
+        <span>Member - {userRole}</span>
+      </div>
+    ) : (
+      <div className={styles.notMemberMessage}>
+        <AlertCircle size={16} />
+        <span>You aren't a member of this pod</span>
+        <button
+          className={styles.applyButton}
+          onClick={() => navigate(`/pods/${podId}`)}
+        >
+          Apply to Join
+        </button>
+      </div>
+    )}
+  </div>
             
             <div className={styles.podMeta}>
               <div className={styles.metaItem}>

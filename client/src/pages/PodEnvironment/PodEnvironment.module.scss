@@ -2696,3 +2696,98 @@ $status-completed: rgba(52, 211, 153, 0.7);
     opacity: 1;
   }
 }
+
+.membershipStatus {
+    display: flex;
+    align-items: center;
+    margin: 0 16px;
+    
+    .creatorBadge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background-color: rgba(232, 197, 71, 0.1);
+      color: #E8C547;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .memberBadge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background-color: rgba(78, 205, 196, 0.1);
+      color: #4ECDC4;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .notMemberMessage {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 13px;
+      
+      .applyButton {
+        padding: 6px 12px;
+        background-color: #4ECDC4;
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: #3db9b0;
+        }
+      }
+    }
+  }
+
+  .loadingContainer, .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 16px;
+    text-align: center;
+    
+    .loadingSpinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(78, 205, 196, 0.3);
+      border-top-color: #4ECDC4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .retryButton {
+      padding: 8px 16px;
+      background-color: #4ECDC4;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: #3db9b0;
+      }
+    }
+  }

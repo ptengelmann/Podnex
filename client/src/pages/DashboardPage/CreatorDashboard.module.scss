@@ -1024,3 +1024,39 @@
     font-weight: 500;
   }
 }
+
+.podActions {
+  display: flex;
+  gap: 8px;
+  
+  .podDetailsLink, .podEnvLink {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: $white;
+    transition: all 0.2s ease;
+  }
+  
+  .podDetailsLink {
+    background-color: rgba(255, 255, 255, 0.05);
+    
+    &:hover {
+      background-color: rgba(232, 197, 71, 0.1);
+      color: $gold;
+    }
+  }
+  
+  .podEnvLink {
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+    
+    &:hover {
+      background-color: rgba(232, 197, 71, 0.2);
+    }
+  }
+}

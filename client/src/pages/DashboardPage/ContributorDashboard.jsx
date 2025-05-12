@@ -27,6 +27,8 @@ const ContributorDashboard = () => {
   const [pods, setPods] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
+  const [activePods, setActivePods] = useState([]);
+
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -36,22 +38,36 @@ const ContributorDashboard = () => {
       setIsPro(parsedUser.planType === 'pro');
     }
 
+    
+
     const token = localStorage.getItem('token');
     if (!token) {
       setIsLoading(false);
       return;
     }
+    
 
     const fetchData = async () => {
       try {
-        const [appsRes, podsRes] = await Promise.all([
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+        const [appsRes, podsRes, membershipsRes] = await Promise.all([
           axios.get('http://localhost:5000/api/applications', {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get('http://localhost:5000/api/pods', {
             headers: { Authorization: `Bearer ${token}` },
+          }),
+          // Add this new request for memberships
+          axios.get('http://localhost:5000/api/pods/user-memberships', {
+            headers: { Authorization: `Bearer ${token}` },
           })
         ]);
+
+        
 
         // Filter applications for this contributor
         const userApplications = appsRes.data.filter(
@@ -60,6 +76,7 @@ const ContributorDashboard = () => {
         
         setApplications(userApplications);
         setPods(podsRes.data);
+        setActivePods(membershipsRes.data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -69,6 +86,8 @@ const ContributorDashboard = () => {
 
     fetchData();
   }, []);
+
+  
 
   // Calculate dashboard metrics
   const podsJoined = applications.filter(app => app.status === 'Accepted').length;
@@ -275,66 +294,71 @@ const ContributorDashboard = () => {
         </section>
 
         {/* Pods Joined Section */}
-        <section className={styles.yourPodsSection}>
-          <div className={styles.sectionHeaderWithAction}>
-            <h3>Pods Joined</h3>
-            <a href="/my-pods" className={styles.viewAllLink}>
-              <span>View All</span>
-              <ChevronRight size={16} />
-            </a>
+        // Now update your "Pods Joined" section with this code:
+<section className={styles.yourPodsSection}>
+  <div className={styles.sectionHeaderWithAction}>
+    <h3>Active Pods</h3>
+    <a href="/my-pods" className={styles.viewAllLink}>
+      <span>View All</span>
+      <ChevronRight size={16} />
+    </a>
+  </div>
+  
+  {activePods.length === 0 ? (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyIcon}>
+        <Briefcase size={32} />
+      </div>
+      <h4>You haven't joined any Pods yet</h4>
+      <p>Start exploring and applying to Pods that match your skills</p>
+      <a href="/explore" className={styles.emptyStateButton}>
+        <Search size={16} />
+        <span>Explore Pods</span>
+      </a>
+    </div>
+  ) : (
+    <div className={styles.podsList}>
+      {activePods.slice(0, 3).map((membership) => (
+        <div key={membership._id} className={styles.podItem}>
+          <div className={styles.podHeader}>
+            <h4>{membership.pod.title}</h4>
+            <div className={styles.podMeta}>
+              <div className={styles.podRole}>
+                <Users size={14} />
+                <span>{membership.role}</span>
+              </div>
+            </div>
           </div>
           
-          {acceptedPods.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>
-                <Briefcase size={32} />
+          <div className={styles.podProgressSection}>
+            <div className={styles.podProgressLabel}>
+              <span>Joined</span>
+              <span className={styles.podProgressText}>
+                {new Date(membership.joinedAt).toLocaleDateString()}
+              </span>
+            </div>
+            {membership.pod.status && (
+              <div className={styles.podStatus}>
+                <span className={styles.statusLabel}>Status:</span>
+                <span className={`${styles.statusBadge} ${styles[membership.pod.status.toLowerCase()]}`}>
+                  {membership.pod.status}
+                </span>
               </div>
-              <h4>You haven't joined any Pods yet</h4>
-              <p>Start exploring and applying to Pods that match your skills</p>
-              <a href="/explore" className={styles.emptyStateButton}>
-                <Search size={16} />
-                <span>Explore Pods</span>
-              </a>
-            </div>
-          ) : (
-            <div className={styles.podsList}>
-              {acceptedPods.map((application) => (
-                <div key={application._id} className={styles.podItem}>
-                  <div className={styles.podHeader}>
-                    <h4>{application.podTitle}</h4>
-                    <div className={styles.podMeta}>
-                      <div className={styles.podRole}>
-                        <Users size={14} />
-                        <span>{application.roleApplied}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.podProgressSection}>
-                    <div className={styles.podProgressLabel}>
-                      <span>Pod Status</span>
-                      <span className={styles.podProgressText}>
-                        {application.podDetails.status || 'Active'}
-                      </span>
-                    </div>
-                    <div className={styles.podTeamMembers}>
-                      <div className={styles.teamLabel}>Team Members:</div>
-                      <div className={styles.teamCount}>
-                        {application.podDetails.teamSize || 
-                          (application.podDetails.acceptedApplications?.length || '2-5')} members
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <a href={`/pods/${application.podId}`} className={styles.podDetailsLink}>
-                    <span>Manage Contribution</span>
-                    <ArrowRight size={14} />
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+            )}
+          </div>
+          
+          <a 
+            href={`/pod-environment/${membership.pod._id}`} 
+            className={styles.podDetailsLink}
+          >
+            <span>Enter Pod Environment</span>
+            <ArrowRight size={14} />
+          </a>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
       </div>
 
       {/* Recent Activity Section */}
