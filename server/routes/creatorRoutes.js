@@ -19,7 +19,6 @@ router.get('/pods', protect, async (req, res) => {
       .sort({ createdAt: -1 });
     
     console.log(`Found ${pods.length} pods for creator ${userId}`);
-    console.log('Pods found:', pods.map(p => ({id: p._id, title: p.title, creator: p.creator})));
     
     // For each pod, get the number of members
     const podsWithMemberCount = await Promise.all(pods.map(async (pod) => {

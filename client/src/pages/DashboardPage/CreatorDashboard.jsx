@@ -60,22 +60,34 @@ const CreatorDashboard = () => {
           // Continue even if applications fetch fails
         }
         
-        // Then fetch creator's pods - USING THE NEW ENDPOINT
+        // Then fetch creator's pods - with fallbacks
         try {
+          // Try new endpoint first
           const podsResponse = await axios.get('http://localhost:5000/api/creator/pods', {
             headers: { Authorization: `Bearer ${token}` },
           });
           
-          console.log('Creator pods response:', podsResponse.data);
-          // Use the API response directly
+          console.log('Creator pods response (from /api/creator/pods):', podsResponse.data);
           setPods(podsResponse.data);
           
           if (podsResponse.data.length === 0) {
             console.log('No pods returned from API - this is likely the issue');
           }
         } catch (podErr) {
-          console.error('Error fetching creator pods:', podErr);
-          setError('Failed to load your pods. Please try again later.');
+          console.error('Error fetching from /api/creator/pods:', podErr);
+          
+          // Fallback to the original endpoint
+          try {
+            console.log('Trying fallback endpoint /api/pods/creator-pods');
+            const fallbackResponse = await axios.get('http://localhost:5000/api/pods/creator-pods', {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log('Fallback creator pods response:', fallbackResponse.data);
+            setPods(fallbackResponse.data);
+          } catch (fallbackErr) {
+            console.error('Error with fallback endpoint:', fallbackErr);
+            setError('Failed to load your pods. Please try again later.');
+          }
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);

@@ -28,7 +28,7 @@ const ContributorDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [activePods, setActivePods] = useState([]);
-
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -38,47 +38,70 @@ const ContributorDashboard = () => {
       setIsPro(parsedUser.planType === 'pro');
     }
 
-    
-
     const token = localStorage.getItem('token');
     if (!token) {
       setIsLoading(false);
       return;
     }
     
-
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setIsLoading(false);
-          return;
+        console.log('Fetching contributor dashboard data with token:', token);
+        
+        // First fetch applications
+        let appsResponse;
+        try {
+          appsResponse = await axios.get('http://localhost:5000/api/applications', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          // Filter applications for this contributor
+          const userApplications = appsResponse.data.filter(
+            app => app.applicantId === JSON.parse(userData)._id
+          );
+          
+          console.log('Applications for this user:', userApplications);
+          setApplications(userApplications);
+        } catch (appErr) {
+          console.error('Error fetching applications:', appErr);
+          // Continue even if applications fetch fails
         }
-        const [appsRes, podsRes, membershipsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/applications', {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get('http://localhost:5000/api/pods', {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          // Add this new request for memberships
-          axios.get('http://localhost:5000/api/pods/user-memberships', {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        ]);
-
         
-
-        // Filter applications for this contributor
-        const userApplications = appsRes.data.filter(
-          app => app.applicantId === JSON.parse(userData)._id
-        );
+        // Fetch all pods for reference
+        try {
+          const podsResponse = await axios.get('http://localhost:5000/api/pods', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          console.log('All pods response:', podsResponse.data);
+          setPods(podsResponse.data);
+        } catch (podErr) {
+          console.error('Error fetching pods:', podErr);
+        }
         
-        setApplications(userApplications);
-        setPods(podsRes.data);
-        setActivePods(membershipsRes.data);
+        // Then fetch user memberships
+        try {
+          const membershipsResponse = await axios.get('http://localhost:5000/api/pods/user-memberships', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          console.log('User memberships response:', membershipsResponse.data);
+          setActivePods(membershipsResponse.data);
+          
+          if (membershipsResponse.data.length === 0) {
+            console.log('No active memberships returned from API');
+          }
+        } catch (memberErr) {
+          console.error('Error fetching user memberships:', memberErr);
+          setError('Failed to load your active pods. Please try again later.');
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        if (error.response) {
+          console.error('Error details:', error.response.data);
+          console.error('Error status:', error.response.status);
+        }
+        setError('Something went wrong loading your dashboard.');
       } finally {
         setIsLoading(false);
       }
@@ -86,8 +109,6 @@ const ContributorDashboard = () => {
 
     fetchData();
   }, []);
-
-  
 
   // Calculate dashboard metrics
   const podsJoined = applications.filter(app => app.status === 'Accepted').length;
@@ -294,71 +315,82 @@ const ContributorDashboard = () => {
         </section>
 
         {/* Pods Joined Section */}
-        // Now update your "Pods Joined" section with this code:
-<section className={styles.yourPodsSection}>
-  <div className={styles.sectionHeaderWithAction}>
-    <h3>Active Pods</h3>
-    <a href="/my-pods" className={styles.viewAllLink}>
-      <span>View All</span>
-      <ChevronRight size={16} />
-    </a>
-  </div>
-  
-  {activePods.length === 0 ? (
-    <div className={styles.emptyState}>
-      <div className={styles.emptyIcon}>
-        <Briefcase size={32} />
-      </div>
-      <h4>You haven't joined any Pods yet</h4>
-      <p>Start exploring and applying to Pods that match your skills</p>
-      <a href="/explore" className={styles.emptyStateButton}>
-        <Search size={16} />
-        <span>Explore Pods</span>
-      </a>
-    </div>
-  ) : (
-    <div className={styles.podsList}>
-      {activePods.slice(0, 3).map((membership) => (
-        <div key={membership._id} className={styles.podItem}>
-          <div className={styles.podHeader}>
-            <h4>{membership.pod.title}</h4>
-            <div className={styles.podMeta}>
-              <div className={styles.podRole}>
-                <Users size={14} />
-                <span>{membership.role}</span>
-              </div>
-            </div>
+        <section className={styles.yourPodsSection}>
+          <div className={styles.sectionHeaderWithAction}>
+            <h3>Active Pods</h3>
+            <a href="/my-pods" className={styles.viewAllLink}>
+              <span>View All</span>
+              <ChevronRight size={16} />
+            </a>
           </div>
           
-          <div className={styles.podProgressSection}>
-            <div className={styles.podProgressLabel}>
-              <span>Joined</span>
-              <span className={styles.podProgressText}>
-                {new Date(membership.joinedAt).toLocaleDateString()}
-              </span>
+          {error ? (
+            <div className={styles.errorState}>
+              <div className={styles.errorIcon}>⚠️</div>
+              <h4>Error Loading Pods</h4>
+              <p>{error}</p>
+              <button 
+                className={styles.retryButton}
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
             </div>
-            {membership.pod.status && (
-              <div className={styles.podStatus}>
-                <span className={styles.statusLabel}>Status:</span>
-                <span className={`${styles.statusBadge} ${styles[membership.pod.status.toLowerCase()]}`}>
-                  {membership.pod.status}
-                </span>
+          ) : activePods.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <Briefcase size={32} />
               </div>
-            )}
-          </div>
-          
-          <a 
-            href={`/pod-environment/${membership.pod._id}`} 
-            className={styles.podDetailsLink}
-          >
-            <span>Enter Pod Environment</span>
-            <ArrowRight size={14} />
-          </a>
-        </div>
-      ))}
-    </div>
-  )}
-</section>
+              <h4>You haven't joined any Pods yet</h4>
+              <p>Start exploring and applying to Pods that match your skills</p>
+              <a href="/explore" className={styles.emptyStateButton}>
+                <Search size={16} />
+                <span>Explore Pods</span>
+              </a>
+            </div>
+          ) : (
+            <div className={styles.podsList}>
+              {activePods.slice(0, 3).map((membership) => (
+                <div key={membership._id} className={styles.podItem}>
+                  <div className={styles.podHeader}>
+                    <h4>{membership.pod.title}</h4>
+                    <div className={styles.podMeta}>
+                      <div className={styles.podRole}>
+                        <Users size={14} />
+                        <span>{membership.role}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.podProgressSection}>
+                    <div className={styles.podProgressLabel}>
+                      <span>Joined</span>
+                      <span className={styles.podProgressText}>
+                        {new Date(membership.joinedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {membership.pod.status && (
+                      <div className={styles.podStatus}>
+                        <span className={styles.statusLabel}>Status:</span>
+                        <span className={`${styles.statusBadge} ${styles[membership.pod.status.toLowerCase()]}`}>
+                          {membership.pod.status}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <a 
+                    href={`/pod-environment/${membership.pod._id}`} 
+                    className={styles.podDetailsLink}
+                  >
+                    <span>Enter Pod Environment</span>
+                    <ArrowRight size={14} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
       {/* Recent Activity Section */}

@@ -49,7 +49,9 @@ router.get('/:podId/members', protect, async (req, res) => {
 // @access  Private
 router.get('/user-memberships', protect, async (req, res) => {
   try {
+    console.log('USER MEMBERSHIPS ENDPOINT HIT');
     const userId = req.user._id;
+    console.log('Looking for memberships for user ID:', userId);
     
     const memberships = await PodMember.find({ 
       user: userId,
@@ -62,9 +64,19 @@ router.get('/user-memberships', protect, async (req, res) => {
     })
     .sort({ joinedAt: -1 });
     
+    console.log(`Found ${memberships.length} active memberships for user ${userId}`);
+    
+    if (memberships.length > 0) {
+      console.log('Sample membership:', {
+        id: memberships[0]._id,
+        podTitle: memberships[0].pod?.title,
+        role: memberships[0].role
+      });
+    }
+    
     res.json(memberships);
   } catch (error) {
-    console.error(error);
+    console.error('Error in user-memberships endpoint:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -74,10 +86,16 @@ router.get('/user-memberships', protect, async (req, res) => {
 // @access  Private
 router.get('/creator-pods', protect, async (req, res) => {
   try {
+    console.log('CREATOR PODS ENDPOINT HIT');
     const userId = req.user._id;
+    
+    console.log('Looking for pods with creator ID:', userId);
+    console.log('User from request:', req.user);
     
     const pods = await Pod.find({ creator: userId })
       .sort({ createdAt: -1 });
+    
+    console.log(`Found ${pods.length} pods for creator ${userId}`);
     
     // For each pod, get the number of members
     const podsWithMemberCount = await Promise.all(pods.map(async (pod) => {
@@ -92,9 +110,10 @@ router.get('/creator-pods', protect, async (req, res) => {
       };
     }));
     
+    console.log(`Returning ${podsWithMemberCount.length} pods with member counts`);
     res.json(podsWithMemberCount);
   } catch (error) {
-    console.error(error);
+    console.error('Error in creator-pods endpoint:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
