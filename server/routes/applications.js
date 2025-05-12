@@ -3,6 +3,8 @@ const router = express.Router();
 const Application = require('../models/Application');
 const Pod = require('../models/Pod');
 const { protect } = require('../middleware/authMiddleware');
+const PodMember = require('../models/PodMember');
+
 
 // @route   POST /api/applications
 // @desc    Submit application for a Pod Role
@@ -109,6 +111,33 @@ router.patch('/:id/status', protect, async (req, res) => {
     if (!['Pending', 'Accepted', 'Rejected'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status value' });
     }
+
+    // Inside your PATCH '/:id/status' route when status is set to 'Accepted'
+if (status === 'Accepted') {
+  // Check if membership already exists to avoid duplicates
+  const existingMembership = await PodMember.findOne({
+    pod: application.pod._id,
+    user: application.applicant
+  });
+  
+  if (!existingMembership) {
+    // Create new pod membership
+    const newMember = new PodMember({
+      pod: application.pod._id,
+      user: application.applicant,
+      role: application.roleApplied,
+      // Set permissions based on role if needed
+      permissions: {
+        canEditTasks: true,
+        canCreateMilestones: false,
+        canInviteMembers: false
+      }
+    });
+    
+    await newMember.save();
+    console.log(`New member added to pod: ${application.pod.title}`);
+  }
+}
     
     // Find the application
     const application = await Application.findById(req.params.id)
