@@ -1,0 +1,92 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build directories
+build
+dist
+.next
+.nuxt
+.cache
+.output
+
+# Development environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+
+# Version control
+.git
+.github
+.gitignore
+.gitlab
+.gitlab-ci.yml
+
+# Docker files
+.dockerignore
+docker-compose*.yml
+Dockerfile*
+
+# Editor directories and files
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage
+.nyc_output
+__tests__
+__mocks__
+test
+tests
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific files
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE_Podnex_NonCommercial.md
+*.md
+docs
+documentation
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.bak
+*.swp
+*~
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
