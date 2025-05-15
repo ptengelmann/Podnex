@@ -5,8 +5,15 @@ const cors = require('cors');
 const path = require('path');
 const podRoutes = require('./routes/pods');
 const applicationRoutes = require('./routes/applications');
+const podMembersRoutes = require('./routes/podMembers'); 
+const authRoutes = require('./routes/authRoutes');
+const creatorRoutes = require('./routes/creatorRoutes');
+const messageRoutes = require('./routes/messageRoutes'); // New route
+const taskRoutes = require('./routes/taskRoutes'); // New route
+const milestoneRoutes = require('./routes/milestoneRoutes'); // New route
+const resourceRoutes = require('./routes/resourceRoutes');
 
-// Connect to MongoDB
+
 connectDB();
 
 const app = express();
@@ -16,55 +23,35 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// API request logger middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-  next();
-});
+// Register the auth routes first
+app.use('/api/auth', authRoutes);
 
-// API Routes
-app.use('/api/pods', podRoutes);
+// Register application routes
 app.use('/api/applications', applicationRoutes);
-app.use('/api/auth', require('./routes/authRoutes'));
 
-// Serve static assets from the public folder
-console.log('Public folder path:', path.join(__dirname, 'public'));
-app.use(express.static(path.join(__dirname, 'public')));
+// Register creator routes to handle creator-specific endpoints
+app.use('/api/creator', creatorRoutes);
 
-// API 404 handler - with named parameter as required by Express v5
-app.use('/api/*apiPath', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: `API endpoint not found: ${req.originalUrl}`
-  });
-});
+// Register message routes
+app.use('/api/messages', messageRoutes); // Add message routes
 
-// Single route for home page
+// IMPORTANT: Register pod member routes BEFORE the general pod routes
+// This is because the /user-memberships endpoint needs to be matched
+// before any /:podId wildcard route
+app.use('/api/pods', podMembersRoutes);
+
+
+// Register pod task and milestone routes
+app.use('/api/pods', taskRoutes); // Add task routes
+app.use('/api/pods', milestoneRoutes); // Add milestone routes
+app.use('/api/pods', resourceRoutes);
+
+// Register general pod routes
+app.use('/api/pods', podRoutes);
+
+// Basic test route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Catch-all route with named parameter (required in Express v5)
-// Use *pagePath format instead of * wildcard
-app.get('*pagePath', (req, res) => {
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  res.sendFile(indexPath, err => {
-    if (err) {
-      console.error('Error serving index.html:', err);
-      res.status(500).send('Error serving application');
-    }
-  });
-});
-
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Global error handler caught:', err.stack);
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    success: false,
-    error: err.message || 'Server Error',
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
-  });
+  res.send('API is running');
 });
 
 module.exports = app;

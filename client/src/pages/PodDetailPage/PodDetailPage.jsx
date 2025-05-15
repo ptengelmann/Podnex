@@ -762,8 +762,8 @@ const PodDetailPage = () => {
                 </div>
               </motion.div>
             )}
-            
-            {activeTab === 'roles' && (
+// Find the roles section in your code and update like this:
+{activeTab === 'roles' && (
   <motion.div 
     key="roles"
     className={styles.rolesSection}
@@ -780,8 +780,9 @@ const PodDetailPage = () => {
     {safelyAccessData(pod, 'rolesNeeded', []).length > 0 ? (
       <div className={styles.rolesGrid}>
         {safelyAccessData(pod, 'rolesNeeded', []).map((role, index) => {
-          // Get the role title correctly depending on whether role is an object or string
-          const roleTitle = typeof role === 'object' ? role.title : role;
+          // Get the role title with better fallback handling
+          const roleTitle = typeof role === 'object' && role?.title ? role.title : 
+                            (typeof role === 'string' ? role : 'Team Member');
           
           return (
             <motion.div 
@@ -805,7 +806,7 @@ const PodDetailPage = () => {
               </div>
               
               <p className={styles.roleDescription}>
-                {typeof role === 'object' && role.description ? 
+                {typeof role === 'object' && role?.description ? 
                   role.description : 
                   `Join as a ${roleTitle.toLowerCase()} and contribute your expertise to this amazing project.`
                 }
@@ -814,7 +815,7 @@ const PodDetailPage = () => {
               <div className={styles.roleRequirements}>
                 <h4>Requirements:</h4>
                 <ul>
-                  {typeof role === 'object' && Array.isArray(role.requirements) && role.requirements.length > 0 ? 
+                  {typeof role === 'object' && Array.isArray(role?.requirements) && role.requirements.length > 0 ? 
                     role.requirements.map((req, reqIndex) => (
                       <li key={reqIndex}>{req}</li>
                     ))
@@ -863,7 +864,7 @@ const PodDetailPage = () => {
     )}
   </motion.div>
 )}
-            
+
             {activeTab === 'roadmap' && (
               <motion.div 
                 key="roadmap"

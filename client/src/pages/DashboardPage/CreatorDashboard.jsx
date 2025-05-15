@@ -27,6 +27,7 @@ const CreatorDashboard = () => {
   const [pods, setPods] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -44,20 +45,57 @@ const CreatorDashboard = () => {
 
     const fetchData = async () => {
       try {
-        const [appsRes, podsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/applications', {
+        console.log('Fetching dashboard data with token:', token);
+        
+        // First fetch applications
+        let appsResponse;
+        try {
+          appsResponse = await axios.get('http://localhost:5000/api/applications', {
             headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get('http://localhost:5000/api/pods', {
+          });
+          console.log('Applications response:', appsResponse.data);
+          setApplications(appsResponse.data);
+        } catch (appErr) {
+          console.error('Error fetching applications:', appErr);
+          // Continue even if applications fetch fails
+        }
+        
+        // Then fetch creator's pods - with fallbacks
+        try {
+          // Try new endpoint first
+          const podsResponse = await axios.get('http://localhost:5000/api/creator/pods', {
             headers: { Authorization: `Bearer ${token}` },
-          })
-        ]);
-
-        const userPods = podsRes.data.filter(p => p.creator === JSON.parse(userData)._id);
-        setApplications(appsRes.data);
-        setPods(userPods);
+          });
+          
+          console.log('Creator pods response (from /api/creator/pods):', podsResponse.data);
+          setPods(podsResponse.data);
+          
+          if (podsResponse.data.length === 0) {
+            console.log('No pods returned from API - this is likely the issue');
+          }
+        } catch (podErr) {
+          console.error('Error fetching from /api/creator/pods:', podErr);
+          
+          // Fallback to the original endpoint
+          try {
+            console.log('Trying fallback endpoint /api/pods/creator-pods');
+            const fallbackResponse = await axios.get('http://localhost:5000/api/pods/creator-pods', {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log('Fallback creator pods response:', fallbackResponse.data);
+            setPods(fallbackResponse.data);
+          } catch (fallbackErr) {
+            console.error('Error with fallback endpoint:', fallbackErr);
+            setError('Failed to load your pods. Please try again later.');
+          }
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        if (error.response) {
+          console.error('Error details:', error.response.data);
+          console.error('Error status:', error.response.status);
+        }
+        setError('Something went wrong loading your dashboard.');
       } finally {
         setIsLoading(false);
       }
@@ -181,7 +219,7 @@ const CreatorDashboard = () => {
             <span className={styles.notificationCount}>3</span>
           </div>
           
-          <button className={styles.createPodButton}>
+          <button className={styles.createPodButton} onClick={() => window.location.href = "/create-pod"}>
             <PlusCircle size={18} />
             <span>Create New Pod</span>
           </button>
@@ -284,7 +322,6 @@ const CreatorDashboard = () => {
           </div>
         </section>
 
-        {/* Your Pods Section */}
         <section className={styles.yourPodsSection}>
           <div className={styles.sectionHeaderWithAction}>
             <h3>Your Pods</h3>
@@ -294,21 +331,33 @@ const CreatorDashboard = () => {
             </a>
           </div>
           
-          {pods.length === 0 ? (
+          {error ? (
+            <div className={styles.errorState}>
+              <div className={styles.errorIcon}>⚠️</div>
+              <h4>Error Loading Pods</h4>
+              <p>{error}</p>
+              <button 
+                className={styles.retryButton}
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
+            </div>
+          ) : pods.length === 0 ? (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>
                 <Briefcase size={32} />
               </div>
               <h4>No pods created yet</h4>
               <p>Create your first pod to start collaborating with talented individuals</p>
-              <button className={styles.emptyStateButton}>
+              <a href="/create-pod" className={styles.emptyStateButton}>
                 <PlusCircle size={16} />
                 <span>Create Pod</span>
-              </button>
+              </a>
             </div>
           ) : (
             <div className={styles.podsList}>
-              {pods.slice(0, 3).map((pod, index) => (
+              {pods.slice(0, 3).map((pod) => (
                 <div key={pod._id} className={styles.podItem}>
                   <div className={styles.podHeader}>
                     <h4>{pod.title}</h4>
@@ -326,27 +375,37 @@ const CreatorDashboard = () => {
                   
                   <div className={styles.podProgressSection}>
                     <div className={styles.podProgressLabel}>
-                      <span>Roles Filled</span>
+                      <span>Members</span>
                       <span className={styles.podProgressText}>
-                        {calculatePodFillProgress(pod._id)}
+                        {pod.memberCount || 0}/{pod.maxMembers || 8}
                       </span>
                     </div>
                     <div className={styles.podProgressBar}>
                       <div 
                         className={styles.podProgressFill} 
                         style={{ 
-                          width: `${(applications.filter(
-                            app => app.podId === pod._id && app.status === 'Accepted'
-                          ).length / (pod.rolesNeeded ? pod.rolesNeeded.length : 1)) * 100}%` 
+                          width: `${((pod.memberCount || 0) / (pod.maxMembers || 8)) * 100}%` 
                         }}
                       ></div>
                     </div>
                   </div>
                   
-                  <a href={`/pods/${pod._id}`} className={styles.podDetailsLink}>
-                    <span>Manage Pod</span>
-                    <ArrowRight size={14} />
-                  </a>
+                  <div className={styles.podActions}>
+                    <a 
+                      href={`/pods/${pod._id}`} 
+                      className={styles.podDetailsLink}
+                    >
+                      <span>Manage Pod</span>
+                      <Settings size={14} />
+                    </a>
+                    <a 
+                      href={`/pod-environment/${pod._id}`} 
+                      className={styles.podEnvLink}
+                    >
+                      <span>Enter Environment</span>
+                      <ArrowRight size={14} />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
