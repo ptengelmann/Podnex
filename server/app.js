@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv').config();
 const connectDB = require('./config/db');
 const cors = require('cors');
+const path = require('path');
 const podRoutes = require('./routes/pods');
 const applicationRoutes = require('./routes/applications');
 const podMembersRoutes = require('./routes/podMembers'); 
@@ -14,8 +15,10 @@ const resourceRoutes = require('./routes/resourceRoutes');
 
 
 connectDB();
+
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

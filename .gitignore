@@ -1,3 +1,42 @@
+# Node.js dependencies
 node_modules
-client/node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build directories
+/client/build
+/client/dist
+
+# Environment variables
 .env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# JWT secret files
+.jwt_secret
+.jwt_rotation
+
+# Logs
+logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
