@@ -33,11 +33,6 @@ const ResourceSchema = new mongoose.Schema({
   },
   tags: [{
     type: String
-  }],
-  // For access control - if null, visible to all pod members
-  visibleTo: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
   }]
 }, {
   timestamps: true

@@ -25,19 +25,12 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter
-const fileFilter = (req, file, cb) => {
-  // Accept all file types for now - you can implement stricter filtering if needed
-  cb(null, true);
-};
-
 // Set up multer middleware
 const upload = multer({
   storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB limit
-  },
-  fileFilter: fileFilter
+  }
 });
 
 // @route   GET /api/pods/:podId/resources
@@ -164,27 +157,6 @@ router.get('/:podId/resources/:resourceId', protect, async (req, res) => {
       return res.status(404).json({ message: 'Resource not found' });
     }
     
-    // Check if pod exists
-    const pod = await Pod.findById(podId);
-    if (!pod) {
-      return res.status(404).json({ message: 'Pod not found' });
-    }
-    
-    // Check if user is a member or creator of the pod
-    const isMember = await PodMember.findOne({ 
-      pod: podId, 
-      user: req.user._id,
-      status: 'active'
-    });
-    
-    const isCreator = pod.creator.toString() === req.user._id.toString();
-    
-    if (!isMember && !isCreator) {
-      return res.status(403).json({ 
-        message: 'You must be a member of this pod to download its resources' 
-      });
-    }
-    
     // Remove the leading slash to get the file path
     const filePath = resource.fileUrl.substring(1);
     
@@ -210,13 +182,12 @@ router.delete('/:podId/resources/:resourceId', protect, async (req, res) => {
       return res.status(404).json({ message: 'Resource not found' });
     }
     
-    // Check if pod exists
+    // Check if user is authorized to delete (only creator of pod or resource uploader)
     const pod = await Pod.findById(podId);
     if (!pod) {
       return res.status(404).json({ message: 'Pod not found' });
     }
     
-    // Check if user is authorized to delete (only creator of pod or resource uploader)
     const isCreator = pod.creator.toString() === req.user._id.toString();
     const isUploader = resource.uploadedBy.toString() === req.user._id.toString();
     
