@@ -39,6 +39,8 @@ import {
   Crown // Add this import
 } from 'lucide-react';
 import styles from './PodEnvironment.module.scss';
+import { io } from "socket.io-client";
+
 
 // Mock data for development purposes
 const mockPod = {
@@ -270,8 +272,10 @@ const PodEnvironment = () => {
     const { podId } = useParams();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [expandedTask, setExpandedTask] = useState(null);
+    const [socket, setSocket] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [currentUser, setCurrentUser] = useState(mockPod.members[0]); // Simulate current user (the creator for this demo)
+      const [currentUser, setCurrentUser] = useState(mockPod.members[0]); // Simulate current user (the creator for this demo)
     const [isCreator, setIsCreator] = useState(true); // Simulated current user role check
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -283,11 +287,15 @@ const PodEnvironment = () => {
     const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(false); // Add this for loading state
     const [error, setError] = useState(null); // Add this for error state
+    // Add these new state variables
+    const [tasks, setTasks] = useState([]);
+    const [milestones, setMilestones] = useState([]);
+    const [podMessages, setPodMessages] = useState([]);
   
-  // Filter tasks based on status
-  const todoTasks = mockTasks.filter(task => task.status === 'to-do');
-  const inProgressTasks = mockTasks.filter(task => task.status === 'in-progress');
-  const completedTasks = mockTasks.filter(task => task.status === 'completed');
+    // Updated filtered tasks
+    const todoTasks = tasks.filter(task => task.status === 'to-do');
+    const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
+    const completedTasks = tasks.filter(task => task.status === 'completed');
   
 // Auto-scroll to bottom of messages and fetch pod members 
 useEffect(() => {
@@ -311,19 +319,22 @@ useEffect(() => {
       setCurrentUser(user);
             
       try {
-        // Fetch pod details
-        const podResponse = await axios.get(`http://localhost:5000/api/pods/${podId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+
+        
+
+         // Fetch pod details
+    const podResponse = await axios.get(`http://localhost:5000/api/pods/${podId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
                 
         const pod = podResponse.data;
                 
         // Check if user is creator
-        if (pod.creator && pod.creator._id === user._id) {
-          setIsCreator(true);
-        } else {
-          setIsCreator(false); // Reset in case of changes
-        }
+    if (podResponse.data.creator && podResponse.data.creator._id === user._id) {
+      setIsCreator(true);
+    } else {
+      setIsCreator(false);
+    }
                 
         // Fetch pod members
         try {
@@ -342,8 +353,9 @@ useEffect(() => {
             setIsMember(true);
             setUserRole(memberCheck.role);
           } else {
-            setIsMember(false); // Reset in case of changes
+            setIsMember(false);
           }
+
         } catch (membersError) {
           console.error('Error fetching pod members:', membersError);
         }
@@ -354,15 +366,109 @@ useEffect(() => {
       }
             
       setLoading(false);
-    } catch (error) {
-      console.error('Error in pod environment setup:', error);
-      setError(error.message || 'An error occurred');
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error('Error in pod environment setup:', error);
+    setError(error.message || 'An error occurred');
+    setLoading(false);
+  }
+};
+
+  // Based on active tab, fetch specific data
+  if (activeTab === 'tasks') {
+    fetchTasks();
+  } else if (activeTab === 'milestones') {
+    fetchMilestones();
+  } else if (activeTab === 'communication') {
+    fetchMessages();
+  }
           
   fetchPodData();
 }, [podId, activeTab]);
+
+// Fetch tasks
+const fetchTasks = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    const response = await axios.get(`http://localhost:5000/api/pods/${podId}/tasks`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setTasks(response.data);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+  }
+};
+
+// Fetch milestones
+const fetchMilestones = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    const response = await axios.get(`http://localhost:5000/api/pods/${podId}/milestones`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setMilestones(response.data);
+  } catch (error) {
+    console.error('Error fetching milestones:', error);
+  }
+};
+
+// Fetch messages
+const fetchMessages = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    const response = await axios.get(`http://localhost:5000/api/messages/${podId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setPodMessages(response.data);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+  }
+};
+
+
+// Socket connection setup
+useEffect(() => {
+  const userData = localStorage.getItem('user');
+  
+  if (!userData) {
+    console.error('No user data found');
+    return;
+  }
+  
+  const user = JSON.parse(userData);
+  
+  // Connect to socket
+  const newSocket = io("http://localhost:5000");
+  setSocket(newSocket);
+  
+  // Join pod room when connected
+  newSocket.on('connect', () => {
+    console.log('Connected to socket');
+    newSocket.emit('join_pod', { 
+      podId, 
+      userId: user._id,
+      userName: user.name
+    });
+  });
+  
+  // Listen for messages
+  newSocket.on('receive_message', (message) => {
+    setMessages(prev => [...prev, message]);
+  });
+  
+  // Clean up on component unmount
+  return () => {
+    newSocket.disconnect();
+  };
+}, [podId]); // Add podId as a dependency
   
   // Toggle task expanded state
   const toggleTaskExpanded = (taskId) => {
@@ -410,18 +516,33 @@ useEffect(() => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
   
-  // Handle sending a new message
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !socket) return;
     
-    // In a real app, you would send this to your backend
-    console.log('Sending message:', newMessage);
+    const userData = JSON.parse(localStorage.getItem('user'));
+    
+    const messageData = {
+      podId,
+      senderId: userData._id,
+      senderName: userData.name,
+      text: newMessage,
+      timestamp: new Date().toISOString()
+    };
+
+    
+    // Emit message to socket
+    socket.emit('send_message', messageData);
+    
+    // Add to local messages immediately for better UX
+    setMessages(prev => [...prev, messageData]);
+
+    
     
     // Clear the message input
     setNewMessage('');
   };
-  
+
   // Get milestone by ID
   const getMilestoneById = (milestoneId) => {
     return mockMilestones.find(milestone => milestone.id === milestoneId);
@@ -1608,78 +1729,120 @@ useEffect(() => {
               </motion.div>
             )}
             
-            {/* Communication Tab */}
             {activeTab === 'communication' && (
-              <motion.div
-                className={styles.communicationTab}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.div className={styles.tabHeader} variants={itemVariants}>
-                  <h2>Communication</h2>
-                </motion.div>
-                
-                <motion.div className={styles.chatInterface} variants={itemVariants}>
-                  <div className={styles.chatMessages}>
-                    {mockMessages.map(message => {
-                      const sender = getUserById(message.userId);
-                      const isCurrentUser = message.userId === currentUser.id;
-                      
-                      return (
-                        <div 
-                          key={message.id} 
-                          className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming}`}
-                        >
-                          {!isCurrentUser && (
-                            <div className={styles.messageAvatar}>
-                              {sender.avatar ? (
-                                <img src={sender.avatar} alt={sender.name} />
-                              ) : (
-                                <div className={styles.messageInitials}>{getInitials(sender.name)}</div>
-                              )}
-                            </div>
-                          )}
-                          
-                          <div className={styles.messageContent}>
-                            <div className={styles.messageBubble}>
-                              <p>{message.text}</p>
-                            </div>
-                            <div className={styles.messageInfo}>
-                              <span className={styles.messageSender}>{isCurrentUser ? 'You' : sender.name}</span>
-                              <span className={styles.messageTime}>{formatDateTime(message.createdAt)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef}></div>
-                  </div>
-                  
-                  <div className={styles.chatInput}>
-                    <form onSubmit={handleSendMessage}>
-                      <div className={styles.inputWrapper}>
-                        <textarea 
-                          placeholder="Type your message..."
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          rows={1}
-                        />
-                        <div className={styles.inputActions}>
-                          <button type="button" className={styles.attachButton}>
-                            <Paperclip size={18} />
-                          </button>
-                          <button type="submit" className={styles.sendButton} disabled={!newMessage.trim()}>
-                            <Send size={18} />
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
+  <motion.div
+    className={styles.communicationTab}
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+  >
+    <motion.div className={styles.tabHeader} variants={itemVariants}>
+      <h2>Communication</h2>
+    </motion.div>
+    
+    <motion.div className={styles.chatInterface} variants={itemVariants}>
+      <div className={styles.chatMessages}>
+        {[...mockMessages.map(message => ({
+          id: message.id,
+          senderId: message.userId,
+          text: message.text,
+          timestamp: message.createdAt,
+          isFromMock: true
+        })), ...messages].sort((a, b) => 
+          new Date(a.timestamp) - new Date(b.timestamp)
+        ).map((message, index) => {
+          // For mock messages, use the existing logic
+          if (message.isFromMock) {
+            const sender = getUserById(message.senderId);
+            const isCurrentUser = message.senderId === currentUser.id;
             
+            return (
+              <div 
+                key={`mock-${message.id}`} 
+                className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming}`}
+              >
+                {!isCurrentUser && (
+                  <div className={styles.messageAvatar}>
+                    {sender.avatar ? (
+                      <img src={sender.avatar} alt={sender.name} />
+                    ) : (
+                      <div className={styles.messageInitials}>{getInitials(sender.name)}</div>
+                    )}
+                  </div>
+                )}
+                
+                <div className={styles.messageContent}>
+                  <div className={styles.messageBubble}>
+                    <p>{message.text}</p>
+                  </div>
+                  <div className={styles.messageInfo}>
+                    <span className={styles.messageSender}>{isCurrentUser ? 'You' : sender.name}</span>
+                    <span className={styles.messageTime}>{formatDateTime(message.timestamp)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          } 
+          // For real-time messages
+          else {
+            const userData = JSON.parse(localStorage.getItem('user')) || currentUser;
+            const isCurrentUser = userData && message.senderId === userData._id;
+            
+            return (
+              <div 
+                key={`rt-${index}`} 
+                className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming}`}
+              >
+                {!isCurrentUser && (
+                  <div className={styles.messageAvatar}>
+                    <div className={styles.messageInitials}>
+                      {message.senderName?.charAt(0).toUpperCase() || '?'}
+                    </div>
+                  </div>
+                )}
+                
+                <div className={styles.messageContent}>
+                  <div className={styles.messageBubble}>
+                    <p>{message.text}</p>
+                  </div>
+                  <div className={styles.messageInfo}>
+                    <span className={styles.messageSender}>{isCurrentUser ? 'You' : message.senderName}</span>
+                    <span className={styles.messageTime}>
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+        })}
+        <div ref={messagesEndRef}></div>
+      </div>
+      
+      <div className={styles.chatInput}>
+        <form onSubmit={handleSendMessage}>
+          <div className={styles.inputWrapper}>
+            <textarea 
+              placeholder="Type your message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              rows={1}
+            />
+            <div className={styles.inputActions}>
+              <button type="button" className={styles.attachButton}>
+                <Paperclip size={18} />
+              </button>
+              <button type="submit" className={styles.sendButton} disabled={!newMessage.trim()}>
+                <Send size={18} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </motion.div>
+  </motion.div>
+)}
+  
             {/* Resources Tab */}
             {activeTab === 'resources' && (
               <motion.div
