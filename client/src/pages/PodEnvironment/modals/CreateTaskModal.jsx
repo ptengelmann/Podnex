@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Modal.module.scss';
 import { 
   X, 
@@ -7,7 +8,8 @@ import {
   Flag, 
   Users, 
   Target,
-  AlertTriangle
+  AlertTriangle,
+  Star
 } from 'lucide-react';
 
 // Helper function to get initials from name
@@ -25,6 +27,20 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
   const [selectedMilestone, setSelectedMilestone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // Mouse parallax effect just like in CreatePodPage
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) - 0.5,
+        y: (e.clientY / window.innerHeight) - 0.5
+      });
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   // Reset form when modal is opened
   useEffect(() => {
@@ -95,11 +111,47 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
 
   return (
     <div className={styles.modalOverlay} onClick={handleModalClick}>
-      <div className={styles.modalContainer} onClick={e => e.stopPropagation()}>
+      {/* Floating shapes with parallax effect */}
+      <motion.div
+        className={`${styles.floatingShape} ${styles.shape1}`}
+        style={{
+          x: mousePosition.x * 30,
+          y: mousePosition.y * 30,
+        }}
+        animate={{
+          rotate: [0, 10, 0],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className={`${styles.floatingShape} ${styles.shape2}`}
+        style={{
+          x: mousePosition.x * -30,
+          y: mousePosition.y * -30,
+        }}
+        animate={{
+          rotate: [0, -10, 0],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div 
+        className={styles.modalContainer}
+        onClick={e => e.stopPropagation()}
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 30, scale: 0.95 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className={styles.modalHeader}>
-          <div className={styles.modalIcon}>
+          <motion.div 
+            className={styles.modalIcon}
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.1, duration: 0.5, type: "spring" }}
+          >
             <CheckCircle size={20} />
-          </div>
+          </motion.div>
           <h2>Create New Task</h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Close">
             <X size={20} />
@@ -109,15 +161,21 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
         <form onSubmit={handleSubmit}>
           <div className={styles.modalContent}>
             {validationError && (
-              <div className={styles.errorMessage}>
+              <motion.div 
+                className={styles.errorMessage}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <AlertTriangle size={16} />
                 <span>{validationError}</span>
-              </div>
+              </motion.div>
             )}
           
             <div className={styles.formGroup}>
               <label>
-                Task Title<span className={styles.required}>*</span>
+                <Star size={16} />
+                Task Title
+                <span className={styles.required}>*</span>
               </label>
               <input
                 type="text"
@@ -129,7 +187,10 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
             </div>
 
             <div className={styles.formGroup}>
-              <label>Description (optional)</label>
+              <label>
+                <CheckCircle size={16} />
+                Description (optional)
+              </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -138,18 +199,22 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
             </div>
 
             <div className={styles.formGroup}>
-              <label>Due Date (optional)</label>
-              <div className={styles.dateInput}>
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                />
-              </div>
+              <label>
+                <Calendar size={16} />
+                Due Date (optional)
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
             </div>
 
             <div className={styles.formGroup}>
-              <label>Priority</label>
+              <label>
+                <Flag size={16} />
+                Priority
+              </label>
               <select 
                 value={priority} 
                 onChange={(e) => setPriority(e.target.value)}
@@ -161,17 +226,22 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
             </div>
 
             <div className={styles.formGroup}>
-              <label>Assignees (optional)</label>
+              <label>
+                <Users size={16} />
+                Assignees (optional)
+              </label>
               <div className={styles.assigneeSelection}>
                 {podMembers.map(memberData => {
                   const member = memberData.user;
                   const isSelected = selectedAssignees.includes(member._id);
                   
                   return (
-                    <div 
+                    <motion.div 
                       key={member._id} 
                       className={`${styles.assigneeOption} ${isSelected ? styles.selected : ''}`}
                       onClick={() => toggleAssignee(member._id)}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <div className={styles.assigneeAvatar}>
                         {member.profileImage ? (
@@ -181,14 +251,17 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
                         )}
                       </div>
                       <span className={styles.assigneeName}>{member.name}</span>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
             </div>
 
             <div className={styles.formGroup}>
-              <label>Milestone (optional)</label>
+              <label>
+                <Target size={16} />
+                Milestone (optional)
+              </label>
               <select
                 value={selectedMilestone}
                 onChange={(e) => setSelectedMilestone(e.target.value)}
@@ -204,20 +277,35 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, podId, podMembers, milesto
           </div>
 
           <div className={styles.modalFooter}>
-            <button type="button" className={styles.cancelButton} onClick={onClose}>
+            <motion.button
+              type="button" 
+              className={styles.cancelButton}
+              onClick={onClose}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               Cancel
-            </button>
-            <button 
+            </motion.button>
+            
+            <motion.button 
               type="submit" 
               className={styles.submitButton}
               disabled={!title || isSubmitting}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <CheckCircle size={16} />
-              <span>{isSubmitting ? 'Creating...' : 'Create Task'}</span>
-            </button>
+              {isSubmitting ? (
+                <span className={styles.loadingSpinner} />
+              ) : (
+                <>
+                  <CheckCircle size={16} />
+                  <span>Create Task</span>
+                </>
+              )}
+            </motion.button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

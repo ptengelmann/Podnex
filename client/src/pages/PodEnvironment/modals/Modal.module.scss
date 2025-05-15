@@ -1,80 +1,113 @@
 @import '../../../styles/variables';
 
-// Variables for modal styling that match the pod environment
-$modal-bg: rgba(15, 15, 20, 0.97);
-$modal-border: rgba(255, 255, 255, 0.08);
+// Match the gold accent color from CreatePodPage
 $modal-gold: #FFD700;
-$modal-blue: #3B82F6;
-$modal-green: #34D399;
-$modal-red: #F87171;
-$modal-text: #FFFFFF;
-$modal-text-secondary: rgba(255, 255, 255, 0.7);
+$modal-black: #000000;
+$modal-gray: rgba(255, 255, 255, 0.5);
 
-// Modal overlay with backdrop blur for a premium feel
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(6px);
-  background-color: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.2s ease;
-  padding: 20px;
-  overflow-y: auto;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+  padding: 24px;
 }
 
-// Premium container with glass-like effect and gold accent
+// Modal floating shapes for premium effect
+.floatingShape {
+  position: absolute;
+  z-index: 0;
+  opacity: 0.05;
+  
+  &.shape1 {
+    top: 10%;
+    right: 15%;
+    width: 300px;
+    height: 300px;
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+    background: linear-gradient(135deg, rgba($modal-gold, 0.4), transparent);
+    filter: blur(60px);
+  }
+  
+  &.shape2 {
+    bottom: 15%;
+    left: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), transparent);
+    filter: blur(50px);
+  }
+}
+
 .modalContainer {
+  position: relative;
   width: 100%;
-  max-width: 560px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
-  background: $modal-bg;
-  border: 1px solid $modal-border;
-  border-left: 3px solid $modal-gold;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
-              0 0 100px rgba(0, 0, 0, 0.2),
-              0 0 0 1px rgba(255, 255, 255, 0.05);
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  
+  // Grid background just like in CreatePodPage
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: -1;
+  }
   
   &::-webkit-scrollbar {
     width: 8px;
   }
   
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
     }
   }
 }
 
-// Header with gold accent
 .modalHeader {
   display: flex;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
-  background: linear-gradient(90deg, rgba($modal-gold, 0.1), transparent);
   
-  // Gold gradient line at top
-  &:before {
+  // Gold gradient accent at top
+  &::before {
     content: '';
     position: absolute;
     top: 0;
@@ -85,34 +118,62 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
   }
   
   .modalIcon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgba($modal-gold, 0.15);
+    position: relative;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $modal-gold;
-    margin-right: 16px;
-    flex-shrink: 0;
     
     svg {
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      color: $modal-gold;
+      position: relative;
+      z-index: 1;
+    }
+    
+    // Icon glow effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 36px;
+      height: 36px;
+      background: rgba($modal-gold, 0.15);
+      border-radius: 10px;
+      transform: translate(-50%, -50%);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      background: $modal-gold;
+      filter: blur(15px);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.3;
     }
   }
   
   h2 {
-    margin: 0;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
-    color: $modal-text;
-    flex-grow: 1;
-    letter-spacing: -0.01em;
+    color: #FFFFFF;
+    margin: 0;
+    flex: 1;
+    background: linear-gradient(135deg, #FFFFFF 40%, rgba($modal-gold, 0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   
   .closeButton {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -125,31 +186,52 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
     
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      color: $modal-text;
+      color: #FFFFFF;
       transform: rotate(90deg);
     }
   }
 }
 
-// Content area with better spacing
 .modalContent {
   padding: 24px;
-  overflow-y: auto;
-  flex-grow: 1;
+  
+  .errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(255, 77, 77, 0.1);
+    border-left: 3px solid rgba(255, 77, 77, 0.5);
+    border-radius: 6px;
+    color: #FF4D4D;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
   
   .formGroup {
     margin-bottom: 24px;
     
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
     label {
-      display: block;
-      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 14px;
       font-weight: 600;
-      color: $modal-text;
-      letter-spacing: 0.01em;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+      
+      svg {
+        color: $modal-gold;
+        width: 16px;
+        height: 16px;
+      }
       
       .required {
-        color: $modal-red;
+        color: #FF4D4D;
         margin-left: 4px;
       }
     }
@@ -159,24 +241,27 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
     textarea,
     select {
       width: 100%;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: $modal-text;
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #FFFFFF;
       font-size: 15px;
-      font-family: inherit;
       transition: all 0.2s ease;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      
+      &::placeholder {
+        color: rgba($modal-gray, 0.6);
+      }
+      
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+      }
       
       &:focus {
         outline: none;
-        border-color: rgba($modal-gold, 0.5);
-        box-shadow: 0 0 0 2px rgba($modal-gold, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
-      }
-      
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        border-color: $modal-gold;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba($modal-gold, 0.1);
       }
     }
     
@@ -188,57 +273,69 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
     
     select {
       appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 16px;
+      background-position: right 16px center;
       padding-right: 40px;
       cursor: pointer;
+      
+      option {
+        background: $modal-black;
+        color: #FFFFFF;
+        padding: 8px;
+      }
     }
-
+    
     .info {
-      margin-top: 16px;
-      padding: 12px 16px;
-      background: rgba($modal-blue, 0.1);
-      border-left: 3px solid $modal-blue;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: rgba($modal-gold, 0.05);
+      border-left: 3px solid rgba($modal-gold, 0.3);
       border-radius: 6px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.5;
+      margin-top: 16px;
+      
+      svg {
+        color: $modal-gold;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
       
       p {
         margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
       }
     }
   }
   
-  // Enhanced assignee selection
   .assigneeSelection {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 12px;
+    margin-top: 8px;
     
     .assigneeOption {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s ease;
       
       &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-2px);
       }
       
       &.selected {
-        background: rgba($modal-gold, 0.15);
-        border: 1px solid rgba($modal-gold, 0.3);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        background: rgba($modal-gold, 0.1);
+        border-color: rgba($modal-gold, 0.3);
         
         .assigneeName {
           color: $modal-gold;
@@ -246,13 +343,11 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
       }
       
       .assigneeAvatar {
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         overflow: hidden;
-        flex-shrink: 0;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
         
         img {
           width: 100%;
@@ -261,13 +356,13 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
         }
         
         .assigneeInitials {
-          width: 100%;
-          height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.15);
-          color: $modal-text;
+          width: 100%;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
           font-size: 12px;
           font-weight: 600;
         }
@@ -275,39 +370,32 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
       
       .assigneeName {
         font-size: 14px;
-        color: $modal-text;
-        white-space: nowrap;
+        color: #FFFFFF;
       }
     }
   }
   
-  // File upload area
   .fileUpload {
     margin-top: 16px;
-    position: relative;
     
     .uploadButton {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
-      padding: 30px 20px;
-      background: rgba(0, 0, 0, 0.2);
+      padding: 32px 20px;
+      background: rgba(255, 255, 255, 0.02);
       border: 2px dashed rgba($modal-gold, 0.3);
       border-radius: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 15px;
-      cursor: pointer;
+      color: rgba(255, 255, 255, 0.6);
       transition: all 0.2s ease;
+      cursor: pointer;
       
       svg {
         color: $modal-gold;
-        opacity: 0.8;
-        width: 32px;
-        height: 32px;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        opacity: 0.7;
       }
       
       &:hover {
@@ -317,7 +405,6 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
         
         svg {
           opacity: 1;
-          transform: scale(1.1);
         }
       }
     }
@@ -334,34 +421,33 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
     
     .filePreview {
       margin-top: 16px;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
       display: flex;
       align-items: center;
       gap: 12px;
-      animation: fadeIn 0.3s ease;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      position: relative;
       
       .fileIcon {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        background: rgba($modal-blue, 0.15);
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $modal-blue;
-        flex-shrink: 0;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 8px;
+        color: #3B82F6;
       }
       
       .fileInfo {
         flex: 1;
-        overflow: hidden;
+        min-width: 0;
         
         .fileName {
           font-size: 14px;
           font-weight: 500;
-          color: $modal-text;
+          color: #FFFFFF;
           margin-bottom: 4px;
           white-space: nowrap;
           overflow: hidden;
@@ -383,12 +469,12 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
         background: rgba(255, 255, 255, 0.05);
         border: none;
         border-radius: 6px;
-        color: $modal-red;
+        color: #FF4D4D;
         cursor: pointer;
         transition: all 0.15s ease;
         
         &:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 77, 77, 0.1);
           transform: scale(1.1);
         }
       }
@@ -396,78 +482,96 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
   }
 }
 
-// Footer with premium gradient and buttons
 .modalFooter {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  padding: 16px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
-  border-radius: 0 0 12px 12px;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
   
   .cancelButton {
-    padding: 10px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: #FFFFFF;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: $modal-text;
-    }
-    
-    &:active {
-      transform: translateY(1px);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.3);
     }
   }
   
   .submitButton {
-    padding: 10px 20px;
-    background: linear-gradient(to right, $modal-gold, darken($modal-gold, 10%));
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: $modal-gold;
     border: none;
-    border-radius: 8px;
-    color: #000000;
+    border-radius: 12px;
+    color: $modal-black;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 215, 0, 0.1);
+    position: relative;
+    overflow: hidden;
     
-    svg {
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        transparent 100%
+      );
+      transform: translateX(-100%);
+      animation: shimmer 2s infinite;
     }
     
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 215, 0, 0.2);
-      background: linear-gradient(to right, lighten($modal-gold, 5%), $modal-gold);
+      background: linear-gradient(90deg, $modal-gold, darken($modal-gold, 10%));
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba($modal-gold, 0.2);
     }
     
     &:active {
-      transform: translateY(1px);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transform: translateY(0);
     }
     
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: not-allowed;
-      background: linear-gradient(to right, desaturate($modal-gold, 40%), desaturate(darken($modal-gold, 10%), 40%));
+      background: desaturate($modal-gold, 50%);
       transform: none;
       box-shadow: none;
+    }
+    
+    .loadingSpinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba($modal-black, 0.2);
+      border-top-color: $modal-black;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
   }
 }
 
-// Enhanced animations
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -484,19 +588,15 @@ $modal-text-secondary: rgba(255, 255, 255, 0.7);
   }
 }
 
-// Date input specific styling
-.dateInput {
-  position: relative;
-  
-  input[type="date"] {
-    &::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      opacity: 0.5;
-      cursor: pointer;
-      
-      &:hover {
-        opacity: 0.8;
-      }
-    }
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
   }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
