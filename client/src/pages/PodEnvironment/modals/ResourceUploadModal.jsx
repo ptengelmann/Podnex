@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Upload, FileText } from 'lucide-react';
-import styles from '../PodEnvironment.module.scss'; // Make sure this path is correct
+import styles from './Modal.module.scss';
 
 const UploadResourceModal = ({ isOpen, onClose, onSubmit }) => {
   const [name, setName] = useState('');

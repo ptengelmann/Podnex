@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+// Import modal components
+import CreateTaskModal from './modals/CreateTaskModal';
+import CreateMilestoneModal from './modals/CreateMilestoneModal';
+import ResourceUploadModal from './modals/ResourceUploadModal'; // If you have this component
 
 import { 
   Sparkles,
@@ -271,6 +275,50 @@ const mockResources = [
   { id: 'resource-6', name: 'Meeting Notes - 05-02.md', type: 'document', size: '125 KB', uploadedBy: 'user-1', uploadedAt: '2025-05-02' }
 ];
 
+// Format file size
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+// Get user initials from name
+const getInitials = (name) => {
+  if (!name) return '?';
+  return name.split(' ').map(n => n[0]).join('').toUpperCase();
+};
+
+// Format date to readable string
+const formatDate = (dateString) => {
+  if (!dateString) return 'No date';
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+// Format date with time
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return '';
+  
+  const date = new Date(dateTimeString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  if (date.toDateString() === today.toDateString()) {
+    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  
+  if (date.toDateString() === yesterday.toDateString()) {
+    return `Yesterday at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  
+  return `${formatDate(dateTimeString)} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+};
+
 const PodEnvironment = () => {
   const navigate = useNavigate();
   const { podId } = useParams();
@@ -282,6 +330,11 @@ const PodEnvironment = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Modal state
+const [taskModalOpen, setTaskModalOpen] = useState(false);
+const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
+const [resourceModalOpen, setResourceModalOpen] = useState(false);
   
   // Pod and user state
   const [currentUser, setCurrentUser] = useState(null);
@@ -312,6 +365,84 @@ const PodEnvironment = () => {
   const todoTasks = tasks.filter(task => task.status === 'to-do');
   const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
   const completedTasks = tasks.filter(task => task.status === 'completed');
+
+
+  // Handler functions at component scope
+  const handleCreateTask = async (taskData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await axios.post(`http://localhost:5000/api/pods/${podId}/tasks`, taskData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Add new task to state
+      setTasks(prevTasks => [...prevTasks, response.data]);
+      
+      // Close modal and show notification if needed
+      setTaskModalOpen(false);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw error;
+    }
+  };
+
+  const handleCreateMilestone = async (milestoneData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await axios.post(`http://localhost:5000/api/pods/${podId}/milestones`, milestoneData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Add new milestone to state
+      setMilestones(prevMilestones => [...prevMilestones, response.data]);
+      
+      // Close modal
+      setMilestoneModalOpen(false);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error creating milestone:', error);
+      throw error;
+    }
+  };
+  
+  const handleResourceUpload = async (resourceData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', resourceData.file);
+      if (resourceData.name) formData.append('name', resourceData.name);
+      if (resourceData.description) formData.append('description', resourceData.description);
+      if (resourceData.tags) formData.append('tags', JSON.stringify(resourceData.tags));
+      
+      const response = await axios.post(`http://localhost:5000/api/pods/${podId}/resources`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      // Add new resource to state
+      setResources(prevResources => [...prevResources, response.data]);
+      
+      // Close modal
+      setResourceModalOpen(false);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading resource:', error);
+      throw error;
+    }
+  };
   
 // Main data fetching hook - runs when podId changes
 useEffect(() => {
@@ -566,6 +697,63 @@ useEffect(() => {
       _id: `sys_${Date.now()}${Math.random()}`
     }]);
   });
+
+  // Handle task creation
+const handleCreateTask = async (taskData) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    const response = await axios.post(`http://localhost:5000/api/pods/${podId}/tasks`, taskData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    // Add new task to state
+    setTasks(prevTasks => [...prevTasks, response.data]);
+    
+    // Show success notification
+    // You could implement a toast notification system here
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error creating task:', error);
+    throw error;
+  }
+};
+
+
+// Handle resource upload
+const handleResourceUpload = async (resourceData) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('file', resourceData.file);
+    if (resourceData.name) formData.append('name', resourceData.name);
+    if (resourceData.description) formData.append('description', resourceData.description);
+    if (resourceData.tags) formData.append('tags', JSON.stringify(resourceData.tags));
+    
+    const response = await axios.post(`http://localhost:5000/api/pods/${podId}/resources`, formData, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    // Add new resource to state
+    setResources(prevResources => [...prevResources, response.data]);
+    
+    // Show success notification
+    // You could implement a toast notification system here
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading resource:', error);
+    throw error;
+  }
+};
   
   // Handle typing indicators
   newSocket.on('user_typing', ({ userId, userName, isTyping }) => {
@@ -651,36 +839,6 @@ useEffect(() => {
   // Get user by ID (helper function)
   const getUserById = (userId) => {
     return mockPod.members.find(member => member.id === userId);
-  };
-  
-  // Format date to readable string
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-  
-  // Format date with time
-  const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (date.toDateString() === today.toDateString()) {
-      return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    }
-    
-    if (date.toDateString() === yesterday.toDateString()) {
-      return `Yesterday at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    }
-    
-    return `${formatDate(dateTimeString)} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  };
-  
-  // Generate user initials from name
-  const getInitials = (name) => {
-    if (!name) return '';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
   
   const handleSendMessage = async (e) => {
@@ -879,29 +1037,29 @@ useEffect(() => {
   
   {/* Add the membership status here */}
   <div className={styles.membershipStatus}>
-    {isCreator ? (
-      <div className={styles.creatorBadge}>
-        <Crown size={16} />
-        <span>Creator</span>
-      </div>
-    ) : isMember ? (
-      <div className={styles.memberBadge}>
-        <CheckCircle size={16} />
-        <span>Member - {userRole}</span>
-      </div>
-    ) : (
-      <div className={styles.notMemberMessage}>
-        <AlertCircle size={16} />
-        <span>You aren't a member of this pod</span>
-        <button
-          className={styles.applyButton}
-          onClick={() => navigate(`/pods/${podId}`)}
-        >
-          Apply to Join
-        </button>
-      </div>
-    )}
-  </div>
+  {isCreator ? (
+    <div className={`${styles.roleTag} ${styles.creator}`}>
+      <Crown size={16} />
+      <span>Creator</span>
+    </div>
+  ) : isMember ? (
+    <div className={`${styles.roleTag} ${styles.contributor}`}>
+      <CheckCircle size={16} />
+      <span>Member - {userRole}</span>
+    </div>
+  ) : (
+    <div className={styles.notMemberMessage}>
+      <AlertCircle size={16} />
+      <span>You aren't a member of this pod</span>
+      <button
+        className={styles.applyButton}
+        onClick={() => navigate(`/pods/${podId}`)}
+      >
+        Apply to Join
+      </button>
+    </div>
+  )}
+</div>
             
   <div className={styles.podMeta}>
   <div className={styles.metaItem}>
@@ -913,16 +1071,16 @@ useEffect(() => {
     <span>{podMembers.length} Members</span>
   </div>
   {isCreator && (
-    <motion.button 
-      className={styles.editButton}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => navigate(`/pods/${podId}/edit`)}
-    >
-      <Edit size={16} />
-      <span>Edit Pod</span>
-    </motion.button>
-  )}
+  <motion.button 
+    className={styles.editButton}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={() => navigate(`/pods/${podId}/edit`)}
+  >
+    <Edit size={16} />
+    <span>Edit Pod</span>
+  </motion.button>
+)}
 </div>
           
 <div className={styles.progressBar}>
@@ -1606,17 +1764,14 @@ useEffect(() => {
         <p>This pod doesn't have any tasks yet. Create the first task to get started!</p>
         {(isCreator || isMember) && (
           <motion.button 
-            className={styles.primaryButton}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // Open create task modal
-              console.log('Open create task modal');
-            }}
-          >
-            <Plus size={16} />
-            <span>Create First Task</span>
-          </motion.button>
+          className={styles.primaryButton}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setTaskModalOpen(true)}
+        >
+          <Plus size={16} />
+          <span>New Task</span>
+        </motion.button>
         )}
       </motion.div>
     ) : (
@@ -1912,13 +2067,14 @@ useEffect(() => {
                   <div className={styles.tabActions}>
                     {isCreator && (
                       <motion.button 
-                        className={styles.primaryButton}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Plus size={16} />
-                        <span>New Milestone</span>
-                      </motion.button>
+                      className={styles.primaryButton}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setMilestoneModalOpen(true)}
+                    >
+                      <Plus size={16} />
+                      <span>New Milestone</span>
+                    </motion.button>
                     )}
                   </div>
                 </motion.div>
@@ -2036,32 +2192,62 @@ useEffect(() => {
     </motion.div>
     
     <motion.div className={styles.chatInterface} variants={itemVariants}>
+      {!socketConnected && (
+        <div className={styles.socketStatus}>
+          <div className={styles.socketIndicator}>
+            <WifiOff size={16} />
+          </div>
+          <span>Connecting to chat server...</span>
+        </div>
+      )}
+      
       <div className={styles.chatMessages}>
-        {[...mockMessages.map(message => ({
-          id: message.id,
-          senderId: message.userId,
-          text: message.text,
-          timestamp: message.createdAt,
-          isFromMock: true
-        })), ...messages].sort((a, b) => 
-          new Date(a.timestamp) - new Date(b.timestamp)
-        ).map((message, index) => {
-          // For mock messages, use the existing logic
-          if (message.isFromMock) {
-            const sender = getUserById(message.senderId);
-            const isCurrentUser = message.senderId === currentUser.id;
+        {podMessages.length === 0 ? (
+          <div className={styles.emptyChatMessage}>
+            <div className={styles.emptyChatIcon}>
+              <MessageSquare size={40} />
+            </div>
+            <h3>No Messages Yet</h3>
+            <p>Be the first to send a message in this pod!</p>
+          </div>
+        ) : (
+          // Combine pod messages and socket messages (real-time)
+          [...podMessages, ...messages.filter(m => 
+            // Only include socket messages not already in podMessages
+            m.tempId && !podMessages.some(pm => pm._id === m._id || pm._id === m.tempId)
+          )]
+          .sort((a, b) => new Date(a.createdAt || a.timestamp) - new Date(b.createdAt || b.timestamp))
+          .map((message, index) => {
+            const isCurrentUser = currentUser && 
+              ((message.sender && message.sender._id === currentUser._id) || 
+               (message.senderId === currentUser._id));
             
+            // System messages
+            if (message.isSystem) {
+              return (
+                <div key={`system-${index}-${message._id || ''}`} className={styles.systemMessage}>
+                  <div className={styles.systemMessageContent}>
+                    <p>{message.message}</p>
+                    <span className={styles.systemMessageTime}>{formatDateTime(message.timestamp)}</span>
+                  </div>
+                </div>
+              );
+            }
+            
+            // Regular messages
             return (
               <div 
-                key={`mock-${message.id}`} 
-                className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming}`}
+                key={`msg-${index}-${message._id || message.tempId || ''}`} 
+                className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming} ${message.isTemporary ? styles.temporary : ''}`}
               >
                 {!isCurrentUser && (
                   <div className={styles.messageAvatar}>
-                    {sender.avatar ? (
-                      <img src={sender.avatar} alt={sender.name} />
+                    {message.sender?.profileImage ? (
+                      <img src={message.sender.profileImage} alt={message.sender.name} />
                     ) : (
-                      <div className={styles.messageInitials}>{getInitials(sender.name)}</div>
+                      <div className={styles.messageInitials}>
+                        {getInitials(message.sender?.name || message.senderName || 'Unknown')}
+                      </div>
                     )}
                   </div>
                 )}
@@ -2069,146 +2255,262 @@ useEffect(() => {
                 <div className={styles.messageContent}>
                   <div className={styles.messageBubble}>
                     <p>{message.text}</p>
+                    {message.isTemporary && (
+                      <div className={styles.messageStatus}>
+                        <span>Sending...</span>
+                      </div>
+                    )}
                   </div>
                   <div className={styles.messageInfo}>
-                    <span className={styles.messageSender}>{isCurrentUser ? 'You' : sender.name}</span>
-                    <span className={styles.messageTime}>{formatDateTime(message.timestamp)}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          } 
-          // For real-time messages
-          else {
-            const userData = JSON.parse(localStorage.getItem('user')) || currentUser;
-            const isCurrentUser = userData && message.senderId === userData._id;
-            
-            return (
-              <div 
-                key={`rt-${index}`} 
-                className={`${styles.chatMessage} ${isCurrentUser ? styles.outgoing : styles.incoming}`}
-              >
-                {!isCurrentUser && (
-                  <div className={styles.messageAvatar}>
-                    <div className={styles.messageInitials}>
-                      {message.senderName?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  </div>
-                )}
-                
-                <div className={styles.messageContent}>
-                  <div className={styles.messageBubble}>
-                    <p>{message.text}</p>
-                  </div>
-                  <div className={styles.messageInfo}>
-                    <span className={styles.messageSender}>{isCurrentUser ? 'You' : message.senderName}</span>
+                    <span className={styles.messageSender}>
+                      {isCurrentUser ? 'You' : (message.sender?.name || message.senderName || 'Unknown')}
+                    </span>
                     <span className={styles.messageTime}>
-                      {new Date(message.timestamp).toLocaleTimeString()}
+                      {formatDateTime(message.createdAt || message.timestamp)}
                     </span>
                   </div>
                 </div>
               </div>
             );
-          }
-        })}
+          })
+        )}
+        
+        {typingUsers.length > 0 && (
+          <div className={styles.typingIndicator}>
+            <div className={styles.typingDots}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span className={styles.typingText}>
+              {typingUsers.length === 1 
+                ? `${typingUsers[0].userName} is typing...` 
+                : `${typingUsers.length} people are typing...`}
+            </span>
+          </div>
+        )}
+        
         <div ref={messagesEndRef}></div>
       </div>
       
       <div className={styles.chatInput}>
+        {errorNotification && (
+          <div className={styles.errorNotification}>
+            <AlertCircle size={14} />
+            <span>{errorNotification}</span>
+            <button onClick={() => setErrorNotification(null)} className={styles.closeButton}>×</button>
+          </div>
+        )}
+        
         <form onSubmit={handleSendMessage}>
           <div className={styles.inputWrapper}>
             <textarea 
-              placeholder="Type your message..."
+              placeholder={
+                !socketConnected ? "Connecting to chat server..." :
+                !isMember ? "You must be a member to send messages" :
+                "Type your message..."
+              }
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                
+                // Emit typing status if connected
+                if (socket && socketConnected && currentUser) {
+                  socket.emit('typing_status', {
+                    podId,
+                    userId: currentUser._id,
+                    userName: currentUser.name,
+                    isTyping: e.target.value.length > 0
+                  });
+                }
+              }}
+              onBlur={() => {
+                // Clear typing status on blur
+                if (socket && socketConnected && currentUser) {
+                  socket.emit('typing_status', {
+                    podId,
+                    userId: currentUser._id,
+                    userName: currentUser.name,
+                    isTyping: false
+                  });
+                }
+              }}
               rows={1}
+              disabled={!socketConnected || !isMember}
             />
             <div className={styles.inputActions}>
-              <button type="button" className={styles.attachButton}>
+              <button 
+                type="button" 
+                className={styles.attachButton}
+                disabled={!socketConnected || !isMember}
+                onClick={() => {
+                  // Implement file attachment
+                  console.log('Handle file attachment');
+                }}
+              >
                 <Paperclip size={18} />
               </button>
-              <button type="submit" className={styles.sendButton} disabled={!newMessage.trim()}>
+              <button 
+                type="submit" 
+                className={styles.sendButton} 
+                disabled={!socketConnected || !isMember || !newMessage.trim()}
+              >
                 <Send size={18} />
               </button>
             </div>
           </div>
         </form>
+        
+        {!isMember && (
+          <div className={styles.nonMemberMessage}>
+            <div className={styles.nonMemberInfo}>
+              <AlertCircle size={16} />
+              <span>You must be a member of this pod to send messages</span>
+            </div>
+            <button 
+              className={styles.joinButton}
+              onClick={() => navigate(`/pods/${podId}`)}
+            >
+              Join Pod
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   </motion.div>
 )}
   
-            {/* Resources Tab */}
-            {activeTab === 'resources' && (
-              <motion.div
-                className={styles.resourcesTab}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.div className={styles.tabHeader} variants={itemVariants}>
-                  <h2>Resources</h2>
-                  <div className={styles.tabActions}>
-                    <div className={styles.searchBar}>
-                      <input 
-                        type="text" 
-                        placeholder="Search resources..." 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
+{/* Resources Tab */}
+{activeTab === 'resources' && (
+  <motion.div
+    className={styles.resourcesTab}
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+  >
+    <motion.div className={styles.tabHeader} variants={itemVariants}>
+      <h2>Resources</h2>
+      <div className={styles.tabActions}>
+        <div className={styles.searchBar}>
+          <input 
+            type="text" 
+            placeholder="Search resources..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        {(isCreator || isMember) && (
+          <motion.button 
+            className={styles.primaryButton}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              // Open resource upload modal
+              console.log('Open resource upload modal');
+              // This would integrate with your modal component
+            }}
+          >
+            <Plus size={16} />
+            <span>Upload Resource</span>
+          </motion.button>
+        )}
+      </div>
+    </motion.div>
+    
+    {resources.length === 0 ? (
+      <motion.div className={styles.emptyResourcesMessage} variants={itemVariants}>
+        <div className={styles.emptyStateIcon}>
+          <FileText size={40} />
+        </div>
+        <h3>No Resources Yet</h3>
+        <p>This pod doesn't have any resources uploaded yet.</p>
+        {(isCreator || isMember) && (
+          <motion.button 
+          className={styles.primaryButton}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setResourceModalOpen(true)}
+        >
+          <Plus size={16} />
+          <span>Upload Resource</span>
+        </motion.button>
+        )}
+      </motion.div>
+    ) : (
+      <motion.div className={styles.resourcesGrid} variants={itemVariants}>
+        {resources
+          .filter(resource => 
+            resource.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (resource.description && resource.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (resource.tags && resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+          )
+          .map(resource => (
+            <div key={resource._id} className={styles.resourceCard}>
+              <div className={styles.resourceIcon}>
+                {(() => {
+                  // Get appropriate icon based on file type
+                  const fileType = resource.fileType.toLowerCase();
+                  if (fileType === 'pdf') return <FileText size={24} />;
+                  if (fileType === 'doc' || fileType === 'docx') return <FileText size={24} />;
+                  if (fileType === 'xls' || fileType === 'xlsx') return <FileText size={24} />;
+                  if (fileType === 'ppt' || fileType === 'pptx') return <FileText size={24} />;
+                  if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png' || fileType === 'gif') 
+                    return <FileText size={24} />;
+                  if (fileType === 'zip' || fileType === 'rar') return <FileText size={24} />;
+                  return <FileText size={24} />;
+                })()}
+              </div>
+              <div className={styles.resourceInfo}>
+                <h4>{resource.name}</h4>
+                <div className={styles.resourceMeta}>
+                  <span className={styles.resourceSize}>
+                    {formatFileSize(resource.fileSize)}
+                  </span>
+                  <span className={styles.resourceDate}>
+                    Added {formatDate(resource.createdAt)}
+                  </span>
+                </div>
+                <div className={styles.resourceUploader}>
+                  {resource.uploadedBy?.profileImage ? (
+                    <img src={resource.uploadedBy.profileImage} alt={resource.uploadedBy.name} />
+                  ) : (
+                    <div className={styles.uploaderInitials}>
+                      {getInitials(resource.uploadedBy?.name || 'Unknown')}
                     </div>
-                    <motion.button 
-                      className={styles.primaryButton}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Plus size={16} />
-                      <span>Upload Resource</span>
-                    </motion.button>
-                  </div>
-                </motion.div>
-                
-                <motion.div className={styles.resourcesGrid} variants={itemVariants}>
-                  {mockResources.map(resource => (
-                    <div key={resource.id} className={styles.resourceCard}>
-                      <div className={styles.resourceIcon}>
-                        <FileText size={24} />
-                      </div>
-                      <div className={styles.resourceInfo}>
-                        <h4>{resource.name}</h4>
-                        <div className={styles.resourceMeta}>
-                          <span className={styles.resourceSize}>{resource.size}</span>
-                          <span className={styles.resourceDate}>Added {formatDate(resource.uploadedAt)}</span>
-                        </div>
-                        <div className={styles.resourceUploader}>
-                          {(() => {
-                            const uploader = getUserById(resource.uploadedBy);
-                            return (
-                              <>
-                                {uploader.avatar ? (
-                                  <img src={uploader.avatar} alt={uploader.name} />
-                                ) : (
-                                  <div className={styles.uploaderInitials}>{getInitials(uploader.name)}</div>
-                                )}
-                                <span>Added by {uploader.name}</span>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                      <div className={styles.resourceActions}>
-                        <button className={styles.iconButton}>
-                          <Download size={16} />
-                        </button>
-                        <button className={styles.iconButton}>
-                          <MoreHorizontal size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              </motion.div>
-            )}
+                  )}
+                  <span>Added by {resource.uploadedBy?.name || 'Unknown'}</span>
+                </div>
+              </div>
+              <div className={styles.resourceActions}>
+                <a 
+                  href={resource.fileUrl}
+                  download={resource.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.iconButton}
+                >
+                  <Download size={16} />
+                </a>
+                {(isCreator || 
+                  (resource.uploadedBy && currentUser && 
+                    resource.uploadedBy._id === currentUser._id)) && (
+                  <button 
+                    className={styles.iconButton}
+                    onClick={() => {
+                      // Open delete confirmation modal
+                      console.log('Open delete resource confirmation');
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+      </motion.div>
+    )}
+  </motion.div>
+)}
             
             {/* Analytics Tab (only for creators) */}
             {activeTab === 'analytics' && isCreator && (
@@ -2392,6 +2694,30 @@ useEffect(() => {
             )}
           </motion.main>
         </div>
+{/* Modals */}
+<CreateTaskModal
+  isOpen={taskModalOpen}
+  onClose={() => setTaskModalOpen(false)}
+  onSubmit={handleCreateTask}
+  podId={podId}
+  podMembers={podMembers}
+  milestones={milestones}
+/>
+
+<CreateMilestoneModal
+  isOpen={milestoneModalOpen}
+  onClose={() => setMilestoneModalOpen(false)}
+  onSubmit={handleCreateMilestone}
+  podId={podId}
+/>
+
+<ResourceUploadModal
+  isOpen={resourceModalOpen}
+  onClose={() => setResourceModalOpen(false)}
+  onSubmit={handleResourceUpload}
+  podId={podId}
+/>
+        
       </div>
     </div>
     )}

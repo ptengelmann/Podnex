@@ -3026,3 +3026,276 @@ $status-completed: rgba(52, 211, 153, 0.7);
     margin-top: 4px;
   }
 }
+
+// Add to your PodEnvironment.module.scss
+
+.roleTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  
+  &.creator {
+    background-color: rgba($pod-gold, 0.15);
+    color: $pod-gold;
+    
+    svg {
+      color: $pod-gold;
+    }
+  }
+  
+  &.contributor {
+    background-color: rgba($pod-purple, 0.15);
+    color: $pod-purple;
+    
+    svg {
+      color: $pod-purple;
+    }
+  }
+}
+
+// Improve the positioning
+.membershipStatus {
+  margin: 5px 0 15px;
+  display: flex;
+  align-items: center;
+  
+  .creatorBadge, .memberBadge {
+    margin-left: 0;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+}
+// Improve edit button styling
+.editButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba($pod-gold, 0.15);
+  border: 1px solid rgba($pod-gold, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: $pod-gold;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  
+  svg {
+    color: $pod-gold;
+  }
+  
+  &:hover {
+    background: rgba($pod-gold, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Improve section styling
+.dashboardSection {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  .sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      svg {
+        color: $pod-gold;
+      }
+    }
+    
+    .viewAllButton {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      color: $pod-gold;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        text-decoration: none;
+        opacity: 0.8;
+        transform: translateX(2px);
+      }
+    }
+  }
+  
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    
+    p {
+      color: $gray;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    // Improve the create/add buttons
+    .addItemButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba($pod-gold, 0.15);
+      border: 1px solid rgba($pod-gold, 0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: $pod-gold;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      svg {
+        color: $pod-gold;
+      }
+      
+      &:hover {
+        background: rgba($pod-gold, 0.25);
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+// Style improvements for status sections
+.taskStatusGroup {
+  .statusHeader {
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    
+    .statusIndicator {
+      width: 10px;
+      height: 10px;
+    }
+    
+    .statusCount {
+      font-weight: 500;
+      min-width: 28px;
+      text-align: center;
+    }
+  }
+}
+
+// Add these styles for action buttons
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: rgba($pod-gold, 0.12);
+  border: 1px dashed rgba($pod-gold, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: $pod-gold;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  svg {
+    color: $pod-gold;
+  }
+  
+  &:hover {
+    background: rgba($pod-gold, 0.2);
+    border-style: solid;
+  }
+}
+
+// Improved typography
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif; // or your preferred font
+  letter-spacing: -0.02em;
+  color: $white;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.statLabel, .statusLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: $gray;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: $white;
+}
+
+// Improved stat cards
+.statCard {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+  }
+  
+  .statIcon {
+    background: linear-gradient(135deg, rgba($pod-gold, 0.2), rgba($pod-gold, 0.05));
+    border-radius: 10px;
+  }
+}
+
