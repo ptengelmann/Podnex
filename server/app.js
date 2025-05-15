@@ -22,6 +22,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // Register the auth routes first
 app.use('/api/auth', authRoutes);
+// Add this near the top of your middleware configuration
+app.use('/uploads', express.static('uploads'));
 
 // Register application routes
 app.use('/api/applications', applicationRoutes);

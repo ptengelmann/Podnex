@@ -2791,3 +2791,238 @@ $status-completed: rgba(52, 211, 153, 0.7);
       }
     }
   }
+
+  // Add these to your PodEnvironment.module.scss file
+
+// Loading and error states
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+  text-align: center;
+  
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(78, 205, 196, 0.3);
+    border-top-color: #4ECDC4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .retryButton {
+    padding: 8px 16px;
+    background-color: #4ECDC4;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #3db9b0;
+    }
+  }
+}
+
+// Empty states
+.emptyState, .emptyTasksList, .emptyChatMessage, .emptyResourcesMessage, .emptyCategory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  
+  p {
+    color: $gray;
+    margin-bottom: 16px;
+  }
+  
+  .emptyStateIcon {
+    margin-bottom: 16px;
+    color: $gray;
+  }
+}
+
+// Socket status indicator
+.socketStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff6b6b;
+  border-radius: 4px;
+  font-size: 13px;
+  
+  .socketIndicator {
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+}
+
+// Typing indicator
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  margin: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  
+  .typingDots {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: $pod-gold;
+      margin-right: 3px;
+      animation: typingAnimation 1.4s infinite;
+      
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      
+      &:nth-child(3) {
+        animation-delay: 0.4s;
+        margin-right: 0;
+      }
+    }
+  }
+  
+  .typingText {
+    font-size: 13px;
+    color: $gray;
+  }
+  
+  @keyframes typingAnimation {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+  }
+}
+
+// Error notification
+.errorNotification {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff6b6b;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  
+  svg {
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  
+  span {
+    flex: 1;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+}
+
+// Non-member message
+.nonMemberMessage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .nonMemberInfo {
+    display: flex;
+    align-items: center;
+    color: $gray;
+    font-size: 13px;
+    
+    svg {
+      margin-right: 8px;
+      color: $pod-orange;
+    }
+  }
+  
+  .joinButton {
+    background: $pod-blue;
+    color: $white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: lighten($pod-blue, 10%);
+    }
+  }
+}
+
+// System message
+.systemMessage {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+  
+  .systemMessageContent {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    text-align: center;
+    
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: $gray;
+    }
+    
+    .systemMessageTime {
+      font-size: 10px;
+      color: rgba($gray, 0.7);
+    }
+  }
+}
+
+// Temporary message status
+.temporary {
+  opacity: 0.7;
+  
+  .messageStatus {
+    font-size: 11px;
+    color: $gray;
+    font-style: italic;
+    margin-top: 4px;
+  }
+}
