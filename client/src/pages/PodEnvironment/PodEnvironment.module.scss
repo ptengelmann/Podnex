@@ -3299,3 +3299,62 @@ h3 {
   }
 }
 
+.podMeta {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  margin: 20px 0;
+  
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
+  
+  .metaCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    min-width: 160px;
+    
+    .metaIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: rgba($pod-gold, 0.1);
+      border-radius: 10px;
+      color: $pod-gold;
+    }
+    
+    .metaContent {
+      display: flex;
+      flex-direction: column;
+      
+      .metaLabel {
+        font-size: 12px;
+        color: $gray;
+        margin-bottom: 4px;
+      }
+      
+      .metaValue {
+        font-size: 15px;
+        font-weight: 600;
+        color: $white;
+      }
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+  }
+  
+  .editButton {
+    margin-left: auto;
+  }
+}

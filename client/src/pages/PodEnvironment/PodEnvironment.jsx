@@ -1109,26 +1109,38 @@ setPodMessages(prev => [...prev, response.data]);
   )}
 </div>
             
-  <div className={styles.podMeta}>
-  <div className={styles.metaItem}>
-    <Calendar size={16} />
-    <span>Due: {podData?.deadline ? formatDate(podData.deadline) : 'No deadline'}</span>
+<div className={styles.podMeta}>
+  <div className={styles.metaCard}>
+    <div className={styles.metaIcon}>
+      <Calendar size={16} />
+    </div>
+    <div className={styles.metaContent}>
+      <span className={styles.metaLabel}>Due Date</span>
+      <span className={styles.metaValue}>{podData?.deadline ? formatDate(podData.deadline) : 'No deadline'}</span>
+    </div>
   </div>
-  <div className={styles.metaItem}>
-    <Users size={16} />
-    <span>{podMembers.length} Members</span>
+  
+  <div className={styles.metaCard}>
+    <div className={styles.metaIcon}>
+      <Users size={16} />
+    </div>
+    <div className={styles.metaContent}>
+      <span className={styles.metaLabel}>Team Size</span>
+      <span className={styles.metaValue}>{podMembers.length} Members</span>
+    </div>
   </div>
+  
   {isCreator && (
-  <motion.button 
-    className={styles.editButton}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={() => navigate(`/pods/${podId}/edit`)}
-  >
-    <Edit size={16} />
-    <span>Edit Pod</span>
-  </motion.button>
-)}
+    <motion.button 
+      className={styles.editButton}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => navigate(`/pods/${podId}/edit`)}
+    >
+      <Edit size={16} />
+      <span>Edit Pod</span>
+    </motion.button>
+  )}
 </div>
           
 <div className={styles.progressBar}>
