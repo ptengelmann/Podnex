@@ -3578,6 +3578,8 @@ h3 {
         color: $pod-gold;
       }
     }
+
+    
     
     .progressBarContainer {
       .progressTrack {
@@ -3627,6 +3629,119 @@ h3 {
             color: $gray;
             white-space: nowrap;
           }
+        }
+      }
+    }
+  }
+}
+
+.topNavBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: $gray;
+    
+    span {
+      cursor: pointer;
+      transition: color 0.2s ease;
+      
+      &:hover:not(.current) {
+        color: $white;
+      }
+      
+      &.current {
+        color: $pod-gold;
+        font-weight: 500;
+      }
+    }
+    
+    svg {
+      opacity: 0.5;
+    }
+  }
+  
+  .headerActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .mobileMenuToggle {
+      display: none;
+      color: $white;
+      cursor: pointer;
+      
+      @media (max-width: 992px) {
+        display: block;
+      }
+    }
+    
+    .notifications {
+      position: relative;
+      color: $white;
+      cursor: pointer;
+      
+      .notificationBadge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 18px;
+        height: 18px;
+        background: $pod-red;
+        border-radius: 50%;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+    }
+    
+    .userMenu {
+      display: flex;
+      align-items: center;
+      
+      .avatar {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .initials {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: $pod-purple;
+          color: $white;
+          font-weight: 600;
+          font-size: 14px;
+        }
+        
+        .statusIndicator {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: $pod-green;
+          border: 2px solid $black;
         }
       }
     }

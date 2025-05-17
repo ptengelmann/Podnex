@@ -11,8 +11,8 @@ const HomePage = () => {
     <div className={styles.home}>
       <HeroSection />
       <HowItWorksSection />
-      <FeaturedPodsSection />
       <Ecosystem />
+      <FeaturedPodsSection />
       <Testimonials />
     </div>
   );

@@ -1055,8 +1055,8 @@ setPodMessages(prev => [...prev, response.data]);
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.5 }}
 >
-  {/* Keep the breadcrumbs and top navigation */}
-  <div className={styles.headerContent}>
+  {/* Top navigation bar with breadcrumbs and user controls */}
+  <div className={styles.topNavBar}>
     <div className={styles.breadcrumbs}>
       <span onClick={() => navigate('/')}>Home</span>
       <ChevronRight size={14} />
@@ -1088,7 +1088,7 @@ setPodMessages(prev => [...prev, response.data]);
     </div>
   </div>
 
-  {/* New enhanced content */}
+  {/* Rest of the enhanced header content */}
   <div className={styles.podBanner}>
     <div className={styles.podPrimaryInfo}>
       <div className={styles.podIconLarge}>
@@ -1175,6 +1175,7 @@ setPodMessages(prev => [...prev, response.data]);
     </motion.div>
   </div>
   
+  {/* Info cards section */}
   <motion.div 
     className={styles.podMetaCards}
     initial={{ opacity: 0, y: 10 }}
@@ -1247,6 +1248,7 @@ setPodMessages(prev => [...prev, response.data]);
     </motion.div>
   </motion.div>
   
+  {/* Progress section */}
   <motion.div 
     className={styles.podProgressSection}
     initial={{ opacity: 0 }}
