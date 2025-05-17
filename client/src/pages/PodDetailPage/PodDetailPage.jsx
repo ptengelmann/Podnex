@@ -569,48 +569,52 @@ const PodDetailPage = () => {
           </div>
           
           {/* Quick stats bar */}
-          <div className={styles.quickStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statIcon} style={{ backgroundColor: getUrgencyColor(pod?.urgency) + '20', color: getUrgencyColor(pod?.urgency) }}>
-                <Clock size={20} />
-              </div>
-              <div className={styles.statContent}>
-                <span className={styles.statLabel}>Deadline</span>
-                <span className={styles.statValue}>{formatDeadline(pod?.deadline)}</span>
-              </div>
-            </div>
-            
-            <div className={styles.statItem}>
-              <div className={styles.statIcon} style={{ backgroundColor: '#3B82F620', color: '#3B82F6' }}>
-                <Activity size={20} />
-              </div>
-              <div className={styles.statContent}>
-                <span className={styles.statLabel}>Progress</span>
-                <span className={styles.statValue}>{pod?.progress}%</span>
-              </div>
-            </div>
-            
-            <div className={styles.statItem}>
-              <div className={styles.statIcon} style={{ backgroundColor: '#10B98120', color: '#10B981' }}>
-                <DollarSign size={20} />
-              </div>
-              <div className={styles.statContent}>
-                <span className={styles.statLabel}>Budget</span>
-                <span className={styles.statValue}>${((pod?.budget || 0) / 1000).toFixed(0)}k</span>
-              </div>
-            </div>
-            
-            <div className={styles.statItem}>
-              <div className={styles.statIcon} style={{ backgroundColor: '#EC489920', color: '#EC4899' }}>
-                <Briefcase size={20} />
-              </div>
-              <div className={styles.statContent}>
-                <span className={styles.statLabel}>Commitment</span>
-                <span className={styles.statValue}>{pod?.commitment}</span>
-              </div>
-            </div>
-          </div>
+          <div className={styles.quickStatsWrapper}>
+  <div className={styles.quickStats}>
+    <div className={styles.statItem}>
+      <div className={styles.statIcon} style={{ backgroundColor: '#E8C54720', color: '#E8C547' }}>
+        <Clock size={20} />
+      </div>
+      <div className={styles.statContent}>
+        <span className={styles.statLabel}>DEADLINE</span>
+        <span className={styles.statValue}>1 weeks left</span>
+      </div>
+    </div>
+    
+    <div className={styles.statItem}>
+      <div className={styles.statIcon} style={{ backgroundColor: '#3B82F620', color: '#3B82F6' }}>
+        <Activity size={20} />
+      </div>
+      <div className={styles.statContent}>
+        <span className={styles.statLabel}>PROGRESS</span>
+        <span className={styles.statValue}>75%</span>
+      </div>
+    </div>
+    
+    <div className={styles.statItem}>
+      <div className={styles.statIcon} style={{ backgroundColor: '#10B98120', color: '#10B981' }}>
+        <DollarSign size={20} />
+      </div>
+      <div className={styles.statContent}>
+        <span className={styles.statLabel}>BUDGET</span>
+        <span className={styles.statValue}>$45k</span>
+      </div>
+    </div>
+    
+    <div className={styles.statItem}>
+      <div className={styles.statIcon} style={{ backgroundColor: '#EC489920', color: '#EC4899' }}>
+        <Briefcase size={20} />
+      </div>
+      <div className={styles.statContent}>
+        <span className={styles.statLabel}>COMMITMENT</span>
+        <span className={styles.statValue}>part-time</span>
+      </div>
+    </div>
+  </div>
+</div>
         </motion.div>
+
+
         
         {/* Enhanced Tab navigation */}
         <motion.div 
