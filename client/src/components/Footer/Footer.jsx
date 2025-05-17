@@ -231,7 +231,7 @@ const Footer = () => {
         <div className={styles.container}>
           <p className={styles.copyright}>&copy; {currentYear} PODNEX. All rights reserved.</p>
           <div className={styles.footerLegal}>
-            <Link to="/terms">Terms of Service</Link>
+            <Link to="/terms-of-service">Terms of Service</Link>
             <Link to="/privacy">Privacy Policy</Link>
             <Link to="/cookies">Cookies</Link>
           </div>
