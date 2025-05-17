@@ -476,6 +476,12 @@ useEffect(() => {
       
       // Store the pod data
       setPodData(podResponse.data);
+
+      // First check if user is creator
+const isUserCreator = podResponse.data.creator && 
+podResponse.data.creator._id === user._id;
+
+setIsCreator(isUserCreator);
       
       // Check if user is creator
       setIsCreator(podResponse.data.creator && 
@@ -488,18 +494,20 @@ useEffect(() => {
       
       setPodMembers(membersResponse.data);
       
-      // Check if current user is a member
-      const memberCheck = membersResponse.data.find(member => 
-        member.user._id === user._id
-      );
+   // Check if current user is in the members list
+const memberCheck = membersResponse.data.find(member => 
+  member.user._id === user._id
+);
       
-      if (memberCheck) {
-        setIsMember(true);
-        setUserRole(memberCheck.role);
-      } else {
-        setIsMember(false);
-        setUserRole(null);
-      }
+   // Consider user a member if they're either in the members list OR they're the creator
+if (memberCheck || isUserCreator) {
+  setIsMember(true);
+  // If they're in members list, use that role, otherwise they're the creator
+  setUserRole(memberCheck ? memberCheck.role : 'Creator');
+} else {
+  setIsMember(false);
+  setUserRole(null);
+}
       
       // 3. Load all necessary data for dashboard view
       await Promise.all([
@@ -658,39 +666,59 @@ useEffect(() => {
   });
   
   setSocket(newSocket);
-  newSocket.on('disconnect', (reason) => {
-    console.log('Socket disconnected:', reason);
-    setSocketConnected(false);
+  
+// Connection events
+newSocket.on('connect', () => {
+  console.log('Socket connected:', newSocket.id);
+  setSocketConnected(true);
+  setSocketError(null);
+  
+  // Join the pod room after successful connection
+  newSocket.emit('join_pod', {
+    podId,
+    userId: currentUser._id,
+    userName: currentUser.name
+  });
+});
+
+newSocket.on('disconnect', (reason) => {
+  console.log('Socket disconnected:', reason);
+  setSocketConnected(false);
+});
+
+newSocket.on('connect_error', (error) => {
+  console.error('Socket connection error:', error);
+  setSocketError(error.message);
+  setReconnectAttempts(prev => prev + 1);
+  setSocketConnected(false);
+});
+  
+// Message handling
+newSocket.on('receive_message', (message) => {
+  console.log('Received message:', message);
+  
+  // Update both messages arrays to ensure they stay in sync
+  setPodMessages(prev => {
+    // Check if message already exists to avoid duplicates
+    const exists = prev.some(m => m._id === message._id);
+    return exists ? prev : [...prev, message];
   });
   
-  newSocket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error);
-    setSocketError(error.message);
-    setReconnectAttempts(prev => prev + 1);
+  setMessages(prev => {
+    const exists = prev.some(m => 
+      (m._id && m._id === message._id) || 
+      (m.tempId && m.tempId === message.tempId)
+    );
+    return exists ? prev : [...prev, message];
   });
+
+ // Update last activity timestamp
+ setLastActivity(new Date());
+});
   
-  // Message handling
-  newSocket.on('receive_message', (message) => {
-    // Update both messages arrays to ensure they stay in sync
-    setPodMessages(prev => {
-      // Check if message already exists to avoid duplicates
-      const exists = prev.some(m => m._id === message._id);
-      return exists ? prev : [...prev, message];
-    });
-    
-    setMessages(prev => {
-      const exists = prev.some(m => 
-        (m._id && m._id === message._id) || 
-        (m.tempId && m.tempId === message.tempId)
-      );
-      return exists ? prev : [...prev, message];
-    });
-   // Update last activity timestamp
-   setLastActivity(new Date());
-  });
-  
-  // System messages (user joined/left)
+// System messages (user joined/left)
   newSocket.on('system_message', (message) => {
+    console.log('System message:', message);
     setMessages(prev => [...prev, {
       ...message,
       isSystem: true,
@@ -755,26 +783,30 @@ const handleResourceUpload = async (resourceData) => {
   }
 };
   
-  // Handle typing indicators
-  newSocket.on('user_typing', ({ userId, userName, isTyping }) => {
-    if (isTyping) {
-      setTypingUsers(prev => [...prev.filter(u => u.userId !== userId), { userId, userName }]);
-
-  // Clear typing indicator after 3 seconds of inactivity
-  if (typingTimeoutRef.current) {
-    clearTimeout(typingTimeoutRef.current);
-  }
+// Handle typing indicators
+newSocket.on('user_typing', ({ userId, userName, isTyping }) => {
+  console.log('User typing status:', userId, userName, isTyping);
   
-  typingTimeoutRef.current = setTimeout(() => {
+  if (isTyping) {
+    setTypingUsers(prev => [...prev.filter(u => u.userId !== userId), { userId, userName }]);
+    
+    // Clear typing indicator after 3 seconds of inactivity
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      setTypingUsers(prev => prev.filter(u => u.userId !== userId));
+    }, 3000);
+  } else {
     setTypingUsers(prev => prev.filter(u => u.userId !== userId));
-  }, 3000);
-} else {
-  setTypingUsers(prev => prev.filter(u => u.userId !== userId));
-}
+  }
 });
   
   // Handle active users
   newSocket.on('pod_users_updated', (users) => {
+    console.log('Pod users updated:', users);
+    
     // Update the pod members with online status information
     setPodMembers(prevMembers => {
       return prevMembers.map(member => {
@@ -787,7 +819,7 @@ const handleResourceUpload = async (resourceData) => {
       });
     });
   });
-  
+
   // Handle message errors
   newSocket.on('message_error', ({ originalMessage, error }) => {
     console.error('Message error:', error);
@@ -798,16 +830,20 @@ const handleResourceUpload = async (resourceData) => {
       !(msg.tempId && msg.tempId === originalMessage.tempId)
     ));
   });
-  
-  // Clean up on component unmount
+
+   // Clean up on component unmount
   return () => {
     if (newSocket) {
+      console.log('Cleaning up socket connection');
+      
       // Leave pod
-      newSocket.emit('leave_pod', {
-        podId,
-        userId: currentUser._id,
-        userName: currentUser.name
-      });
+      if (newSocket.connected) {
+        newSocket.emit('leave_pod', {
+          podId,
+          userId: currentUser._id,
+          userName: currentUser.name
+        });
+      }
       
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -850,62 +886,74 @@ useEffect(() => {
       setErrorNotification('You need to be logged in to send messages');
       return;
     }
+
+      // First, check if socket is connected
+  if (!socketConnected) {
+    setErrorNotification('Chat connection lost. Please refresh the page.');
+    return;
+  }
     
     // Create a temporary message with a unique ID for optimistic UI update
-    const tempId = `temp_${Date.now()}`;
-    const tempMessage = {
-      tempId,
-      text: newMessage,
-      sender: {
-        _id: currentUser._id,
-        name: currentUser.name,
-        profileImage: currentUser.profileImage
-      },
-      createdAt: new Date().toISOString(),
-      isTemporary: true
-    };
+  const tempId = `temp_${Date.now()}`;
+  const tempMessage = {
+    tempId,
+    text: newMessage,
+    sender: {
+      _id: currentUser._id,
+      name: currentUser.name,
+      profileImage: currentUser.profileImage
+    },
+    createdAt: new Date().toISOString(),
+    isTemporary: true
+  };
     
-    // Add to local messages immediately for better UX
-    setMessages(prev => [...prev, tempMessage]);
+ // Add to local messages immediately for better UX
+ setMessages(prev => [...prev, tempMessage]);
     
     // Prepare message data for socket
-    const messageData = {
-      podId,
-      senderId: currentUser._id,
-      senderName: currentUser.name,
-      text: newMessage,
-      tempId, // Include the temp ID so we can match it later
-      timestamp: new Date().toISOString()
-    };
+  const messageData = {
+    podId,
+    senderId: currentUser._id,
+    senderName: currentUser.name,
+    text: newMessage,
+    tempId, // Include the temp ID so we can match it later
+    timestamp: new Date().toISOString()
+  };
     
     // Clear the message input right away for better UX
     setNewMessage('');
+
+     // Log message data for debugging
+  console.log('Sending message via socket:', messageData);
     
     // Emit message to socket
     socket.emit('send_message', messageData);
     
     // Also save to database
-    try {
-      const response = await axios.post(`http://localhost:5000/api/messages`, {
-        podId,
-        text: newMessage
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+  try {
+    console.log('Saving message to database');
+    const response = await axios.post(`http://localhost:5000/api/messages`, {
+      podId,
+      text: newMessage
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    console.log('Message saved to database:', response.data);
       
-      // Replace the temporary message with the real one
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.tempId === tempId ? { ...response.data, tempId } : msg
-        )
-      );
+       // Replace the temporary message with the real one
+    setMessages(prev => 
+      prev.map(msg => 
+        msg.tempId === tempId ? { ...response.data, tempId } : msg
+      )
+    );
       
-      // Also update the podMessages array
-      setPodMessages(prev => [...prev, response.data]);
-      
-    } catch (error) {
-      console.error('Error saving message:', error);
-      setErrorNotification('Failed to send message: ' + (error.message || 'Unknown error'));
+// Also update the podMessages array
+setPodMessages(prev => [...prev, response.data]);
+    
+} catch (error) {
+  console.error('Error saving message:', error);
+  setErrorNotification('Failed to send message: ' + (error.message || 'Unknown error'));
       
       // Remove the temporary message on error
       setMessages(prev => prev.filter(msg => msg.tempId !== tempId));
