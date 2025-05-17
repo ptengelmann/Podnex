@@ -17,6 +17,7 @@ import PricingSection from './pages/Pricing/PricingSection';
 import Community from './pages/Community/Community';
 import FAQPage from './pages/FAQ/FAQPage';
 import TermsOfService from './pages/TermsOfService/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
@@ -99,6 +100,7 @@ const App = () => {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/pod-help" element={<PodHelp />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         
         {/* New route for PodEnvironment */}
         <Route
