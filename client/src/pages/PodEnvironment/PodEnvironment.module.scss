@@ -3358,3 +3358,277 @@ h3 {
     margin-left: auto;
   }
 }
+
+
+// Enhanced Pod Header
+.enhancedPodHeader {
+  padding: 24px 0 30px;
+  margin-bottom: 32px;
+  
+  .podBanner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    
+    .podPrimaryInfo {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      
+      .podIconLarge {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: rgba($pod-gold, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        
+        svg {
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+      }
+      
+      .podTitleSection {
+        .podTitle {
+          font-size: 32px;
+          font-weight: 700;
+          margin: 0 0 8px;
+          background: linear-gradient(90deg, #FFFFFF, #E6C200);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          letter-spacing: -0.02em;
+        }
+        
+        .podDescription {
+          font-size: 16px;
+          color: $gray;
+          margin: 0 0 12px;
+          max-width: 600px;
+        }
+        
+        .podCreatorBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba($pod-gold, 0.15);
+          border: 1px solid rgba($pod-gold, 0.3);
+          border-radius: 20px;
+          color: $pod-gold;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .podMemberBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba($pod-purple, 0.15);
+          border: 1px solid rgba($pod-purple, 0.3);
+          border-radius: 20px;
+          color: $pod-purple;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .podJoinButton {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba($pod-blue, 0.15);
+          border: 1px solid rgba($pod-blue, 0.3);
+          border-radius: 20px;
+          color: $pod-blue;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba($pod-blue, 0.25);
+          }
+        }
+      }
+    }
+    
+    .podActions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .editPodButton {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba($pod-gold, 0.15);
+        border: 1px solid rgba($pod-gold, 0.3);
+        border-radius: 10px;
+        padding: 10px 16px;
+        color: $pod-gold;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba($pod-gold, 0.25);
+        }
+      }
+      
+      .podMenuButton {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: none;
+        background: rgba(255, 255, 255, 0.05);
+        color: $white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+    }
+  }
+  
+  .podMetaCards {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      
+      .podMetaCard {
+        flex: 1 0 calc(50% - 8px);
+      }
+    }
+    
+    .podMetaCard {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      
+      .metaIconWrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba($pod-gold, 0.2), rgba($pod-gold, 0.05));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $pod-gold;
+        flex-shrink: 0;
+      }
+      
+      .metaContent {
+        display: flex;
+        flex-direction: column;
+        
+        .metaLabel {
+          font-size: 13px;
+          color: $gray;
+          margin-bottom: 4px;
+        }
+        
+        .metaValue {
+          font-size: 18px;
+          font-weight: 600;
+          color: $white;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+  }
+  
+  .podProgressSection {
+    padding: 0 8px;
+    
+    .progressHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      .progressLabel {
+        font-size: 14px;
+        font-weight: 500;
+        color: $white;
+      }
+      
+      .progressValue {
+        font-size: 14px;
+        font-weight: 600;
+        color: $pod-gold;
+      }
+    }
+    
+    .progressBarContainer {
+      .progressTrack {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 16px;
+        
+        .progressFill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: linear-gradient(90deg, rgba($pod-gold, 0.7), $pod-gold);
+          border-radius: 4px;
+        }
+      }
+      
+      .progressStages {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+        
+        .progressStage {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          
+          .stageMarker {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            
+            &.active {
+              background: $pod-gold;
+              box-shadow: 0 0 8px rgba($pod-gold, 0.6);
+            }
+          }
+          
+          span {
+            font-size: 11px;
+            color: $gray;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
