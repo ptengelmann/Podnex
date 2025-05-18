@@ -100,7 +100,7 @@ const App = () => {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/pod-help" element={<PodHelp />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         
         {/* New route for PodEnvironment */}
         <Route
