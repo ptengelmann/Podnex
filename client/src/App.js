@@ -18,6 +18,7 @@ import Community from './pages/Community/Community';
 import FAQPage from './pages/FAQ/FAQPage';
 import TermsOfService from './pages/TermsOfService/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import Ecosystem from './pages/Ecosystem/Ecosystem';
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
@@ -101,6 +102,7 @@ const App = () => {
         <Route path="/pod-help" element={<PodHelp />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/ecosystem" element={<Ecosystem />} />
         
         {/* New route for PodEnvironment */}
         <Route

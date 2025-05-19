@@ -3,7 +3,6 @@ import styles from './HomePage.module.scss';
 import HeroSection from './HeroSection/HeroSection';
 import FeaturedPodsSection from './FeaturedPodsSection/FeaturedPodsSection';
 import HowItWorksSection from './HowItWorksSection/HowItWorksSection';
-import Ecosystem from './Ecosystem/Ecosystem';
 import Testimonials from './Testimonials/Testimonials';
 
 const HomePage = () => {
@@ -11,7 +10,6 @@ const HomePage = () => {
     <div className={styles.home}>
       <HeroSection />
       <HowItWorksSection />
-      <Ecosystem />
       <FeaturedPodsSection />
       <Testimonials />
     </div>
