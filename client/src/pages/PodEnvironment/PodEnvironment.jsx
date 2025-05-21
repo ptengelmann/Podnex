@@ -1064,13 +1064,7 @@ setPodMessages(prev => [...prev, response.data]);
       <ChevronRight size={14} />
       <span className={styles.current}>{podData?.title || 'Pod Title'}</span>
     </div>
-
-{isCreator && (
-  <Link to={`/pods/${podId}/manage`} className={styles.manageButton}>
-    <Settings size={18} />
-    <span>Manage Pod</span>
-  </Link>
-)}
+    
     
     <div className={styles.headerActions}>
       <div className={styles.mobileMenuToggle} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -1160,16 +1154,16 @@ setPodMessages(prev => [...prev, response.data]);
       transition={{ delay: 0.4 }}
     >
       {isCreator && (
-        <motion.button 
-          className={styles.editPodButton}
-          whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate(`/pods/${podId}/edit`)}
-        >
-          <Edit size={18} />
-          <span>Edit Pod</span>
-        </motion.button>
-      )}
+  <motion.button 
+    className={styles.editPodButton}
+    whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}
+    whileTap={{ scale: 0.98 }}
+    onClick={() => navigate(`/pods/${podId}/manage`)}
+  >
+    <Edit size={18} />
+    <span>Edit Pod</span>
+  </motion.button>
+)}
       
       <div className={styles.podMenu}>
         <motion.button 
@@ -1454,10 +1448,13 @@ setPodMessages(prev => [...prev, response.data]);
               </div>
               
               <div className={styles.sidebarFooter}>
-                <button className={styles.settingsButton}>
-                  <Settings size={16} />
-                  <span>Pod Settings</span>
-                </button>
+              <button 
+  className={styles.settingsButton}
+  onClick={() => navigate(`/pods/${podId}/manage`)}
+>
+  <Settings size={16} />
+  <span>Pod Settings</span>
+</button>
                 
                 <button className={styles.leaveButton}>
                   <LogOut size={16} />
