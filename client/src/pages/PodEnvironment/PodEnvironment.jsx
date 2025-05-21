@@ -1064,6 +1064,13 @@ setPodMessages(prev => [...prev, response.data]);
       <ChevronRight size={14} />
       <span className={styles.current}>{podData?.title || 'Pod Title'}</span>
     </div>
+
+{isCreator && (
+  <Link to={`/pods/${podId}/manage`} className={styles.manageButton}>
+    <Settings size={18} />
+    <span>Manage Pod</span>
+  </Link>
+)}
     
     <div className={styles.headerActions}>
       <div className={styles.mobileMenuToggle} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>

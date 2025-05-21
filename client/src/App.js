@@ -23,8 +23,11 @@ import Ecosystem from './pages/Ecosystem/Ecosystem';
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
 import PodHelp from './pages/PodHelp/PodHelp';
+
 // Import the new PodEnvironment component
 import PodEnvironment from './pages/PodEnvironment/PodEnvironment';
+// Import the new PodManagementPage component from components directory
+import PodManagementPage from './components/PodManagement/PodManagementPage';
 
 // RoleBasedRoute component for handling role-specific routing
 const RoleBasedRoute = ({ componentType }) => {
@@ -110,6 +113,16 @@ const App = () => {
           element={
             <ProtectedRoute>
               <PodEnvironment />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* New route for PodManagementPage - from components directory */}
+        <Route
+          path="/pods/:podId/manage"
+          element={
+            <ProtectedRoute>
+              <PodManagementPage />
             </ProtectedRoute>
           }
         />

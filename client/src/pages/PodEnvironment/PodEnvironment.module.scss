@@ -3747,3 +3747,25 @@ h3 {
     }
   }
 }
+
+// In PodEnvironment.module.scss
+.manageButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(232, 197, 71, 0.1);
+  color: $gold;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  
+  &:hover {
+    background: rgba(232, 197, 71, 0.2);
+    transform: translateY(-2px);
+  }
+}

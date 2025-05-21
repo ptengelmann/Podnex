@@ -391,13 +391,13 @@ const CreatorDashboard = () => {
                   </div>
                   
                   <div className={styles.podActions}>
-                    <a 
-                      href={`/pods/${pod._id}`} 
-                      className={styles.podDetailsLink}
-                    >
-                      <span>Manage Pod</span>
-                      <Settings size={14} />
-                    </a>
+                  <a 
+  href={`/pods/${pod._id}/manage`} 
+  className={styles.podDetailsLink}
+>
+  <span>Manage Pod</span>
+  <Settings size={14} />
+</a>
                     <a 
                       href={`/pod-environment/${pod._id}`} 
                       className={styles.podEnvLink}
