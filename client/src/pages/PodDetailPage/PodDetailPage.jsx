@@ -143,7 +143,7 @@ const PodDetailPage = () => {
           const enhancedPod = {
             ...res.data,
             // Add mock properties if they don't exist
-            budget: res.data.budget || Math.floor(Math.random() * 50000) + 10000,
+            budget: res.data.budget || 'Not specified',
             commitment: res.data.commitment || 'Part-time',
             urgency: res.data.urgency || 'high',
             progress: res.data.progress || Math.floor(Math.random() * 70) + 20,
@@ -592,14 +592,14 @@ const PodDetailPage = () => {
     </div>
     
     <div className={styles.statItem}>
-      <div className={styles.statIcon} style={{ backgroundColor: '#10B98120', color: '#10B981' }}>
-        <DollarSign size={20} />
-      </div>
-      <div className={styles.statContent}>
-        <span className={styles.statLabel}>BUDGET</span>
-        <span className={styles.statValue}>$45k</span>
-      </div>
-    </div>
+  <div className={styles.statIcon} style={{ backgroundColor: '#10B98120', color: '#10B981' }}>
+    <DollarSign size={20} />
+  </div>
+  <div className={styles.statContent}>
+    <span className={styles.statLabel}>BUDGET</span>
+    <span className={styles.statValue}>{typeof pod?.budget === 'number' ? `$${pod?.budget}` : pod?.budget}</span>
+  </div>
+</div>
     
     <div className={styles.statItem}>
       <div className={styles.statIcon} style={{ backgroundColor: '#EC489920', color: '#EC4899' }}>

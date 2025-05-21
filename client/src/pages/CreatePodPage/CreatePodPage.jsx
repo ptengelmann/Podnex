@@ -650,6 +650,22 @@ const CreatePodPage = () => {
                           rows={3}
                         />
                       </div>
+
+                      {/* ADD THIS BUDGET FIELD BLOCK */}
+<div className={styles.formGroup}>
+  <label className={styles.formLabel}>
+    <DollarSign size={16} />
+    Budget
+  </label>
+  <input
+    type="text"
+    name="budget"
+    value={formData.budget}
+    onChange={handleInputChange}
+    placeholder="Enter budget (e.g. $5,000, Equity Share, etc.)"
+    className={styles.formInput}
+  />
+</div>
                     </motion.div>
                   )}
 
