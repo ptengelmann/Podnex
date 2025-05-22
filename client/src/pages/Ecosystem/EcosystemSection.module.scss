@@ -1,886 +1,2236 @@
 @import '../../styles/variables';
 
-.ecosystem {
+.ecosystemPage {
   width: 100%;
-  max-width: 1200px;
-  padding: $spacing-section $spacing-between;
+  min-height: 100vh;
   background-color: $black;
   color: $white;
   position: relative;
-  margin: 0 auto;
-  overflow: hidden;
-  
-  // Add subtle grid pattern background
-  &::before {
-    content: '';
-    position: absolute;
+  overflow-x: hidden;
+
+  // Enhanced background elements
+  .backgroundElements {
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .gridPattern {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
     background-image: 
       linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 30px 30px;
+    background-size: 50px 50px;
     background-position: center center;
-    pointer-events: none;
-    z-index: 1;
+    animation: gridFloat 20s ease-in-out infinite;
   }
-}
 
-// Content wrapper
-.ecosystemContent {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-// Particle animation
-.particleContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.particle {
-  position: absolute;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  z-index: 1;
-  animation: float linear infinite;
-  
-  @keyframes float {
-    0% {
-      transform: translateY(0) translateX(0);
-    }
-    25% {
-      transform: translateY(-10px) translateX(10px);
-    }
-    50% {
-      transform: translateY(-20px) translateX(0);
-    }
-    75% {
-      transform: translateY(-10px) translateX(-10px);
-    }
-    100% {
-      transform: translateY(0) translateX(0);
-    }
+  @keyframes gridFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-10px, -10px) rotate(0.5deg); }
+    50% { transform: translate(10px, -20px) rotate(-0.5deg); }
+    75% { transform: translate(-5px, 10px) rotate(0.2deg); }
   }
-}
 
-// Title styles
-.sectionTitleWrapper {
-  text-align: center;
-  margin-bottom: 16px;
-  position: relative;
-}
-
-.sectionTitle {
-  font-size: 48px;
-  font-weight: 800;
-  background: linear-gradient(135deg, $white 30%, rgba(232, 197, 71, 0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 16px;
-}
-
-.titleDecoration {
-  width: 80px;
-  height: 4px;
-  background: $gold;
-  margin: 0 auto;
-  position: relative;
-  
-  &::before, &::after {
-    content: '';
+  .floatingShape {
     position: absolute;
-    top: 0;
-    width: 4px;
-    height: 4px;
-    background: $gold;
     border-radius: 50%;
+    filter: blur(80px);
+    animation: float 15s ease-in-out infinite;
+    
+    &.shape1 {
+      top: 15%;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, rgba(232, 197, 71, 0.1), rgba(245, 158, 11, 0.05));
+    }
+    
+    &.shape2 {
+      bottom: 20%;
+      left: 5%;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.04));
+    }
   }
-  
-  &::before {
-    left: -8px;
-  }
-  
-  &::after {
-    right: -8px;
-  }
-}
 
-.sectionDescription {
-  max-width: 700px;
-  text-align: center;
-  color: $gray;
-  font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 48px;
-}
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(20px, -30px) scale(1.05); }
+    50% { transform: translate(-15px, -20px) scale(0.95); }
+    75% { transform: translate(10px, 15px) scale(1.02); }
+  }
 
-// View selector tabs
-.viewSelector {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-  justify-content: center;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    width: 100%;
-    gap: 8px;
+  // Container
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 120px 24px 80px;
+    
+    @media (max-width: 768px) {
+      padding: 100px 16px 60px;
+    }
   }
-}
 
-.viewTab {
-  padding: 10px 20px;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: $gray;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  &.activeTab {
-    background: rgba(232, 197, 71, 0.1);
-    border-color: rgba(232, 197, 71, 0.3);
-    color: $gold;
-    box-shadow: 0 0 15px rgba(232, 197, 71, 0.15);
-  }
-  
-  @media (max-width: 768px) {
-    width: 100%;
+  // Enhanced Header
+  .header {
+    margin-bottom: 80px;
     text-align: center;
   }
-}
 
-// Pod Lifecycle View Styles
-.stagesContainer {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 900px;
-  margin-bottom: 40px;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    color: $gray;
+    margin-bottom: 40px;
+    
+    span {
+      cursor: pointer;
+      transition: color 0.3s ease;
+      
+      &:hover:not(.current) {
+        color: $white;
+      }
+      
+      &.current {
+        color: $gold;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .titleSection {
+    margin-bottom: 60px;
+  }
+
+  .iconWrapper {
+    display: inline-flex;
+    position: relative;
+    margin-bottom: 32px;
+    
+    svg {
+      color: $gold;
+    }
+  }
+
+  .iconGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    background: $gold;
+    border-radius: 50%;
+    filter: blur(30px);
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+  }
+
+  h1 {
+    font-size: 64px;
+    font-weight: 900;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, $white 30%, rgba(232, 197, 71, 0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -2px;
+    
+    @media (max-width: 768px) {
+      font-size: 42px;
+      letter-spacing: -1px;
+    }
+  }
+
+  h1 + p {
+    font-size: 22px;
+    color: rgba($white, 0.8);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  // Enhanced Metrics Dashboard
+  .metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .metricCard {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 32px 24px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.075);
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba($gold, 0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    &:hover, &.selected {
+      transform: translateY(-8px);
+      border-color: rgba($gold, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
+                  0 0 30px rgba($gold, 0.1);
+      
+      &::before {
+        opacity: 1;
+      }
+      
+      .metricIcon {
+        transform: scale(1.1);
+        color: $gold;
+      }
+    }
+    
+    &.selected {
+      border-color: rgba($gold, 0.5);
+      background: rgba($gold, 0.08);
+    }
+  }
+
+  .metricIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    color: rgba($white, 0.7);
+  }
+
+  .metricInfo {
+    h3 {
+      font-size: 32px;
+      font-weight: 800;
+      color: $white;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+    
+    p {
+      font-size: 14px;
+      color: $gray;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+  }
+
+  .metricChange {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #34D399;
+    font-weight: 600;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Enhanced Navigation
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+    gap: 32px;
+    
+    @media (max-width: 1024px) {
+      flex-direction: column;
+      gap: 24px;
+    }
+  }
+
+  .viewTabs {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 8px;
+    overflow-x: auto;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .viewTab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: $gray;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: $white;
+    }
+    
+    &.active {
+      background: rgba($gold, 0.15);
+      color: $gold;
+      box-shadow: 0 4px 12px rgba($gold, 0.2);
+    }
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .activeIndicator {
+    position: absolute;
+    bottom: -4px;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    background: $gold;
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba($gold, 0.5);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
     gap: 16px;
   }
-}
 
-.stageButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 8px;
-  background: transparent;
-  border: none;
-  color: $white;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.3s ease;
-  flex: 1;
-  
-  &:hover {
-    transform: translateY(-5px);
+  .searchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    
+    svg {
+      position: absolute;
+      left: 16px;
+      color: $gray;
+      z-index: 2;
+    }
+    
+    input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 16px 12px 48px;
+      color: $white;
+      font-size: 14px;
+      width: 250px;
+      transition: all 0.3s ease;
+      
+      &::placeholder {
+        color: $gray;
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: $gold;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba($gold, 0.1);
+      }
+      
+      @media (max-width: 768px) {
+        width: 200px;
+      }
+    }
   }
-  
-  &.active {
-    .stageIcon {
-      background-color: rgba(var(--stage-color-rgb), 0.2);
-      border-color: var(--stage-color);
-      color: var(--stage-color);
+
+  .playbackControls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .controlButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: $white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+  }
+
+  // Content Area
+  .contentArea {
+    min-height: 600px;
+  }
+
+  // Overview Content
+  .overviewContent {
+    .overviewGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-bottom: 80px;
+    }
+    
+    .overviewCard {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.075);
+      
+      &:hover {
+        transform: translateY(-8px);
+        border-color: rgba($gold, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+      
+      .cardHeader {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+        
+        svg {
+          color: $gold;
+        }
+        
+        h3 {
+          font-size: 20px;
+          font-weight: 700;
+          color: $white;
+          margin: 0;
+        }
+      }
+      
+      p {
+        color: $gray;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+      
+      .cardFooter {
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: $gold;
+          border: none;
+          border-radius: 10px;
+          padding: 12px 20px;
+          color: $black;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba($gold, 0.3);
+          }
+        }
+      }
+    }
+  }
+ 
+  .quickActions {
+    text-align: center;
+    
+    h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: $white;
+      margin-bottom: 16px;
+    }
+    
+    .actionsGrid {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    
+    .actionButton {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: $white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba($gold, 0.1);
+        border-color: rgba($gold, 0.3);
+        color: $gold;
+        transform: translateY(-3px);
+      }
+    }
+  }
+ 
+  // Lifecycle Content
+  .lifecycleContent {
+    .stageNavigation {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 60px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      
+      @media (max-width: 1024px) {
+        gap: 12px;
+      }
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+    
+    .stageButton {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      color: $white;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      flex: 1;
+      min-width: 140px;
+      
+      &:hover {
+        transform: translateY(-5px);
+        border-color: rgba(var(--stage-color-rgb), 0.3);
+        background: rgba(var(--stage-color-rgb), 0.05);
+      }
+      
+      &.active {
+        border-color: var(--stage-color);
+        background: rgba(var(--stage-color-rgb), 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(var(--stage-color-rgb), 0.2);
+        
+        .stageIconContainer {
+          background: rgba(var(--stage-color-rgb), 0.2);
+          color: var(--stage-color);
+          border-color: var(--stage-color);
+        }
+        
+        .stageTitle {
+          color: var(--stage-color);
+        }
+      }
+      
+      @media (max-width: 768px) {
+        flex-direction: row;
+        text-align: left;
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 20px;
+      }
+    }
+    
+    .stageIconContainer {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      
+      @media (max-width: 768px) {
+        width: 56px;
+        height: 56px;
+      }
+    }
+    
+    .stageIconGlow {
+      position: absolute;
+      inset: -4px;
+      background: var(--stage-color);
+      border-radius: 50%;
+      filter: blur(8px);
+      opacity: 0;
     }
     
     .stageTitle {
-      color: var(--stage-color);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      transition: color 0.3s ease;
+      
+      @media (max-width: 768px) {
+        text-align: left;
+        font-size: 16px;
+      }
+    }
+    
+    .stageProgress {
+      .progressRing {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        
+        svg {
+          width: 100%;
+          height: 100%;
+          transform: rotate(-90deg);
+        }
+        
+        span {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--stage-color);
+        }
+        
+        @media (max-width: 768px) {
+          position: absolute;
+          top: 50%;
+          right: 16px;
+          transform: translateY(-50%);
+        }
+      }
     }
   }
-  
-  @media (max-width: 768px) {
-    flex-direction: row;
-    justify-content: flex-start;
+ 
+  .stageDetailCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--stage-color);
+    }
+    
+    @media (max-width: 768px) {
+      padding: 24px;
+    }
+  }
+ 
+  .stageDetailHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 32px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+ 
+  .stageIconLarge {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--stage-color-rgb), 0.15);
+    border-radius: 20px;
+    color: var(--stage-color);
+    flex-shrink: 0;
+  }
+ 
+  .stageInfo {
+    flex: 1;
+    
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--stage-color);
+      margin-bottom: 12px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: $gray;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+  }
+ 
+  .stageMeta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba($white, 0.7);
+      
+      svg {
+        width: 16px;
+        height: 16px;
+        color: var(--stage-color);
+      }
+    }
+  }
+ 
+  .stageDetailBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 32px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+ 
+  .detailSection {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: $white;
+      margin-bottom: 16px;
+    }
+  }
+ 
+  .activityList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      font-size: 15px;
+      color: rgba($white, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      svg {
+        color: var(--stage-color);
+        flex-shrink: 0;
+      }
+    }
+  }
+ 
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+ 
+  .statItem {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    
+    .statValue {
+      display: block;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--stage-color);
+      margin-bottom: 4px;
+    }
+    
+    .statLabel {
+      font-size: 12px;
+      color: $gray;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+ 
+  .stageDetailFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+ 
+  .actionButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(var(--stage-color-rgb), 0.15);
+    border: 1px solid rgba(var(--stage-color-rgb), 0.3);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: var(--stage-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(var(--stage-color-rgb), 0.25);
+      transform: translateY(-2px);
+    }
+  }
+ 
+  .nextButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--stage-color);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: $black;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+  }
+ 
+  // Flow Visualization
+  .flowVisualization {
+    margin-top: 40px;
+  }
+ 
+  .flowContainer {
+    position: relative;
+    height: 200px;
+    
+    .flowPath {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .flowNode {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        filter: brightness(1.2) drop-shadow(0 0 8px currentColor);
+      }
+    }
+  }
+ 
+  // Roles Content
+  .rolesContent {
+    .roleFilters {
+      margin-bottom: 40px;
+    }
+    
+    .filterTabs {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    
+    .filterTab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      color: $gray;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      min-width: 120px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: $white;
+      }
+      
+      &.active {
+        background: rgba(var(--role-color-rgb), 0.1);
+        border-color: rgba(var(--role-color-rgb), 0.3);
+        color: var(--role-color);
+      }
+      
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+      
+      span {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      
+      .roleCount {
+        font-size: 12px;
+        padding: 2px 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: rgba($white, 0.8);
+      }
+    }
+  }
+ 
+  .roleProfileCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 40px;
+    
+    @media (max-width: 768px) {
+      padding: 24px;
+    }
+  }
+ 
+  .roleProfileHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    margin-bottom: 40px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 24px;
+      text-align: center;
+    }
+  }
+ 
+  .roleAvatar {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    color: $white;
+    flex-shrink: 0;
+    
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+ 
+  .roleInfo {
+    flex: 1;
+    
+    h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--role-color);
+      margin-bottom: 16px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: $gray;
+      line-height: 1.7;
+    }
+  }
+ 
+  .roleProfileBody {
+    .roleStats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+      
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+    
+    .statCard {
+      text-align: center;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      
+      h3 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--role-color);
+        margin-bottom: 8px;
+      }
+      
+      p {
+        font-size: 14px;
+        color: $gray;
+        margin: 0;
+      }
+    }
+  }
+ 
+  .roleDetails {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+ 
+  .skillTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+ 
+  .skillTag {
+    padding: 8px 16px;
+    background: rgba(var(--role-color-rgb), 0.1);
+    border: 1px solid rgba(var(--role-color-rgb), 0.2);
+    border-radius: 20px;
+    color: var(--role-color);
+    font-size: 13px;
+    font-weight: 500;
+  }
+ 
+  .earningsRange {
+    .earningsStat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      
+      .earningsLabel {
+        font-size: 14px;
+        color: $gray;
+      }
+      
+      .earningsValue {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--role-color);
+      }
+    }
+    
+    .earningsBar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      
+      .earningsProgress {
+        height: 100%;
+        border-radius: 8px;
+        transition: width 1s ease;
+      }
+    }
+    
+    .earningsRange {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: $gray;
+    }
+  }
+ 
+  .commitmentInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 16px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     
+    svg {
+      color: var(--role-color);
+    }
+    
+    span {
+      font-size: 16px;
+      font-weight: 600;
+      color: $white;
+    }
+  }
+ 
+  .roleProfileFooter {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+ 
+  .primaryAction {
+    flex: 1;
+    background: var(--role-color);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: $black;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
     &:hover {
+      filter: brightness(1.1);
       transform: translateY(-2px);
     }
   }
-}
-
-.stageIcon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  margin-bottom: 14px;
-  transition: all 0.3s ease;
-  color: $gray;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 0;
-    width: 50px;
-    height: 50px;
-  }
-}
-
-.stageTitle {
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.3s ease;
-  
-  @media (max-width: 768px) {
-    text-align: left;
-  }
-}
-
-.stageIndicator {
-  width: 8px;
-  height: 8px;
-  background-color: var(--stage-color);
-  border-radius: 50%;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 0 10px var(--stage-color);
-  
-  @media (max-width: 768px) {
-    top: 50%;
-    left: auto;
-    right: 16px;
-    bottom: auto;
-    transform: translateY(-50%);
-  }
-}
-
-// Stage detail styles
-.stageDetailOuter {
-  width: 100%;
-  max-width: 700px;
-  margin-bottom: 40px;
-}
-
-.stageDetail {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 6px;
-    height: 100%;
-    background-color: var(--stage-color);
-  }
-}
-
-.stageHeader {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.stageIconLarge {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(var(--stage-color-rgb), 0.15);
-  border-radius: 12px;
-  margin-right: 20px;
-  color: var(--stage-color);
-}
-
-.stageDetailTitle {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--stage-color);
-  margin: 0;
-}
-
-.stageDescription {
-  font-size: 16px;
-  line-height: 1.6;
-  color: $gray;
-  margin-bottom: 24px;
-}
-
-.stageBullets {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
-}
-
-.stageBullet {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: $white;
-}
-
-.bulletDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--stage-color);
-  margin-right: 12px;
-  display: inline-block;
-}
-
-.stageActions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.learnMoreBtn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(var(--stage-color-rgb), 0.15);
-  color: var(--stage-color);
-  border: 1px solid rgba(var(--stage-color-rgb), 0.3);
-  border-radius: 30px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(var(--stage-color-rgb), 0.25);
-  }
-}
-
-// Ecosystem flow
-.ecosystemFlow {
-  width: 100%;
-  max-width: 700px;
-  height: 60px;
-  position: relative;
-  margin-bottom: 60px;
-}
-
-.flowLine {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, 
-    rgba(232, 197, 71, 0.5) 0%, 
-    rgba(52, 211, 153, 0.5) 25%, 
-    rgba(251, 191, 36, 0.5) 50%, 
-    rgba(129, 140, 248, 0.5) 75%, 
-    rgba(236, 72, 153, 0.5) 100%);
-  transform: translateY(-50%);
-}
-
-.flowNode {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  
-  .flowNodeInner {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: $white;
+ 
+  .secondaryAction {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(var(--role-color-rgb), 0.3);
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: var(--role-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s ease;
-  }
-  
-  &.activeNode {
-    background: rgba(var(--node-color-rgb), 0.3);
     
-    .flowNodeInner {
-      background: var(--node-color);
-    }
-    
-    .flowNodePulse {
-      animation: pulse 2s infinite;
+    &:hover {
+      background: rgba(var(--role-color-rgb), 0.1);
+      transform: translateY(-2px);
     }
   }
-}
-
-.flowNodePulse {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: transparent;
-  border: 1px solid var(--node-color);
-  opacity: 0;
-}
-
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0.5);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
-}
-
-// Join ecosystem button
-.joinEcosystem {
-  margin-top: 40px;
-  text-align: center;
-}
-
-.joinEcosystemBtn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: $gold;
-  color: $black;
-  border: none;
-  border-radius: 30px;
-  padding: 16px 32px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(232, 197, 71, 0.3);
-  }
-  
-  svg {
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover svg {
-    transform: translateX(5px);
-  }
-}
-
-// User Roles View Styles
-.rolesContainer {
-  width: 100%;
-}
-
-.rolesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.roleCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background-color: var(--role-color);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  &:hover {
-    transform: translateY(-5px);
+ 
+  // Success Stories
+  .successStories {
+    margin-top: 60px;
     
-    &::before {
-      opacity: 1;
-    }
-    
-    .roleIconContainer {
-      background-color: rgba(var(--role-color-rgb), 0.3);
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: $white;
+      margin-bottom: 24px;
     }
   }
-  
-  &.activeRole {
-    border-color: rgba(var(--role-color-rgb), 0.3);
-    background: rgba(var(--role-color-rgb), 0.05);
-    
-    &::before {
-      opacity: 1;
-    }
-    
-    .roleIconContainer {
-      background-color: rgba(var(--role-color-rgb), 0.3);
-    }
-    
-    .roleTitle {
-      color: var(--role-color);
-    }
+ 
+  .storiesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
   }
-}
-
-.roleIconContainer {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-  color: var(--role-color);
-}
-
-.roleTitle {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-  transition: color 0.3s ease;
-}
-
-.roleDescription {
-  font-size: 14px;
-  color: $gray;
-  line-height: 1.5;
-  margin: 0;
-}
-
-// Profile Graph
-.profileGraph {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px;
-  margin-top: 24px;
-}
-
-.graphTitle {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 16px 0;
-  color: $white;
-}
-
-.graphDescription {
-  font-size: 16px;
-  color: $gray;
-  margin-bottom: 24px;
-}
-
-.graphCategories {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 24px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.graphCategory {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.categoryIcon {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  margin-bottom: 12px;
-}
-
-.graphCategory h4 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-  color: $white;
-}
-
-// Pod States View
-.statesContainer {
-  width: 100%;
-}
-
-.statesFlow {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.stateCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-3px);
-    background: rgba(255, 255, 255, 0.05);
-  }
-  
-  &.activeState {
-    border-color: rgba(var(--state-color-rgb), 0.4);
-    background: rgba(var(--state-color-rgb), 0.05);
-    
-    .stateTitle {
-      color: var(--state-color);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-.stateHeader {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 150px;
-}
-
-.stateColorIndicator {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-}
-
-.stateTitle {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  transition: color 0.3s ease;
-}
-
-.stateDescription {
-  flex: 1;
-  font-size: 16px;
-  color: $gray;
-  margin: 0;
-}
-
-.stateArrow {
-  display: flex;
-  align-items: center;
-  color: $gray;
-  
-  @media (max-width: 768px) {
-    position: absolute;
-    bottom: -26px;
-    left: 50%;
-    transform: translateX(-50%) rotate(90deg);
-    z-index: 1;
-  }
-}
-
-.stateNote {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.noteIcon {
-  color: $gold;
-  flex-shrink: 0;
-}
-
-.noteText {
-  font-size: 16px;
-  line-height: 1.6;
-  color: $gray;
-  margin: 0;
-  
-  strong {
-    color: $white;
-  }
-}
-
-// Contributor Roles View
-.contributorRolesContainer {
-  width: 100%;
-}
-
-.contributorRole {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateX(5px);
-    background: rgba(255, 255, 255, 0.05);
-  }
-}
-
-.roleBadge {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(232, 197, 71, 0.15);
-  color: $gold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.contributorRoleTitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
-  color: $white;
-}
-
-.contributorInfo {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px;
-  margin-top: 30px;
-}
-
-.infoTitle {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 16px 0;
-}
-
-.infoDescription {
-  font-size: 16px;
-  color: $gray;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.infoHighlight {
-  background: rgba(232, 197, 71, 0.1);
-  border-left: 4px solid $gold;
-  padding: 16px 24px;
-  border-radius: 0 8px 8px 0;
-  
-  p {
-    margin: 0;
-    color: $white;
-    font-size: 16px;
-    line-height: 1.6;
-  }
-}
-
-// Media queries
-@media (max-width: 1024px) {
-  .sectionTitle {
-    font-size: 36px;
-  }
-  
-  .stageButton {
-    padding: 12px 6px;
-  }
-  
-  .stageIcon {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .stageTitle {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) {
-  .ecosystem {
-    padding: $spacing-section $spacing-between/2;
-  }
-  
-  .sectionTitle {
-    font-size: 30px;
-  }
-  
-  .sectionDescription {
-    font-size: 16px;
-  }
-  
-  .stageDetail {
+ 
+  .storyCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     padding: 24px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-5px);
+    }
+    
+    .storyHeader {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      
+      .storyAvatar {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(var(--role-color-rgb), 0.15);
+        border-radius: 12px;
+        color: var(--role-color);
+      }
+      
+      .storyInfo {
+        h4 {
+          font-size: 16px;
+          font-weight: 600;
+          color: $white;
+          margin-bottom: 4px;
+        }
+        
+        p {
+          font-size: 14px;
+          color: $gray;
+          margin: 0;
+        }
+      }
+    }
+    
+    .storyText {
+      font-size: 14px;
+      color: rgba($white, 0.8);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    
+    .storyMeta {
+      display: flex;
+      gap: 16px;
+      
+      span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: $gray;
+        
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
   }
-  
-  .stageDetailTitle {
-    font-size: 20px;
+ 
+  // States Content
+  .statesContent {
+    .statesGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    
+    .stateCard {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      
+      &:hover {
+        transform: translateY(-5px);
+        border-color: rgba(var(--state-color-rgb), 0.3);
+      }
+      
+      &.active {
+        border-color: var(--state-color);
+        background: rgba(var(--state-color-rgb), 0.05);
+        box-shadow: 0 10px 30px rgba(var(--state-color-rgb), 0.15);
+      }
+      
+      .stateHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        
+        h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: $white;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .stateCount {
+          background: rgba(255, 255, 255, 0.1);
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--state-color);
+        }
+      }
+      
+      .stateIndicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        box-shadow: 0 0 8px currentColor;
+      }
+      
+      .stateDescription {
+        color: $gray;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+      
+      .stateMeta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: rgba($white, 0.7);
+        
+        svg {
+          width: 14px;
+          height: 14px;
+          color: var(--state-color);
+        }
+      }
+    }
   }
-  
-  .ecosystemFlow {
-    height: 40px;
+ 
+  .stateFlow {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 40px;
+    
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: $white;
+      margin-bottom: 32px;
+      text-align: center;
+    }
   }
-  
-  .joinEcosystemBtn {
-    padding: 14px 24px;
-    font-size: 16px;
+ 
+  .flowDiagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
+ 
+  .flowState {
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover, &.active {
+      border-color: var(--state-color);
+      background: rgba(var(--state-color-rgb), 0.1);
+      transform: scale(1.05);
+    }
+    
+    .flowStateInner {
+      text-align: center;
+      
+      span {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: $white;
+        margin-bottom: 4px;
+      }
+      
+      small {
+        font-size: 12px;
+        color: var(--state-color);
+      }
+    }
+  }
+ 
+  .flowArrow {
+    color: $gray;
+    
+    @media (max-width: 768px) {
+      transform: rotate(90deg);
+    }
+  }
+ 
+  // Analytics Content
+  .analyticsContent {
+    .analyticsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-bottom: 60px;
+    }
+    
+    .analyticsCard {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 32px;
+      
+      h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: $white;
+        margin-bottom: 24px;
+      }
+    }
+  }
+ 
+  .performanceChart {
+    .chartContainer {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      height: 120px;
+      margin-bottom: 16px;
+      gap: 8px;
+      
+      .chartBar {
+        flex: 1;
+        border-radius: 4px 4px 0 0;
+        animation: chartGrow 1s ease-out forwards;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+    
+    .chartLabels {
+      display: flex;
+      justify-content: space-between;
+      
+      span {
+        font-size: 12px;
+        color: $gray;
+        text-align: center;
+      }
+    }
+  }
+ 
+  @keyframes chartGrow {
+    from { height: 0 !important; }
+  }
+ 
+  .trendMetrics {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+    .trendItem {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      
+      svg {
+        color: $gold;
+      }
+      
+      .trendValue {
+        display: block;
+        font-size: 20px;
+        font-weight: 700;
+        color: #34D399;
+        margin-bottom: 4px;
+      }
+      
+      .trendLabel {
+        font-size: 14px;
+        color: $gray;
+      }
+    }
+  }
+ 
+  .successRates {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    .successRate {
+      .rateInfo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        span:first-child {
+          font-size: 14px;
+          color: $white;
+        }
+        
+        span:last-child {
+          font-size: 16px;
+          font-weight: 700;
+          color: $gold;
+        }
+      }
+      
+      .rateBar {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        
+        .rateProgress {
+          height: 100%;
+          border-radius: 8px;
+          transition: width 1s ease;
+        }
+      }
+    }
+  }
+ 
+  .detailedAnalytics {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 20px;
+   padding: 40px;
+   
+   h3 {
+     font-size: 24px;
+     font-weight: 700;
+     color: $white;
+     margin-bottom: 32px;
+     text-align: center;
+   }
+ }
+
+ .insightsGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   gap: 24px;
+ }
+
+ .insightCard {
+   text-align: center;
+   padding: 24px;
+   background: rgba(255, 255, 255, 0.03);
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 16px;
+   transition: all 0.3s ease;
+   
+   &:hover {
+     transform: translateY(-5px);
+     border-color: rgba(255, 255, 255, 0.15);
+   }
+   
+   svg {
+     color: $gold;
+     margin-bottom: 16px;
+   }
+   
+   h4 {
+     font-size: 16px;
+     font-weight: 600;
+     color: $white;
+     margin-bottom: 8px;
+   }
+   
+   .insightValue {
+     display: block;
+     font-size: 24px;
+     font-weight: 700;
+     color: $gold;
+     margin-bottom: 8px;
+   }
+   
+   p {
+     font-size: 14px;
+     color: $gray;
+     margin: 0;
+   }
+ }
+
+ // CTA Section
+ .ctaSection {
+   text-align: center;
+   padding: 80px 40px;
+   background: rgba(255, 255, 255, 0.02);
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 24px;
+   margin: 80px 0 60px;
+   position: relative;
+   overflow: hidden;
+   
+   &::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     background: linear-gradient(135deg, rgba($gold, 0.05), transparent);
+     pointer-events: none;
+   }
+   
+   @media (max-width: 768px) {
+     padding: 60px 24px;
+     margin: 60px 0 40px;
+   }
+ }
+
+ .ctaContent {
+   position: relative;
+   z-index: 1;
+   
+   h2 {
+     font-size: 40px;
+     font-weight: 800;
+     color: $white;
+     margin-bottom: 16px;
+     
+     @media (max-width: 768px) {
+       font-size: 32px;
+     }
+   }
+   
+   p {
+     font-size: 18px;
+     color: $gray;
+     margin-bottom: 40px;
+     max-width: 600px;
+     margin-left: auto;
+     margin-right: auto;
+   }
+ }
+
+ .ctaButtons {
+   display: flex;
+   justify-content: center;
+   gap: 20px;
+   flex-wrap: wrap;
+ }
+
+ .primaryCta {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   background: $gold;
+   border: none;
+   border-radius: 16px;
+   padding: 18px 32px;
+   color: $black;
+   font-size: 16px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   
+   &:hover {
+     transform: translateY(-3px);
+     box-shadow: 0 15px 30px rgba($gold, 0.4);
+   }
+   
+   svg {
+     width: 20px;
+     height: 20px;
+   }
+ }
+
+ .secondaryCta {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   background: transparent;
+   border: 2px solid rgba(255, 255, 255, 0.2);
+   border-radius: 16px;
+   padding: 16px 32px;
+   color: $white;
+   font-size: 16px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   
+   &:hover {
+     background: rgba(255, 255, 255, 0.05);
+     border-color: rgba(255, 255, 255, 0.3);
+     transform: translateY(-3px);
+   }
+   
+   svg {
+     width: 20px;
+     height: 20px;
+   }
+ }
+
+ // Help Section
+ .helpSection {
+   margin-top: 60px;
+ }
+
+ .helpGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+   gap: 24px;
+ }
+
+ .helpCard {
+   display: flex;
+   gap: 20px;
+   align-items: flex-start;
+   padding: 32px;
+   background: rgba(255, 255, 255, 0.03);
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 20px;
+   transition: all 0.4s ease;
+   
+   &:hover {
+     border-color: rgba(255, 255, 255, 0.15);
+     transform: translateY(-5px);
+     background: rgba(255, 255, 255, 0.05);
+   }
+   
+   > svg {
+     color: $gold;
+     flex-shrink: 0;
+     margin-top: 4px;
+   }
+ }
+
+ .helpContent {
+   flex: 1;
+   
+   h3 {
+     font-size: 20px;
+     font-weight: 700;
+     color: $white;
+     margin-bottom: 12px;
+   }
+   
+   p {
+     font-size: 15px;
+     color: $gray;
+     line-height: 1.6;
+     margin-bottom: 20px;
+   }
+ }
+
+ .helpButton {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   background: rgba(255, 255, 255, 0.05);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   border-radius: 10px;
+   padding: 10px 16px;
+   color: $white;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   
+   &:hover {
+     background: rgba($gold, 0.1);
+     border-color: rgba($gold, 0.3);
+     color: $gold;
+     transform: translateX(3px);
+   }
+   
+   svg {
+     width: 16px;
+     height: 16px;
+   }
+ }
+
+ // Responsive Design
+ @media (max-width: 1200px) {
+   .container {
+     max-width: 1200px;
+     padding-left: 20px;
+     padding-right: 20px;
+   }
+   
+   .stageNavigation {
+     gap: 12px;
+   }
+   
+   .stageDetailBody {
+     gap: 24px;
+   }
+ }
+
+ @media (max-width: 992px) {
+   h1 {
+     font-size: 48px;
+   }
+   
+   .metricsGrid {
+     grid-template-columns: repeat(2, 1fr);
+   }
+   
+   .navigation {
+     flex-direction: column;
+     gap: 20px;
+   }
+   
+   .viewTabs {
+     width: 100%;
+     justify-content: center;
+   }
+   
+   .stageDetailBody {
+     grid-template-columns: 1fr;
+   }
+   
+   .roleDetails {
+     grid-template-columns: repeat(2, 1fr);
+   }
+ }
+
+ @media (max-width: 768px) {
+   .container {
+     padding: 100px 16px 60px;
+   }
+   
+   h1 {
+     font-size: 36px;
+   }
+   
+   .metricsGrid {
+     grid-template-columns: 1fr;
+     gap: 16px;
+   }
+   
+   .metricCard {
+     padding: 24px 20px;
+   }
+   
+   .viewTabs {
+     flex-wrap: nowrap;
+     overflow-x: auto;
+     justify-content: flex-start;
+     padding: 8px;
+   }
+   
+   .viewTab {
+     flex-shrink: 0;
+     padding: 12px 16px;
+     font-size: 13px;
+     
+     svg {
+       width: 16px;
+       height: 16px;
+     }
+   }
+   
+   .searchBox input {
+     width: 180px;
+   }
+   
+   .stageNavigation {
+     flex-direction: column;
+     gap: 12px;
+   }
+   
+   .stageButton {
+     flex-direction: row;
+     justify-content: flex-start;
+     text-align: left;
+     gap: 16px;
+     padding: 16px 20px;
+   }
+   
+   .stageDetailCard {
+     padding: 24px;
+   }
+   
+   .stageDetailHeader {
+     flex-direction: column;
+     gap: 16px;
+   }
+   
+   .stageMeta {
+     gap: 16px;
+   }
+   
+   .roleDetails {
+     grid-template-columns: 1fr;
+   }
+   
+   .filterTabs {
+     gap: 8px;
+   }
+   
+   .filterTab {
+     min-width: 100px;
+     padding: 12px 16px;
+     
+     svg {
+       width: 20px;
+       height: 20px;
+     }
+     
+     span {
+       font-size: 13px;
+     }
+   }
+   
+   .roleProfileHeader {
+     text-align: center;
+   }
+   
+   .roleStats {
+     grid-template-columns: 1fr;
+   }
+   
+   .flowDiagram {
+     flex-direction: column;
+     
+     .flowArrow {
+       transform: rotate(90deg);
+     }
+   }
+   
+   .ctaButtons {
+     flex-direction: column;
+     align-items: center;
+   }
+   
+   .primaryCta, .secondaryCta {
+     width: 100%;
+     max-width: 300px;
+     justify-content: center;
+   }
+   
+   .helpGrid {
+     gap: 20px;
+   }
+   
+   .helpCard {
+     padding: 24px;
+   }
+ }
+
+ @media (max-width: 576px) {
+   .container {
+     padding: 80px 12px 40px;
+   }
+   
+   h1 {
+     font-size: 28px;
+   }
+   
+   .titleSection {
+     margin-bottom: 40px;
+   }
+   
+   .iconWrapper {
+     margin-bottom: 20px;
+     
+     svg {
+       width: 36px;
+       height: 36px;
+     }
+   }
+   
+   .iconGlow {
+     width: 60px;
+     height: 60px;
+   }
+   
+   .metricsGrid {
+     gap: 12px;
+   }
+   
+   .metricCard {
+     padding: 20px 16px;
+     
+     .metricIcon {
+       width: 40px;
+       height: 40px;
+       margin-bottom: 16px;
+       
+       svg {
+         width: 20px;
+         height: 20px;
+       }
+     }
+     
+     .metricInfo h3 {
+       font-size: 24px;
+     }
+   }
+   
+   .viewTab {
+     padding: 10px 12px;
+     
+     span {
+       display: none;
+     }
+   }
+   
+   .controls {
+     width: 100%;
+     justify-content: center;
+   }
+   
+   .searchBox {
+     flex: 1;
+     
+     input {
+       width: 100%;
+     }
+   }
+   
+   .stageDetailCard {
+     padding: 20px;
+   }
+   
+   .stageInfo h2 {
+     font-size: 24px;
+   }
+   
+   .roleProfileCard {
+     padding: 20px;
+   }
+   
+   .roleInfo h2 {
+     font-size: 24px;
+   }
+   
+   .roleAvatar {
+     width: 80px;
+     height: 80px;
+     border-radius: 20px;
+     
+     svg {
+       width: 36px;
+       height: 36px;
+     }
+   }
+   
+   .statCard {
+     padding: 20px;
+     
+     h3 {
+       font-size: 24px;
+     }
+   }
+   
+   .ctaContent {
+     h2 {
+       font-size: 28px;
+     }
+     
+     p {
+       font-size: 16px;
+     }
+   }
+   
+   .primaryCta, .secondaryCta {
+     padding: 16px 24px;
+     font-size: 15px;
+   }
+ }
+
+ // Advanced animations and interactions
+ .stageProgress .progressRing {
+   svg {
+     filter: drop-shadow(0 0 4px var(--stage-color));
+   }
+ }
+ 
+ .metricCard:hover .metricIcon {
+   animation: pulse 1s ease-in-out;
+ }
+ 
+ @keyframes pulse {
+   0%, 100% { transform: scale(1); }
+   50% { transform: scale(1.1); }
+ }
+ 
+ .flowVisualization .flowNode:hover {
+   animation: nodeGlow 0.5s ease-in-out;
+ }
+ 
+ @keyframes nodeGlow {
+   0%, 100% { filter: brightness(1); }
+   50% { filter: brightness(1.5) drop-shadow(0 0 8px currentColor); }
+ }
+ 
+ // Accessibility improvements
+ @media (prefers-reduced-motion: reduce) {
+   * {
+     animation-duration: 0.01ms !important;
+     animation-iteration-count: 1 !important;
+     transition-duration: 0.01ms !important;
+   }
+   
+   .gridPattern {
+     animation: none;
+   }
+   
+   .floatingShape {
+     animation: none;
+   }
+ }
+ 
+ // Focus styles for accessibility
+ button:focus-visible,
+ .viewTab:focus-visible,
+ .stageButton:focus-visible,
+ .filterTab:focus-visible {
+   outline: 2px solid $gold;
+   outline-offset: 2px;
+   box-shadow: 0 0 0 4px rgba($gold, 0.2);
+ }
+ 
+ // High contrast mode support
+ @media (prefers-contrast: high) {
+   .ecosystemPage {
+     background-color: #000000;
+   }
+   
+   .metricCard,
+   .overviewCard,
+   .stageDetailCard,
+   .roleProfileCard,
+   .analyticsCard,
+   .helpCard {
+     border-color: rgba(255, 255, 255, 0.3);
+     background: rgba(255, 255, 255, 0.1);
+   }
+   
+   .viewTab.active {
+     background: $gold;
+     color: $black;
+   }
+ }
+ 
+ // Print styles
+ @media print {
+   .ecosystemPage {
+     background: white;
+     color: black;
+   }
+   
+   .backgroundElements,
+   .floatingShape,
+   .gridPattern {
+     display: none;
+   }
+   
+   .container {
+     max-width: none;
+     padding: 20px;
+   }
+   
+   .navigation,
+   .controls,
+   .ctaSection {
+     display: none;
+   }
+ }
+ 
+ // Custom scrollbar
+ .ecosystemPage {
+   scrollbar-width: thin;
+   scrollbar-color: rgba($gold, 0.5) rgba(255, 255, 255, 0.1);
+ }
+ 
+ .ecosystemPage::-webkit-scrollbar {
+   width: 8px;
+ }
+ 
+ .ecosystemPage::-webkit-scrollbar-track {
+   background: rgba(255, 255, 255, 0.05);
+   border-radius: 4px;
+ }
+ 
+ .ecosystemPage::-webkit-scrollbar-thumb {
+   background: rgba($gold, 0.5);
+   border-radius: 4px;
+   
+   &:hover {
+     background: rgba($gold, 0.7);
+   }
+ }
 }
+
+// Color variable extensions for dynamic theming
+:root {
+ --stage-color-rgb: 232, 197, 71;
+ --role-color-rgb: 232, 197, 71;
+ --state-color-rgb: 107, 114, 128;
+}
+
+// Dynamic color assignment via CSS custom properties
+.stageButton[style*="--stage-color: #E8C547"] { --stage-color-rgb: 232, 197, 71; }
+.stageButton[style*="--stage-color: #34D399"] { --stage-color-rgb: 52, 211, 153; }
+.stageButton[style*="--stage-color: #FBBF24"] { --stage-color-rgb: 251, 191, 36; }
+.stageButton[style*="--stage-color: #818CF8"] { --stage-color-rgb: 129, 140, 248; }
+.stageButton[style*="--stage-color: #EC4899"] { --stage-color-rgb: 236, 72, 153; }
+
+.filterTab[style*="--role-color: #E8C547"] { --role-color-rgb: 232, 197, 71; }
+.filterTab[style*="--role-color: #34D399"] { --role-color-rgb: 52, 211, 153; }
+.filterTab[style*="--role-color: #FBBF24"] { --role-color-rgb: 251, 191, 36; }
+.filterTab[style*="--role-color: #818CF8"] { --role-color-rgb: 129, 140, 248; }
+.filterTab[style*="--role-color: #EC4899"] { --role-color-rgb: 236, 72, 153; }
+
+.stateCard[style*="--state-color: #6B7280"] { --state-color-rgb: 107, 114, 128; }
+.stateCard[style*="--state-color: #3B82F6"] { --state-color-rgb: 59, 130, 246; }
+.stateCard[style*="--state-color: #10B981"] { --state-color-rgb: 16, 185, 129; }
+.stateCard[style*="--state-color: #F59E0B"] { --state-color-rgb: 245, 158, 11; }
+.stateCard[style*="--state-color: #8B5CF6"] { --state-color-rgb: 139, 92, 246; }
+
+    
