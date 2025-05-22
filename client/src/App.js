@@ -29,6 +29,11 @@ import PodEnvironment from './pages/PodEnvironment/PodEnvironment';
 // Import the new PodManagementPage component from components directory
 import PodManagementPage from './components/PodManagement/PodManagementPage';
 
+// To these
+import ProfilePage from './components/profile/ProfilePage';
+import ProfileEdit from './components/profile/ProfileEdit';
+import AddPortfolioItem from './components/profile/AddPortfolioItem';
+
 // RoleBasedRoute component for handling role-specific routing
 const RoleBasedRoute = ({ componentType }) => {
   try {
@@ -106,6 +111,36 @@ const App = () => {
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/ecosystem" element={<Ecosystem />} />
+        
+        {/* Profile Routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:userId"
+          element={<ProfilePage />}
+        />
+        <Route
+          path="/settings/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileEdit />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings/portfolio/add"
+          element={
+            <ProtectedRoute>
+              <AddPortfolioItem />
+            </ProtectedRoute>
+          }
+        />
         
         {/* New route for PodEnvironment */}
         <Route
