@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+// PricingSection.jsx
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import styles from './PricingSection.module.scss';
-import { motion, useInView, useAnimation, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   RocketIcon, 
   UsersIcon, 
@@ -18,25 +19,30 @@ import {
   Sparkles,
   BadgeCheck,
   Megaphone,
-  X
+  X,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  Shield,
+  Activity
 } from 'lucide-react';
 
 const PricingSection = () => {
   const [activeTab, setActiveTab] = useState('podCreator');
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
+  const [expandedFeatures, setExpandedFeatures] = useState({});
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
+  const [selectedPlans, setSelectedPlans] = useState({});
   
   const sectionRef = useRef(null);
-  const modalRef = useRef(null);
-  const inView = useInView(sectionRef, { once: false, threshold: 0.2 });
-  const controls = useAnimation();
+  const cardsRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: false, threshold: 0.1 });
 
   // Pricing plan data
   const pricingData = {
     podCreator: {
-      icon: <RocketIcon size={36} />,
+      icon: <RocketIcon />,
       title: "Pod Creators",
       description: "Launch Pods, attract talent, build real products.",
       plans: [
@@ -84,7 +90,7 @@ const PricingSection = () => {
       ]
     },
     contributor: {
-      icon: <UsersIcon size={36} />,
+      icon: <UsersIcon />,
       title: "Contributors",
       description: "Join Pods, build reputation, earn revenue share.",
       plans: [
@@ -132,7 +138,7 @@ const PricingSection = () => {
       ]
     },
     booster: {
-      icon: <Megaphone size={36} />,
+      icon: <Megaphone />,
       title: "Boosters",
       description: "Test, promote, amplify, and give feedback.",
       plans: [
@@ -181,191 +187,40 @@ const PricingSection = () => {
     }
   };
 
-  // Animation variants
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const tabVariants = {
-    inactive: { 
-      opacity: 0.7,
-      y: 0,
-      scale: 1
-    },
-    active: { 
-      opacity: 1,
-      y: -5,
-      scale: 1.05,
-      transition: { duration: 0.3 }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { 
-      y: 20, 
-      opacity: 0 
-    },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { duration: 0.5 }
-    },
-    hover: {
-      y: -10,
-      boxShadow: "0px 25px 50px rgba(0, 0, 0, 0.3)",
-      transition: { duration: 0.3 }
-    }
-  };
-
-  const modalVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.16, 1, 0.3, 1], // Custom easing
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      transition: {
-        duration: 0.3,
-        ease: [0.36, 0, 0.66, -0.56], // Custom easing
-      }
-    }
-  };
-
-  // Check viewport size
+  // Initialize selected plans
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    handleResize(); // Initial check
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const initialSelectedPlans = {};
+    Object.keys(pricingData).forEach(role => {
+      initialSelectedPlans[role] = pricingData[role].plans.findIndex(plan => plan.recommended) || 0;
+    });
+    setSelectedPlans(initialSelectedPlans);
   }, []);
 
-  // Handle animation based on scroll
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    } else {
-      controls.start("hidden");
-    }
-  }, [controls, inView]);
-
-  // Mouse parallax effect
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) - 0.5,
-        y: (e.clientY / window.innerHeight) - 0.5
-      });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Close modal when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target) && isCompareModalOpen) {
-        // Make sure we're not clicking on the compare button itself
-        if (!event.target.closest(`.${styles.compareButton}`)) {
-          setIsCompareModalOpen(false);
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isCompareModalOpen]);
-
-  // Close modal on escape key
-  useEffect(() => {
-    const handleEscKey = (e) => {
-      if (e.key === 'Escape' && isCompareModalOpen) {
-        setIsCompareModalOpen(false);
-        // Add a small delay to re-enable click handlers
-        setTimeout(() => {
-          const compareBtn = document.querySelector(`.${styles.compareButton}`);
-          if (compareBtn) {
-            compareBtn.style.pointerEvents = 'auto';
-          }
-        }, 100);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscKey);
-    return () => document.removeEventListener('keydown', handleEscKey);
-  }, [isCompareModalOpen]);
-
-  // Prevent body scroll when modal is open and handle button re-enabling
-  useEffect(() => {
-    if (isCompareModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-      // Re-enable the compare button when modal closes
-      setTimeout(() => {
-        const compareBtn = document.querySelector(`.${styles.compareButton}`);
-        if (compareBtn) {
-          compareBtn.style.pointerEvents = 'auto';
-        }
-      }, 100);
-    }
-    
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isCompareModalOpen]);
-
-  // Function to handle opening the compare modal
-  const handleCompareClick = (e) => {
-    e.stopPropagation(); // Prevent event from bubbling
-    setIsCompareModalOpen(true);
+  // Toggle feature expansion
+  const toggleFeatureExpansion = (roleKey, planIndex) => {
+    const key = `${roleKey}-${planIndex}`;
+    setExpandedFeatures(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   // Get all unique features for comparison
-  const getAllUniqueFeatures = () => {
-    const featuresSet = new Set();
+  const getAllFeatures = useMemo(() => {
+    const featuresMap = {};
     
     Object.keys(pricingData).forEach(roleKey => {
       pricingData[roleKey].plans.forEach(plan => {
         plan.features.forEach(feature => {
-          featuresSet.add(feature.text);
+          if (!featuresMap[feature.text]) {
+            featuresMap[feature.text] = true;
+          }
         });
       });
     });
     
-    return Array.from(featuresSet);
-  };
+    return Object.keys(featuresMap);
+  }, [pricingData]);
 
   // Check if a plan has a specific feature
   const planHasFeature = (roleKey, planIndex, featureText) => {
@@ -374,51 +229,110 @@ const PricingSection = () => {
     return feature ? feature.included : false;
   };
 
+  // Toggle comparison mode
+  const toggleComparisonMode = () => {
+    setIsComparing(prev => !prev);
+    setViewMode(prev => prev === 'cards' ? 'table' : 'cards');
+  };
+
+  // Animation variants
+  const sectionVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+        duration: 0.6
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    },
+    hover: {
+      y: -10,
+      boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)",
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const featureRowVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: { 
+      opacity: 1, 
+      height: "auto",
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const tableVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
   return (
-    <section className={styles.pricingSection} ref={sectionRef}>
-      {/* Animated Background */}
-      <div 
-        className={styles.gridBackground}
-        style={{
-          transform: `translate(${mousePosition.x * 15}px, ${mousePosition.y * 15}px)`,
-        }}
-      />
-      
-      {/* Floating decorative elements */}
-      <motion.div
-        className={`${styles.floatingShape} ${styles.shape1}`}
-        animate={{
-          x: [0, 15, 0],
-          y: [0, -15, 0],
-          rotate: [0, 5, 0],
-        }}
-        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-      />
-      <motion.div
-        className={`${styles.floatingShape} ${styles.shape2}`}
-        animate={{
-          x: [0, -20, 0],
-          y: [0, 20, 0],
-          rotate: [0, -10, 0],
-        }}
-        transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
-      />
-      <motion.div
-        className={`${styles.floatingShape} ${styles.shape3}`}
-        animate={{
-          x: [0, 10, 0],
-          y: [0, 10, 0],
-          rotate: [0, 15, 0],
-        }}
-        transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1 }}
-      />
-      
+    <motion.section 
+      className={styles.pricingSection} 
+      ref={sectionRef}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={sectionVariants}
+    >
+      {/* Background Elements */}
+      <div className={styles.gridBackground} />
+      <div className={styles.floatingShapes}>
+        <motion.div 
+          className={`${styles.floatingShape} ${styles.shape1}`}
+          animate={{
+            y: [0, -20, 0],
+            x: [0, 15, 0],
+            rotate: [0, 5, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className={`${styles.floatingShape} ${styles.shape2}`}
+          animate={{
+            y: [0, 20, 0],
+            x: [0, -15, 0],
+            rotate: [0, -5, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className={`${styles.floatingShape} ${styles.shape3}`}
+          animate={{
+            y: [0, 15, 0],
+            x: [0, 10, 0],
+            rotate: [0, 8, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut", delay: 1 }}
+        />
+      </div>
+
       {/* Section Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+      <motion.div 
         className={styles.sectionHeader}
+        variants={itemVariants}
       >
         <div className={styles.badgeWrapper}>
           <span className={styles.badge}>Pricing Plans</span>
@@ -431,227 +345,494 @@ const PricingSection = () => {
         </p>
       </motion.div>
 
-      {/* Tab Selector */}
+      {/* View Mode Toggles */}
       <motion.div 
-        className={styles.tabSelector}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        className={styles.viewControls}
+        variants={itemVariants}
       >
+        <div className={styles.tabSelector}>
+          <motion.button 
+            className={`${styles.tabButton} ${activeTab === 'podCreator' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('podCreator')}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              backgroundColor: activeTab === 'podCreator' ? `${pricingData.podCreator.color}20` : '',
+              borderColor: activeTab === 'podCreator' ? `${pricingData.podCreator.color}50` : '',
+              color: activeTab === 'podCreator' ? pricingData.podCreator.color : ''
+            }}
+          >
+            <RocketIcon size={18} />
+            Pod Creators
+          </motion.button>
+          
+          <motion.button 
+            className={`${styles.tabButton} ${activeTab === 'contributor' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('contributor')}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              backgroundColor: activeTab === 'contributor' ? `${pricingData.contributor.color}20` : '',
+              borderColor: activeTab === 'contributor' ? `${pricingData.contributor.color}50` : '',
+              color: activeTab === 'contributor' ? pricingData.contributor.color : ''
+            }}
+          >
+            <UsersIcon size={18} />
+            Contributors
+          </motion.button>
+          
+          <motion.button 
+            className={`${styles.tabButton} ${activeTab === 'booster' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('booster')}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              backgroundColor: activeTab === 'booster' ? `${pricingData.booster.color}20` : '',
+              borderColor: activeTab === 'booster' ? `${pricingData.booster.color}50` : '',
+              color: activeTab === 'booster' ? pricingData.booster.color : ''
+            }}
+          >
+            <Megaphone size={18} />
+            Boosters
+          </motion.button>
+        </div>
+
         <motion.button 
-          className={`${styles.tabButton} ${activeTab === 'podCreator' ? styles.activeTab : ''}`}
-          variants={tabVariants}
-          animate={activeTab === 'podCreator' ? 'active' : 'inactive'}
-          onClick={() => setActiveTab('podCreator')}
-          style={activeTab === 'podCreator' ? {backgroundColor: `${pricingData.podCreator.color}20`, borderColor: `${pricingData.podCreator.color}40`, color: pricingData.podCreator.color} : {}}
+          className={styles.compareToggle}
+          onClick={toggleComparisonMode}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            backgroundColor: isComparing ? `rgba(232, 197, 71, 0.15)` : `rgba(255, 255, 255, 0.05)`,
+            color: isComparing ? `#E8C547` : `rgba(255, 255, 255, 0.7)`,
+            borderColor: isComparing ? `rgba(232, 197, 71, 0.3)` : `rgba(255, 255, 255, 0.1)`
+          }}
+          transition={{ duration: 0.3 }}
         >
-          <RocketIcon size={18} />
-          Pod Creators
-        </motion.button>
-        
-        <motion.button 
-          className={`${styles.tabButton} ${activeTab === 'contributor' ? styles.activeTab : ''}`}
-          variants={tabVariants}
-          animate={activeTab === 'contributor' ? 'active' : 'inactive'}
-          onClick={() => setActiveTab('contributor')}
-          style={activeTab === 'contributor' ? {backgroundColor: `${pricingData.contributor.color}20`, borderColor: `${pricingData.contributor.color}40`, color: pricingData.contributor.color} : {}}
-        >
-          <UsersIcon size={18} />
-          Contributors
-        </motion.button>
-        
-        <motion.button 
-          className={`${styles.tabButton} ${activeTab === 'booster' ? styles.activeTab : ''}`}
-          variants={tabVariants}
-          animate={activeTab === 'booster' ? 'active' : 'inactive'}
-          onClick={() => setActiveTab('booster')}
-          style={activeTab === 'booster' ? {backgroundColor: `${pricingData.booster.color}20`, borderColor: `${pricingData.booster.color}40`, color: pricingData.booster.color} : {}}
-        >
-          <Megaphone size={18} />
-          Boosters
+          <Award size={18} />
+          {isComparing ? 'Hide Comparison' : 'Compare All Plans'}
         </motion.button>
       </motion.div>
 
+      {/* Role Introduction */}
       <AnimatePresence mode="wait">
-        {Object.keys(pricingData).map((key) => (
-          activeTab === key && (
-            <motion.div 
-              key={key}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-              className={styles.pricingView}
+        {!isComparing && (
+          <motion.div 
+            key={`intro-${activeTab}`}
+            className={styles.roleIntro}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div 
+              className={styles.roleIconContainer}
+              style={{ 
+                backgroundColor: `${pricingData[activeTab].color}20`, 
+                color: pricingData[activeTab].color 
+              }}
             >
-              <motion.div
-                className={styles.roleIntro}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <div 
-                  className={styles.roleIconContainer}
-                  style={{ backgroundColor: `${pricingData[key].color}20`, color: pricingData[key].color }}
-                >
-                  {pricingData[key].icon}
-                </div>
-                <h3>{pricingData[key].title}</h3>
-                <p>{pricingData[key].description}</p>
-                
-                <div className={styles.roleBenefits}>
-                  {pricingData[key].benefits.map((benefit, index) => (
-                    <motion.div 
-                      key={index}
-                      className={styles.benefitTag}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3 + (index * 0.1) }}
-                      style={{ backgroundColor: `${pricingData[key].color}15`, color: pricingData[key].color }}
-                    >
-                      <Star size={14} />
-                      {benefit}
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-              
-              <div className={styles.pricingCardsContainer}>
+              {React.cloneElement(pricingData[activeTab].icon, { size: 32 })}
+            </div>
+            <h3>{pricingData[activeTab].title}</h3>
+            <p>{pricingData[activeTab].description}</p>
+            
+            <motion.div 
+              className={styles.roleBenefits}
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+            >
+              {pricingData[activeTab].benefits.map((benefit, index) => (
                 <motion.div 
-                  className={styles.pricingCards}
-                  variants={container}
-                  initial="hidden"
-                  animate="visible"
+                  key={index}
+                  className={styles.benefitTag}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.8 },
+                    visible: { opacity: 1, scale: 1 }
+                  }}
+                  style={{ 
+                    backgroundColor: `${pricingData[activeTab].color}15`, 
+                    color: pricingData[activeTab].color 
+                  }}
                 >
-                  {pricingData[key].plans.map((plan, index) => (
-                    <motion.div 
-                      key={index} 
-                      className={`${styles.pricingCard} ${plan.recommended ? styles.recommended : ''}`}
-                      variants={cardVariants}
-                      whileHover="hover"
-                      onHoverStart={() => setHoveredCard(`${key}-${index}`)}
-                      onHoverEnd={() => setHoveredCard(null)}
-                      style={{
-                        borderColor: hoveredCard === `${key}-${index}` || plan.recommended ? `${plan.color}50` : 'rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                      {plan.recommended && (
-                        <div 
-                          className={styles.recommendedTag}
-                          style={{ backgroundColor: plan.color }}
-                        >
-                          <Crown size={14} />
-                          Recommended
-                        </div>
-                      )}
-                      
-                      <div className={styles.planHeader}>
-                        <h3 className={styles.planName}>{plan.name}</h3>
-                        <div className={styles.planPrice}>
-                          <span className={styles.currency}>$</span>
-                          <span className={styles.amount}>{plan.price}</span>
-                          <span className={styles.period}>/month</span>
-                        </div>
-                      </div>
-                      
-                      <div className={styles.planFeatures}>
-                        {plan.features.map((feature, i) => (
-                          <motion.div 
-                            key={i}
-                            className={styles.featureItem}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 + (i * 0.05) }}
-                          >
-                            {feature.included ? 
-                              <CheckCircle size={18} className={styles.featureIncluded} style={{ color: plan.color }} /> :
-                              <XCircle size={18} className={styles.featureExcluded} />
-                            }
-                            <span className={feature.included ? '' : styles.featureMuted}>{feature.text}</span>
-                          </motion.div>
-                        ))}
-                      </div>
-                      
-                      <motion.button 
-                        className={styles.planButton}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        style={{ 
-                          backgroundColor: plan.recommended ? plan.color : 'transparent',
-                          color: plan.recommended ? '#000' : plan.color,
-                          borderColor: plan.color
-                        }}
-                      >
-                        {plan.price === "0" ? "Get Started" : "Subscribe"}
-                        <ArrowRight size={16} />
-                      </motion.button>
-                      
-                      {/* Glow effect on hover */}
-                      <div 
-                        className={styles.cardGlow}
-                        style={{ 
-                          backgroundColor: plan.color,
-                          opacity: hoveredCard === `${key}-${index}` ? 0.07 : 0 
-                        }}
-                      />
-                    </motion.div>
-                  ))}
+                  <Star size={14} />
+                  {benefit}
                 </motion.div>
-              </div>
-              
-              <motion.div 
-                className={styles.compareBenefits}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-              >
-                <div className={styles.benefitHeader}>
-                  <BadgeCheck size={20} style={{ color: pricingData[key].color }} />
-                  <h4>All plans include:</h4>
-                </div>
-                <div className={styles.benefitGrid}>
-                  <div className={styles.benefitItem}>
-                    <div className={styles.benefitIcon} style={{ backgroundColor: `${pricingData[key].color}15`, color: pricingData[key].color }}>
-                      <Globe size={20} />
-                    </div>
-                    <h5>Global Community</h5>
-                    <p>Connect with creators from around the world</p>
-                  </div>
-                  <div className={styles.benefitItem}>
-                    <div className={styles.benefitIcon} style={{ backgroundColor: `${pricingData[key].color}15`, color: pricingData[key].color }}>
-                      <TrendingUp size={20} />
-                    </div>
-                    <h5>Reputation System</h5>
-                    <p>Build your credibility through contributions</p>
-                  </div>
-                  <div className={styles.benefitItem}>
-                    <div className={styles.benefitIcon} style={{ backgroundColor: `${pricingData[key].color}15`, color: pricingData[key].color }}>
-                      <BarChart3 size={20} />
-                    </div>
-                    <h5>Transparent Metrics</h5>
-                    <p>Track your progress with clear analytics</p>
-                  </div>
-                  <div className={styles.benefitItem}>
-                    <div className={styles.benefitIcon} style={{ backgroundColor: `${pricingData[key].color}15`, color: pricingData[key].color }}>
-                      <Sparkles size={20} />
-                    </div>
-                    <h5>Skills Development</h5>
-                    <p>Grow your capabilities through real projects</p>
-                  </div>
-                </div>
-              </motion.div>
+              ))}
             </motion.div>
-          )
-        ))}
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* CTA Section */}
+      {/* Main Content Area */}
+      <AnimatePresence mode="wait">
+        {viewMode === 'cards' && !isComparing ? (
+          /* Pricing Cards View */
+          <motion.div 
+            key={`cards-${activeTab}`}
+            className={styles.pricingCardsContainer}
+            ref={cardsRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className={styles.pricingCards}
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.2
+                  }
+                }
+              }}
+            >
+              {pricingData[activeTab].plans.map((plan, planIndex) => (
+                <motion.div 
+                  key={`${activeTab}-plan-${planIndex}`}
+                  className={`${styles.pricingCard} ${plan.recommended ? styles.recommended : ''}`}
+                  variants={cardVariants}
+                  whileHover="hover"
+                  onHoverStart={() => setHoveredCard(`${activeTab}-${planIndex}`)}
+                  onHoverEnd={() => setHoveredCard(null)}
+                  style={{
+                    borderColor: hoveredCard === `${activeTab}-${planIndex}` || plan.recommended 
+                      ? `${plan.color}50` 
+                      : 'rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  {plan.recommended && (
+                    <div 
+                      className={styles.recommendedTag}
+                      style={{ backgroundColor: plan.color }}
+                    >
+                      <Crown size={14} />
+                      Recommended
+                    </div>
+                  )}
+                  
+                  <div 
+                    className={styles.planHeader}
+                    style={{
+                      background: plan.recommended 
+                        ? `linear-gradient(to bottom, ${plan.color}10, transparent)` 
+                        : ''
+                    }}
+                  >
+                    <h3 className={styles.planName}>{plan.name}</h3>
+                    <div className={styles.planPrice}>
+                      <span className={styles.currency}>$</span>
+                      <span 
+                        className={styles.amount}
+                        style={{ color: plan.recommended ? plan.color : '' }}
+                      >
+                        {plan.price}
+                      </span>
+                      <span className={styles.period}>/month</span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.planFeatures}>
+                    {plan.features.slice(0, 5).map((feature, i) => (
+                      <motion.div 
+                        key={`${activeTab}-${planIndex}-feature-${i}`}
+                        className={styles.featureItem}
+                        variants={{
+                          hidden: { opacity: 0, x: -10 },
+                          visible: { opacity: 1, x: 0, transition: { delay: i * 0.05 } }
+                        }}
+                      >
+                        {feature.included ? 
+                          <CheckCircle size={18} className={styles.featureIncluded} style={{ color: plan.color }} /> :
+                          <XCircle size={18} className={styles.featureExcluded} />
+                        }
+                        <span className={feature.included ? '' : styles.featureMuted}>{feature.text}</span>
+                      </motion.div>
+                    ))}
+
+                    {/* Expandable features section */}
+                    <AnimatePresence>
+                      {expandedFeatures[`${activeTab}-${planIndex}`] && (
+                        <motion.div
+                          key={`expanded-${activeTab}-${planIndex}`}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          variants={featureRowVariants}
+                          className={styles.expandedFeatures}
+                        >
+                          {plan.features.slice(5).map((feature, i) => (
+                            <motion.div 
+                              key={`${activeTab}-${planIndex}-expanded-feature-${i}`}
+                              className={styles.featureItem}
+                              variants={{
+                                hidden: { opacity: 0, x: -10 },
+                                visible: { 
+                                  opacity: 1, 
+                                  x: 0, 
+                                  transition: { delay: i * 0.05 } 
+                                }
+                              }}
+                            >
+                              {feature.included ? 
+                                <CheckCircle size={18} className={styles.featureIncluded} style={{ color: plan.color }} /> :
+                                <XCircle size={18} className={styles.featureExcluded} />
+                              }
+                              <span className={feature.included ? '' : styles.featureMuted}>{feature.text}</span>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Show/hide features toggle */}
+                    {plan.features.length > 5 && (
+                      <motion.button
+                        className={styles.toggleFeaturesButton}
+                        onClick={() => toggleFeatureExpansion(activeTab, planIndex)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{ color: plan.color }}
+                      >
+                        {expandedFeatures[`${activeTab}-${planIndex}`] ? (
+                          <>
+                            <ChevronUp size={16} />
+                            <span>Show less</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown size={16} />
+                            <span>Show all features</span>
+                          </>
+                        )}
+                      </motion.button>
+                    )}
+                  </div>
+                  
+                  <motion.button 
+                    className={styles.planButton}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ 
+                      backgroundColor: plan.recommended ? plan.color : 'transparent',
+                      color: plan.recommended ? '#000' : plan.color,
+                      borderColor: plan.color
+                    }}
+                  >
+                    {plan.price === "0" ? "Get Started" : "Subscribe"}
+                    <ArrowRight size={16} />
+                  </motion.button>
+                  
+                  {/* Glow effect */}
+                  <div 
+                    className={styles.cardGlow}
+                    style={{ 
+                      backgroundColor: plan.color,
+                      opacity: hoveredCard === `${activeTab}-${planIndex}` ? 0.07 : 0 
+                    }}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        ) : (
+          /* Comparison Table View */
+          <motion.div 
+            key="comparison-table"
+            className={styles.comparisonTableContainer}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={tableVariants}
+          >
+            <div className={styles.tableScrollContainer}>
+              <table className={styles.comparisonTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.featureColumn}>Feature</th>
+                    {Object.keys(pricingData).map(roleKey => 
+                      pricingData[roleKey].plans.map((plan, planIndex) => (
+                        <th 
+                          key={`header-${roleKey}-${planIndex}`}
+                          className={plan.recommended ? styles.recommendedColumn : ''}
+                          style={{
+                            borderColor: plan.recommended ? `${plan.color}50` : '',
+                            backgroundColor: plan.recommended ? `${plan.color}10` : ''
+                          }}
+                        >
+                          <div className={styles.planHeader}>
+                            {plan.recommended && (
+                              <div 
+                                className={styles.recommendedPill}
+                                style={{ backgroundColor: plan.color }}
+                              >
+                                <Crown size={12} />
+                                Recommended
+                              </div>
+                            )}
+                            <div 
+                              className={styles.roleIndicator}
+                              style={{ color: pricingData[roleKey].color }}
+                            >
+                              {React.cloneElement(pricingData[roleKey].icon, { size: 14 })}
+                              <span>{pricingData[roleKey].title}</span>
+                            </div>
+                            <div className={styles.planName}>{plan.name}</div>
+                            <div className={styles.planPrice}>
+                              <span className={styles.currency}>$</span>
+                              <span className={styles.amount}>{plan.price}</span>
+                              <span className={styles.period}>/mo</span>
+                            </div>
+                          </div>
+                        </th>
+                      ))
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {getAllFeatures.map((feature, index) => (
+                    <tr 
+                      key={`feature-row-${index}`}
+                      className={index % 2 === 0 ? styles.evenRow : styles.oddRow}
+                    >
+                      <td className={styles.featureColumn}>{feature}</td>
+                      {Object.keys(pricingData).map(roleKey => 
+                        pricingData[roleKey].plans.map((plan, planIndex) => (
+                          <td 
+                            key={`cell-${roleKey}-${planIndex}-${index}`}
+                            className={`${styles.featureCell} ${plan.recommended ? styles.recommendedColumn : ''}`}
+                            style={{ borderColor: plan.recommended ? `${plan.color}50` : '' }}
+                          >
+                            {planHasFeature(roleKey, planIndex, feature) ? (
+                              <CheckCircle 
+                                size={20} 
+                                className={styles.featureIncluded} 
+                                style={{ color: plan.color }} 
+                              />
+                            ) : (
+                              <XCircle 
+                                size={20} 
+                                className={styles.featureExcluded} 
+                              />
+                            )}
+                          </td>
+                        ))
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td className={styles.featureColumn}></td>
+                    {Object.keys(pricingData).map(roleKey => 
+                      pricingData[roleKey].plans.map((plan, planIndex) => (
+                        <td 
+                          key={`footer-${roleKey}-${planIndex}`}
+                          className={plan.recommended ? styles.recommendedColumn : ''}
+                          style={{ borderColor: plan.recommended ? `${plan.color}50` : '' }}
+                        >
+                          <motion.button 
+                            className={styles.tableActionButton}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{ 
+                              backgroundColor: plan.recommended ? plan.color : 'transparent',
+                              color: plan.recommended ? '#000' : plan.color,
+                              borderColor: plan.color
+                            }}
+                          >
+                            {plan.price === "0" ? "Get Started" : "Subscribe"}
+                          </motion.button>
+                        </td>
+                      ))
+                    )}
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Common Benefits Section */}
+      <motion.div 
+        className={styles.commonBenefits}
+        variants={itemVariants}
+      >
+        <div className={styles.benefitHeader}>
+          <BadgeCheck size={20} />
+          <h4>All plans include:</h4>
+        </div>
+        <div className={styles.benefitGrid}>
+          <motion.div 
+            className={styles.benefitItem}
+            whileHover={{ y: -5 }}
+          >
+            <div 
+              className={styles.benefitIcon} 
+              style={{ backgroundColor: "#E8C54720" }}
+            >
+              <Globe size={24} />
+            </div>
+            <h5>Global Community</h5>
+            <p>Connect with creators worldwide on cutting-edge projects</p>
+          </motion.div>
+          
+          <motion.div 
+            className={styles.benefitItem}
+            whileHover={{ y: -5 }}
+          >
+            <div 
+              className={styles.benefitIcon}
+              style={{ backgroundColor: "#3B82F620" }}
+            >
+              <TrendingUp size={24} />
+            </div>
+            <h5>Reputation System</h5>
+            <p>Build your credibility through verified contributions</p>
+          </motion.div>
+          
+          <motion.div 
+            className={styles.benefitItem}
+            whileHover={{ y: -5 }}
+          >
+            <div 
+              className={styles.benefitIcon}
+              style={{ backgroundColor: "#EC489920" }}
+            >
+              <Shield size={24} />
+            </div>
+            <h5>Secure Platform</h5>
+            <p>Protected intellectual property and transparent rewards</p>
+          </motion.div>
+          
+          <motion.div 
+            className={styles.benefitItem}
+            whileHover={{ y: -5 }}
+          >
+            <div 
+              className={styles.benefitIcon}
+              style={{ backgroundColor: "#4ECDC420" }}
+            >
+              <Activity size={24} />
+            </div>
+            <h5>Skills Development</h5>
+            <p>Grow your capabilities through real-world projects</p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+   {/* CTA Section */}
       <motion.div 
         className={styles.ctaContainer}
-        initial={{ opacity: 0, y: 30 }}
-        animate={controls}
-        variants={{
-          visible: { opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.8 } }
-        }}
+        variants={itemVariants}
       >
         <div className={styles.ctaContent}>
           <h3>Start Your PODNEX Journey</h3>
@@ -666,162 +847,7 @@ const PricingSection = () => {
           <ArrowRight size={20} />
         </motion.button>
       </motion.div>
-      
-      {/* Compare Plans Button */}
-      <motion.button
-        className={styles.compareButton}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
-        whileHover={{ y: -5 }}
-        onClick={handleCompareClick}
-        id="compare-all-plans-button"
-      >
-        <Award size={18} />
-        Compare All Plans
-      </motion.button>
-      
-      {/* Compare Modal */}
-      <AnimatePresence>
-        {isCompareModalOpen && (
-          <motion.div 
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onAnimationComplete={(definition) => {
-              // Re-enable compare button when modal animation completes
-              if (definition === "exit") {
-                const compareBtn = document.querySelector(`.${styles.compareButton}`);
-                if (compareBtn) {
-                  compareBtn.style.pointerEvents = 'auto';
-                }
-              }
-            }}
-          >
-            <motion.div 
-              className={styles.compareModal}
-              ref={modalRef}
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <div className={styles.modalHeader}>
-                <h3>Compare All Plans</h3>
-                <button 
-                  className={styles.closeModalButton} 
-                  onClick={() => {
-                    setIsCompareModalOpen(false);
-                    // Ensure the compare button is clickable again
-                    setTimeout(() => {
-                      const compareBtn = document.querySelector(`.${styles.compareButton}`);
-                      if (compareBtn) {
-                        compareBtn.style.pointerEvents = 'auto';
-                      }
-                    }, 100);
-                  }}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <div className={styles.compareTableWrapper}>
-                <table className={styles.compareTable}>
-                  <thead>
-                    <tr>
-                      <th className={styles.featureColumn}>Features</th>
-                      {Object.keys(pricingData).map(roleKey => (
-                        pricingData[roleKey].plans.map((plan, planIndex) => (
-                          <th 
-                            key={`${roleKey}-${planIndex}`}
-                            className={plan.recommended ? styles.recommendedColumn : ''}
-                            style={{ 
-                              borderColor: plan.recommended ? `${plan.color}50` : 'transparent',
-                              backgroundColor: plan.recommended ? `${plan.color}10` : 'transparent' 
-                            }}
-                          >
-                            <div className={styles.planColumnHeader}>
-                              {plan.recommended && (
-                                <div className={styles.recommendedPill} style={{ backgroundColor: plan.color }}>
-                                  <Crown size={12} />
-                                  Recommended
-                                </div>
-                              )}
-                              <div className={styles.roleIndicator} style={{ color: pricingData[roleKey].color }}>
-                                {roleKey === 'podCreator' ? (
-                                  <RocketIcon size={14} />
-                                ) : roleKey === 'contributor' ? (
-                                  <UsersIcon size={14} />
-                                ) : (
-                                  <Megaphone size={14} />
-                                )}
-                                {pricingData[roleKey].title}
-                              </div>
-                              <div className={styles.planTitleCompare}>{plan.name}</div>
-                              <div className={styles.planPriceCompare}>
-                                <span className={styles.currencyCompare}>$</span>
-                                <span className={styles.amountCompare}>{plan.price}</span>
-                                <span className={styles.periodCompare}>/mo</span>
-                              </div>
-                            </div>
-                          </th>
-                        ))
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getAllUniqueFeatures().map((feature, index) => (
-                      <tr key={index} className={index % 2 === 0 ? styles.evenRow : styles.oddRow}>
-                        <td className={styles.featureColumn}>{feature}</td>
-                        {Object.keys(pricingData).map(roleKey => (
-                          pricingData[roleKey].plans.map((plan, planIndex) => {
-                            const hasFeature = planHasFeature(roleKey, planIndex, feature);
-                            return (
-                              <td 
-                                key={`${roleKey}-${planIndex}`}
-                                className={plan.recommended ? styles.recommendedColumn : ''}
-                              >
-                                {hasFeature ? (
-                                  <CheckCircle size={18} className={styles.featureIncludedCompare} style={{ color: plan.color }} />
-                                ) : (
-                                  <XCircle size={18} className={styles.featureExcludedCompare} />
-                                )}
-                              </td>
-                            );
-                          })
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className={styles.modalActions}>
-                <motion.button 
-                  className={styles.modalCloseButton}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    setIsCompareModalOpen(false);
-                    // Ensure the compare button is clickable again
-                    setTimeout(() => {
-                      const compareBtn = document.querySelector(`.${styles.compareButton}`);
-                      if (compareBtn) {
-                        compareBtn.style.pointerEvents = 'auto';
-                      }
-                    }, 100);
-                  }}
-                >
-                  Close Comparison
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
+    </motion.section>
   );
 };
 

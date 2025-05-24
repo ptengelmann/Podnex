@@ -1,0 +1,844 @@
+@import '../../styles/variables';
+
+.profilePage {
+  width: 100%;
+  padding: 40px 32px;
+  color: $white;
+  position: relative;
+  overflow: hidden;
+  
+  // Animated grid background
+  .gridBackground {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    transform-origin: center;
+    z-index: 0;
+    will-change: transform;
+  }
+  
+  .glowEffect1 {
+    position: absolute;
+    top: 20%;
+    right: 15%;
+    width: 300px;
+    height: 300px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba(232, 197, 71, 0.2), transparent);
+    filter: blur(50px);
+    opacity: 0.5;
+    z-index: 1;
+  }
+  
+  .glowEffect2 {
+    position: absolute;
+    bottom: 20%;
+    left: 15%;
+    width: 250px;
+    height: 250px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(52, 211, 153, 0.1), transparent);
+    filter: blur(40px);
+    opacity: 0.4;
+    z-index: 1;
+  }
+}
+
+// Loading & Error States
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(232, 197, 71, 0.3);
+    border-top-color: $gold;
+    border-radius: 50%;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+.errorState, .notFoundState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  
+  .errorIcon, .notFoundIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: rgba(255, 107, 107, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: #FF6B6B;
+  }
+  
+  .notFoundIcon {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: $gray;
+  }
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    color: $gray;
+    max-width: 400px;
+  }
+  
+  .retryButton, .backButton {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .retryButton {
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+    border: none;
+    
+    &:hover {
+      background-color: rgba(232, 197, 71, 0.2);
+    }
+  }
+  
+  .backButton {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: $white;
+    border: none;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Profile Container
+.profileContainer {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Profile Header
+.profileHeader {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 24px;
+  
+  .coverImage {
+    width: 100%;
+    height: 200px;
+    background-color: #121212;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    
+    .coverOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(18, 18, 18, 0.8) 100%);
+    }
+  }
+  
+  .profileHeaderContent {
+    padding: 20px 32px 32px;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+  
+  .profileImageContainer {
+    margin-top: -80px;
+    margin-right: 24px;
+    position: relative;
+    z-index: 2;
+    
+    @media (max-width: 768px) {
+      margin-right: 0;
+      margin-bottom: 16px;
+    }
+  }
+  
+  .profileImage {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 4px solid #121212;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+  }
+  
+  .profileInitials {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 4px solid #121212;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+  }
+  
+  .profileInfo {
+    flex: 1;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+  
+  .nameSection {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    
+    @media (max-width: 768px) {
+      justify-content: center;
+    }
+  }
+  
+  .displayName {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 16px 0 0;
+  }
+  
+  .roleBadge, .reputationBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 12px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 8px;
+    }
+  }
+  
+  .roleBadge {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: #34D399;
+  }
+  
+  .reputationBadge {
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+  }
+  
+  .headline {
+    font-size: 16px;
+    color: $gray;
+    margin: 0 0 16px 0;
+  }
+  
+  .statsRow {
+    display: flex;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+  }
+  
+  .statItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $gray;
+    font-size: 14px;
+    
+    strong {
+      color: $white;
+    }
+  }
+  
+  .profileActions {
+    display: flex;
+    gap: 12px;
+    margin-left: 24px;
+    
+    @media (max-width: 768px) {
+      margin-left: 0;
+      margin-top: 16px;
+    }
+  }
+  
+  .editProfileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: rgba(232, 197, 71, 0.1);
+    color: $gold;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(232, 197, 71, 0.2);
+    }
+  }
+  
+  .settingsButton {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $white;
+    }
+  }
+}
+
+// Profile Navigation
+.profileNavigation {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 24px;
+  
+  .navTabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    @media (max-width: 576px) {
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      &::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+      }
+    }
+  }
+  
+  .navTab {
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    color: $gray;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    white-space: nowrap;
+    
+    &:hover {
+      color: $white;
+    }
+    
+    &.active {
+      color: $gold;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: $gold;
+      }
+    }
+  }
+}
+
+// Profile Content
+.profileContent {
+  position: relative;
+  z-index: 2;
+}
+
+// Two Column Layout
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mainColumn, .sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Profile Sections
+.profileSection {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 32px;
+    height: 2px;
+    background-color: $gold;
+    border-radius: 2px;
+  }
+}
+
+.profileCard {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+// Empty States
+.emptyState {
+  color: $gray;
+  font-size: 14px;
+  padding: 16px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.addBioButton, .addButton, .explorePodButton {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: rgba(232, 197, 71, 0.1);
+  color: $gold;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &:hover {
+    background-color: rgba(232, 197, 71, 0.2);
+  }
+}
+
+// Skills
+.skillsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  
+  .skillItem {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .skillLevel {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+  }
+}
+
+// Experience Progress
+.experienceProgress {
+  .tierBadge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    
+    .tierName {
+      font-weight: 600;
+    }
+    
+    .tierLevel {
+      font-size: 13px;
+    }
+  }
+  
+  .xpProgressBar {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    
+    .xpFill {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(232, 197, 71, 0.6) 0%, rgba(232, 197, 71, 1) 100%);
+      border-radius: 4px;
+    }
+  }
+  
+  .xpStats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: $gray;
+  }
+}
+
+// Social Links
+.socialLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  .socialLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: $white;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Badges
+.badgesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  .badgeItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    
+    .badgeIcon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $gold;
+    }
+    
+    .badgeInfo {
+      flex: 1;
+      
+      .badgeName {
+        font-size: 14px;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .badgeDescription {
+        font-size: 12px;
+        color: $gray;
+      }
+    }
+  }
+}
+
+// Tab-specific styles
+.podsTab, .portfolioTab, .contributionsTab {
+  .tabHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+  }
+}
+
+// Pods filter
+.podsFilter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  
+  .filterButton {
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 8px;
+    color: $gray;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $white;
+    }
+    
+    &.active {
+      background-color: rgba(232, 197, 71, 0.1);
+      color: $gold;
+    }
+  }
+}
+
+// Pods Grid
+.podsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+// Portfolio
+.portfolioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  
+  .portfolioItem {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .portfolioItemImage {
+      height: 160px;
+      position: relative;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .placeholderImage {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $gray;
+      }
+      
+      .featuredBadge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 8px;
+        background-color: rgba(232, 197, 71, 0.9);
+        color: #121212;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+    
+    .portfolioItemContent {
+      padding: 16px;
+      
+      .portfolioItemTitle {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      .portfolioItemDescription {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: $gray;
+        line-height: 1.4;
+      }
+      
+      .portfolioItemLink {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: $gold;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Contributions
+.contributionStatsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .contributionStatCard {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    
+    .statValue {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #E8C547, #FDB833);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .statLabel {
+      font-size: 14px;
+      color: $gray;
+    }
+  }
+}
+
+.contributionHistory {
+  .subSectionTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+  }
+}
+
+.addPortfolioButton {
+  padding: 8px 16px;
+  background-color: rgba(232, 197, 71, 0.1);
+  color: $gold;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover {
+    background-color: rgba(232, 197, 71, 0.2);
+  }
+}
