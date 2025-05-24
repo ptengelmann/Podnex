@@ -1,11 +1,11 @@
 # Multi-stage Dockerfile for Podnex application
 
 # ============================================================
-# Stage 1: Build the React frontend
+# Stage 1: Build the React frontend (client image)
 # ============================================================
-FROM node:20 AS client-builder
+FROM node:20 AS podnex-client
 
-WORKDIR /app/client
+WORKDIR /app
 
 # Copy client package files
 COPY client/package*.json ./
@@ -19,8 +19,14 @@ COPY client/ ./
 # Build the React app
 RUN npm run build
 
+# Expose port for the client dev server
+EXPOSE 3000
+
+# Command to run the client application
+CMD ["npm", "start"]
+
 # ============================================================
-# Stage 2: Set up the Express backend
+# Stage 2: Set up the Express backend (server image)
 # ============================================================
 FROM node:20 AS server-builder
 
@@ -39,9 +45,9 @@ COPY server/ ./
 RUN mkdir -p ./public
 
 # ============================================================
-# Stage 3: Final production image
+# Stage 3: Final production image for server
 # ============================================================
-FROM node:20-alpine
+FROM node:20-alpine AS podnex-server
 
 # Create app directory
 WORKDIR /app
@@ -51,12 +57,13 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy server from server-builder stage
 COPY --from=server-builder /app/server /app/server
-
+# Copy .env file for server environment variables
+COPY server/.env /app/server/.env
 # Explicitly create the public directory
 RUN mkdir -p /app/server/public
 
-# Copy built client files from client-builder stage to the server's public directory
-COPY --from=client-builder /app/client/build/ /app/server/public/
+# Copy built client files from podnex-client stage to the server's public directory
+COPY --from=podnex-client /app/build/ /app/server/public/
 
 # List the contents to verify files are copied correctly
 RUN ls -la /app/server/public/
@@ -77,3 +84,18 @@ ENV NODE_ENV=production
 
 # Command to run the application
 CMD ["node", "server.js"]
+
+# ============================================================
+# Development image for Podnex client and server
+# ============================================================
+FROM node:20-slim AS dev-base
+
+WORKDIR /workspace
+
+# Install basic dev tools and network tools
+RUN apt-get update && apt-get install -y git vim nano curl iproute2 iputils-ping net-tools dnsutils procps psmisc && rm -rf /var/lib/apt/lists/*
+
+# Default: do not copy any code, expect code to be mounted at /workspace
+
+# Optionally, install global tools here (e.g., nodemon, yarn)
+# RUN npm install -g nodemon

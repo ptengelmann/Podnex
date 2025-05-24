@@ -12,11 +12,32 @@ const messageRoutes = require('./routes/messageRoutes'); // New route
 const taskRoutes = require('./routes/taskRoutes'); // New route
 const milestoneRoutes = require('./routes/milestoneRoutes'); // New route
 const resourceRoutes = require('./routes/resourceRoutes');
-
+const promClient = require('prom-client');
 
 connectDB();
 
 const app = express();
+
+// Create a Registry to register the metrics
+const register = new promClient.Registry();
+
+// Counter for server starts
+const serverStartCounter = new promClient.Counter({
+  name: 'podnex_server_starts_total',
+  help: 'Total number of times the server has started',
+});
+register.registerMetric(serverStartCounter);
+
+// Counter for graceful shutdowns
+const serverShutdownCounter = new promClient.Counter({
+  name: 'podnex_server_shutdowns_total',
+  help: 'Total number of times the server has shut down gracefully',
+});
+register.registerMetric(serverShutdownCounter);
+
+// Increment server start counter on startup
+serverStartCounter.inc();
+console.debug('>Server started, incrementing start counter');
 
 // Middlewares
 app.use(cors());
@@ -54,6 +75,12 @@ app.use('/api/pods', podRoutes);
 // Basic test route
 app.get('/', (req, res) => {
   res.send('API is running');
+});
+
+// Expose /metrics endpoint for Prometheus/Grafana
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
 });
 
 module.exports = app;
