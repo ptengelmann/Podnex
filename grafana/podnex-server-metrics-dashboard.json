@@ -1,0 +1,84 @@
+{
+  "id": null,
+  "title": "Podnex Server Metrics",
+  "tags": ["podnex", "server", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Server Starts",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "podnex_server_starts_total",
+          "legendFormat": "Starts"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Graceful Shutdowns",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "podnex_server_shutdowns_total",
+          "legendFormat": "Shutdowns"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Server Starts Over Time",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "increase(podnex_server_starts_total[5m])",
+          "legendFormat": "Starts (5m)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+    },
+    {
+      "type": "table",
+      "title": "Shutdowns Table",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "podnex_server_shutdowns_total",
+          "legendFormat": "Shutdowns"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+    }
+  ],
+  "overwrite": false
+}
