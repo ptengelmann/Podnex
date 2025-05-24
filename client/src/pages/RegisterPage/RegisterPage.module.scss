@@ -470,3 +470,151 @@
     }
   }
 }
+
+// Add these new styles to your existing SCSS file
+
+.profileCreationIndicator {
+  background-color: rgba(232, 197, 71, 0.1);
+  color: rgba(232, 197, 71, 0.9);
+  border: 1px solid rgba(232, 197, 71, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.creationSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(232, 197, 71, 0.2);
+  border-top-color: rgba(232, 197, 71, 0.8);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.successContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  
+  div {
+    display: inline-block;
+  }
+}
+
+.successTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 12px;
+}
+
+.successSubtitle {
+  font-size: 18px;
+  color: $gold;
+  margin-bottom: 32px;
+  font-weight: 500;
+}
+
+.successDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.successItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  color: $white;
+  
+  span {
+    font-size: 14px;
+  }
+}
+
+.checkIcon {
+  width: 20px;
+  height: 20px;
+  background: $gold;
+  color: $black;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.nextSteps {
+  text-align: center;
+  margin-bottom: 32px;
+  
+  h3 {
+    color: $white;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+.loadingIndicator {
+  width: 100%;
+  text-align: center;
+  
+  p {
+    color: $gray;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $gold, rgba($gold, 0.7));
+  border-radius: 2px;
+}
+
+.roleOption.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: $gray;
+    
+    svg {
+      transform: none;
+    }
+  }
+}

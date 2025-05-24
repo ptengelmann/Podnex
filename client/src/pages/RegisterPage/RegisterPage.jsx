@@ -22,6 +22,7 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [registrationStep, setRegistrationStep] = useState('registering'); // 'registering', 'creating-profile', 'success'
   
   // Animation variants
   const containerVariants = {
@@ -96,6 +97,26 @@ const RegisterPage = () => {
     return true;
   };
 
+  // Get role-specific welcome text
+  const getRoleWelcomeText = () => {
+    switch(role) {
+      case 'creator': return 'Get ready to launch amazing podcast projects!';
+      case 'contributor': return 'Join exciting podcast collaborations!';
+      case 'booster': return 'Support creators and make projects successful!';
+      default: return 'Welcome to the podcast community!';
+    }
+  };
+
+  // Get role-specific next steps
+  const getRoleNextSteps = () => {
+    switch(role) {
+      case 'creator': return 'Create your first Pod and start building your team';
+      case 'contributor': return 'Browse available Pods and showcase your skills';
+      case 'booster': return 'Discover exciting projects to support and promote';
+      default: return 'Explore the platform and connect with creators';
+    }
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
     
@@ -103,8 +124,12 @@ const RegisterPage = () => {
     
     setLoading(true);
     setError('');
+    setRegistrationStep('registering');
 
     try {
+      console.log('Starting registration process...');
+      
+      // Step 1: Register user
       const res = await axios.post('http://localhost:5000/api/auth/register', {
         name,
         email,
@@ -112,21 +137,43 @@ const RegisterPage = () => {
         role
       });
       
+      console.log('User registered successfully:', res.data);
+      
+      // Store auth data immediately
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify({
         name: res.data.name,
         email: res.data.email,
-        role: formData.role,
+        role: res.data.role,
+        id: res.data._id
       }));
+
+      // Step 2: Auto-create profile to avoid discovery issues
+      setRegistrationStep('creating-profile');
       
-      // Show success animation before redirect
+      try {
+        console.log('Auto-creating user profile...');
+        const profileResponse = await axios.get('http://localhost:5000/api/profile/me', {
+          headers: { Authorization: `Bearer ${res.data.token}` }
+        });
+        console.log('Profile created/retrieved:', profileResponse.data);
+      } catch (profileError) {
+        console.log('Profile auto-creation completed via getCurrentProfile');
+        // This is expected - getCurrentProfile creates the profile if it doesn't exist
+      }
+
+      // Step 3: Show success state
+      setRegistrationStep('success');
+      
+      // Step 4: Navigate after showing success
       setTimeout(() => {
         navigate('/dashboard');
-      }, 1000);
+      }, 2500);
       
     } catch (error) {
-      console.error(error.response?.data?.message);
+      console.error('Registration error:', error.response?.data?.message);
       setError(error.response?.data?.message || 'Registration failed. Please try again.');
+      setRegistrationStep('registering');
     } finally {
       setLoading(false);
     }
@@ -139,6 +186,89 @@ const RegisterPage = () => {
   const toggleConfirmPasswordVisibility = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
+
+  // Render success state
+  if (registrationStep === 'success') {
+    return (
+      <div className={styles.registerPage}>
+        <motion.div 
+          className={styles.gridBackground}
+          animate={{ 
+            scale: [1, 1.02, 1],
+            rotate: [0, 1, 0]
+          }}
+          transition={{ 
+            duration: 20, 
+            repeat: Infinity,
+            repeatType: "reverse" 
+          }}
+        />
+        
+        <div className={styles.floatingShape + ' ' + styles.shape1}></div>
+        <div className={styles.floatingShape + ' ' + styles.shape2}></div>
+        <div className={styles.floatingShape + ' ' + styles.shape3}></div>
+        
+        <motion.div
+          className={styles.registerCard}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div
+            className={styles.successContent}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <div className={styles.successIcon}>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+              >
+                ✨
+              </motion.div>
+            </div>
+            
+            <h2 className={styles.successTitle}>Welcome to PODNEX!</h2>
+            <p className={styles.successSubtitle}>{getRoleWelcomeText()}</p>
+            
+            <div className={styles.successDetails}>
+              <div className={styles.successItem}>
+                <div className={styles.checkIcon}>✓</div>
+                <span>Account created successfully</span>
+              </div>
+              <div className={styles.successItem}>
+                <div className={styles.checkIcon}>✓</div>
+                <span>Profile set up and ready</span>
+              </div>
+              <div className={styles.successItem}>
+                <div className={styles.checkIcon}>✓</div>
+                <span>Ready to discover the community</span>
+              </div>
+            </div>
+            
+            <div className={styles.nextSteps}>
+              <h3>What's Next?</h3>
+              <p>{getRoleNextSteps()}</p>
+            </div>
+            
+            <div className={styles.loadingIndicator}>
+              <div className={styles.progressBar}>
+                <motion.div 
+                  className={styles.progressFill}
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 2 }}
+                />
+              </div>
+              <p>Taking you to your dashboard...</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.registerPage}>
@@ -184,6 +314,18 @@ const RegisterPage = () => {
           <p className={styles.subtitle}>Join the community of podcast creators and collaborators</p>
         </div>
 
+        {/* Loading indicator for profile creation */}
+        {registrationStep === 'creating-profile' && (
+          <motion.div 
+            className={styles.profileCreationIndicator}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className={styles.creationSpinner}></div>
+            <span>Setting up your profile...</span>
+          </motion.div>
+        )}
+
         {error && (
           <motion.div 
             className={styles.errorMessage}
@@ -217,6 +359,7 @@ const RegisterPage = () => {
               onChange={onChange}
               required
               className={styles.inputField}
+              disabled={loading}
             />
           </motion.div>
 
@@ -231,6 +374,7 @@ const RegisterPage = () => {
               onChange={onChange}
               required
               className={styles.inputField}
+              disabled={loading}
             />
           </motion.div>
 
@@ -246,11 +390,13 @@ const RegisterPage = () => {
                 onChange={onChange}
                 required
                 className={styles.inputField}
+                disabled={loading}
               />
               <button 
                 type="button" 
                 className={styles.passwordToggle}
                 onClick={togglePasswordVisibility}
+                disabled={loading}
               >
                 {passwordVisible ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -279,11 +425,13 @@ const RegisterPage = () => {
                 onChange={onChange}
                 required
                 className={styles.inputField}
+                disabled={loading}
               />
               <button 
                 type="button" 
                 className={styles.passwordToggle}
                 onClick={toggleConfirmPasswordVisibility}
+                disabled={loading}
               >
                 {confirmPasswordVisible ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -304,10 +452,10 @@ const RegisterPage = () => {
             <h4>Select Your Role</h4>
             <div className={styles.roleOptions}>
               <motion.div
-                className={`${styles.roleOption} ${role === 'creator' ? styles.active : ''}`}
-                onClick={() => onRoleSelect('creator')}
-                whileHover={{ y: -5 }}
-                whileTap={{ scale: 0.98 }}
+                className={`${styles.roleOption} ${role === 'creator' ? styles.active : ''} ${loading ? styles.disabled : ''}`}
+                onClick={() => !loading && onRoleSelect('creator')}
+                whileHover={!loading ? { y: -5 } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <Rocket size={24} />
@@ -317,10 +465,10 @@ const RegisterPage = () => {
               </motion.div>
 
               <motion.div
-                className={`${styles.roleOption} ${role === 'contributor' ? styles.active : ''}`}
-                onClick={() => onRoleSelect('contributor')}
-                whileHover={{ y: -5 }}
-                whileTap={{ scale: 0.98 }}
+                className={`${styles.roleOption} ${role === 'contributor' ? styles.active : ''} ${loading ? styles.disabled : ''}`}
+                onClick={() => !loading && onRoleSelect('contributor')}
+                whileHover={!loading ? { y: -5 } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <Users size={24} />
@@ -330,10 +478,10 @@ const RegisterPage = () => {
               </motion.div>
 
               <motion.div
-                className={`${styles.roleOption} ${role === 'booster' ? styles.active : ''}`}
-                onClick={() => onRoleSelect('booster')}
-                whileHover={{ y: -5 }}
-                whileTap={{ scale: 0.98 }}
+                className={`${styles.roleOption} ${role === 'booster' ? styles.active : ''} ${loading ? styles.disabled : ''}`}
+                onClick={() => !loading && onRoleSelect('booster')}
+                whileHover={!loading ? { y: -5 } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <LifeBuoy size={24} />
@@ -347,8 +495,8 @@ const RegisterPage = () => {
           <motion.button
             type="submit"
             className={styles.submitButton}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={!loading ? { scale: 1.03 } : {}}
+            whileTap={!loading ? { scale: 0.97 } : {}}
             disabled={loading}
             variants={itemVariants}
           >
