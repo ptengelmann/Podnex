@@ -15,12 +15,12 @@
   gap: 50px;
 }
 
-// Animated grid background
+// Enhanced animated grid background
 .gridBackground {
   position: absolute;
   top: -50%;
   left: -50%;
-  right: -50%;
+right: -50%;
   bottom: -50%;
   background-image: 
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -30,21 +30,10 @@
   transform-origin: center;
   z-index: 0;
   will-change: transform;
-  animation: gridPulse 15s ease-in-out infinite alternate;
+  filter: contrast(1.2);
 }
 
-@keyframes gridPulse {
-  0% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-// Floating shapes
+// Enhanced floating shapes
 .floatingShapes {
   position: absolute;
   top: 0;
@@ -92,7 +81,7 @@
   }
 }
 
-// Section Header
+// Enhanced Section Header
 .sectionHeader {
   max-width: 800px;
   margin-bottom: 20px;
@@ -100,9 +89,16 @@
   z-index: 5;
 }
 
-// Badge styling
+// Enhanced Badge styling with hover effect
 .badgeWrapper {
   margin-bottom: 24px;
+  display: inline-block;
+  transform-origin: center;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .badge {
@@ -157,7 +153,13 @@
     z-index: -1;
     transform: skewX(-10deg);
     opacity: 0.6;
+    animation: pulse 3s infinite alternate;
   }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.8; }
 }
 
 .sectionSubtitle {
@@ -169,11 +171,11 @@
   font-weight: 400;
 }
 
-// Tab Selector
+// Enhanced Tab Selector
 .tabSelector {
   display: flex;
   gap: 16px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   position: relative;
   z-index: 5;
   
@@ -211,7 +213,60 @@
   }
 }
 
-// Process View
+// Interaction Mode Selector - New Component
+.interactionModes {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.interactionLabel {
+  font-size: 14px;
+  color: $gray;
+  font-weight: 500;
+}
+
+.modeSwitcher {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: transparent;
+  color: $gray;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  &.activeMode {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Enhanced Process View
 .processView {
   width: 100%;
   max-width: 1200px;
@@ -226,8 +281,7 @@
   }
 }
 
-// Process timeline
-// Updated CSS for the process timeline in HowItWorksSection.module.scss
+// Enhanced Process timeline
 .processTimeline {
   display: flex;
   flex-direction: column;
@@ -255,6 +309,24 @@
   left: 0;
   height: 100%;
   border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+// Added timeline markers
+.timelineMarkers {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  margin-top: -10px;
+}
+
+.timelineMarker {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(-50%);
+  top: 0;
 }
 
 .timelineStep {
@@ -352,7 +424,259 @@
   }
 }
 
-// Steps grid
+// Compare Selector - New Component
+.compareSelector {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.compareTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $white;
+  margin-bottom: 20px;
+}
+
+.compareOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.compareOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: $gray;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  &.selected {
+    transform: translateY(-3px);
+  }
+  
+  .optionIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .selectedMark {
+    margin-left: 6px;
+  }
+}
+
+.compareResults {
+  overflow: hidden;
+}
+
+.compareTable {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 20px;
+}
+
+.compareHeader {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 2fr);
+  background: rgba(255, 255, 255, 0.05);
+  
+  .compareCell {
+    font-weight: 600;
+    padding: 14px;
+    text-align: left;
+    
+    &:first-child {
+      background: rgba(255, 255, 255, 0.02);
+    }
+  }
+}
+
+.compareRow {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 2fr);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.compareCell {
+  padding: 14px;
+  text-align: left;
+  font-size: 14px;
+  color: $gray;
+  
+  &:first-child {
+    font-weight: 500;
+    color: $white;
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.compareList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    position: relative;
+    padding-left: 16px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    
+    &:before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: $gray;
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.statsCompareList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    margin-bottom: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .statLabel {
+      color: $gray;
+    }
+    
+    .statValue {
+      font-weight: 600;
+    }
+  }
+}
+
+.skillCompareContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skillCompareTag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.progressContainer {
+  height: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  position: relative;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.progressValue {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resetCompare {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  color: $gray;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 auto;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+  }
+}
+
+.comparePrompt {
+  padding: 60px 0;
+}
+
+.emptyCompare {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  
+  .emptyIcon {
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 10px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: $white;
+    margin: 0;
+  }
+  
+  p {
+    font-size: 16px;
+    color: $gray;
+    max-width: 500px;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+// Enhanced Steps grid
 .stepsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -491,11 +815,29 @@
   }
 }
 
-.emoji {
-  font-size: 22px;
-  display: inline-block;
-  margin-left: 5px;
-  transform: translateY(-1px);
+// Added preview stats to step cards
+.previewStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.previewStat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.previewStatLabel {
+  color: $gray;
+}
+
+.previewStatValue {
+  font-weight: 600;
 }
 
 .expandButton {
@@ -519,7 +861,7 @@
   }
 }
 
-// Fullscreen step view
+// Enhanced Fullscreen step view with view modes
 .fullscreenStep {
   background: rgba(10, 10, 15, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -580,6 +922,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: all 0.3s ease;
   
   @media (max-width: 640px) {
     margin: 0 auto 16px;
@@ -590,6 +933,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex: 1;
 }
 
 .fullscreenTag {
@@ -626,6 +970,41 @@
   }
 }
 
+// Added view mode toggle
+.viewModeToggle {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+  
+  @media (max-width: 640px) {
+    margin: 15px auto 0;
+  }
+}
+
+.viewModeButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gray;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+  }
+  
+  &.activeViewMode {
+    background: rgba(232, 197, 71, 0.15);
+    color: $gold;
+  }
+}
+
 .fullscreenDescription {
   font-size: 18px;
   line-height: 1.6;
@@ -637,6 +1016,7 @@
   }
 }
 
+// Enhanced fullscreen details
 .fullscreenDetails {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 16px;
@@ -662,38 +1042,317 @@
       border-radius: 3px;
     }
   }
+}
+
+.detailedList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
   
-  ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+  
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 16px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
     
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      transform: translateX(5px);
     }
     
-    li {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 16px;
-      line-height: 1.5;
-      padding: 12px;
-      border-radius: 8px;
-      background-color: rgba(255, 255, 255, 0.02);
-      transition: all 0.3s ease;
-      
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        transform: translateY(-3px);
-      }
-      
-      svg {
-        flex-shrink: 0;
-        margin-top: 2px;
-      }
+    svg {
+      flex-shrink: 0;
+      margin-top: 2px;
     }
+  }
+}
+
+// Added interactive prompt
+.interactivePrompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-top: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  
+.promptIcon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+// Added stats view
+.statsView {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.statsHeader {
+  margin-bottom: 24px;
+  
+  h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .statsSubtitle {
+    font-size: 14px;
+    color: $gray;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  
+  .statLabel {
+    font-size: 14px;
+    color: $gray;
+  }
+  
+  .statValue {
+    font-size: 24px;
+    font-weight: 700;
+  }
+}
+
+.statsVisual {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.statChartTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: $white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.mockChart {
+  height: 200px;
+  position: relative;
+  padding: 0 20px 30px;
+}
+
+.chartBars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100%;
+  gap: 40px;
+  padding-bottom: 30px;
+}
+
+.chartBar {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: height 0.5s ease;
+}
+
+.chartLabels {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+}
+
+.chartLabel {
+  font-size: 12px;
+  color: $gray;
+  text-align: center;
+  width: 40px;
+  transform: translateX(-50%);
+}
+
+.chartYAxis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.chartYLabel {
+  transform: rotate(-90deg);
+  font-size: 12px;
+  color: $gray;
+  white-space: nowrap;
+}
+
+.chartXAxis {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  text-align: center;
+}
+
+.chartXLabel {
+  font-size: 12px;
+  color: $gray;
+}
+
+// Added simulation view
+.simulationView {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.simulationHeader {
+  margin-bottom: 24px;
+  
+  h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+.simulationContainer {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 300px;
+}
+
+.simulationControls {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+}
+
+.simulationOption {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $gray;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+  }
+}
+
+.simulationDisplay {
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.simulationPlaceholder {
+  text-align: center;
+  
+  .simulationIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: $gray;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    max-width: 300px;
+    margin: 0;
   }
 }
 
@@ -761,7 +1420,7 @@
   }
 }
 
-// Team Roles View
+// Enhanced Team Roles View
 .rolesView {
   width: 100%;
   max-width: 1200px;
@@ -776,6 +1435,58 @@
   max-width: 800px;
   margin: 0 auto 40px;
   line-height: 1.6;
+}
+
+// Added role filters
+.roleFilters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: $gray;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filterButton {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $gray;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: $white;
+  }
+  
+  &.activeFilter {
+    background: rgba(232, 197, 71, 0.1);
+    border-color: rgba(232, 197, 71, 0.3);
+    color: $gold;
+  }
 }
 
 .rolesGrid {
@@ -881,6 +1592,40 @@
   margin-bottom: 16px;
 }
 
+// Added role metrics
+.roleMetrics {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.metricItem {
+  margin-bottom: 8px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .metricLabel {
+    font-size: 12px;
+    color: $gray;
+    margin-bottom: 4px;
+    display: block;
+    text-align: left;
+  }
+  
+  .metricBar {
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  
+  .metricFill {
+    height: 100%;
+    border-radius: 2px;
+  }
+}
+
 .rolePrompt {
   display: flex;
   align-items: center;
@@ -923,6 +1668,14 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
+      transition: all 0.3s ease;
+      padding: 8px;
+      border-radius: 6px;
+      
+      &.highlightedBenefit {
+        background-color: rgba(255, 255, 255, 0.05);
+        transform: translateX(5px);
+      }
       
       svg {
         flex-shrink: 0;
@@ -965,6 +1718,49 @@
   }
 }
 
+// Added detailed stats
+.roleDetailedStats {
+  margin-bottom: 24px;
+  
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+}
+
+.statsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.statItem {
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+  }
+  
+  .statLabel {
+    font-size: 12px;
+    color: $gray;
+    margin-bottom: 5px;
+  }
+  
+  .statValue {
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
 .roleCta {
   display: flex;
   align-items: center;
@@ -986,6 +1782,7 @@
   }
 }
 
+// Enhanced roles highlight
 .rolesHighlight {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -996,6 +1793,7 @@
   gap: 24px;
   max-width: 900px;
   margin: 0 auto;
+  transition: all 0.3s ease;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -1065,7 +1863,7 @@
   }
 }
 
-// Success Stories View
+// Enhanced Success Stories View
 .showcaseView {
   width: 100%;
   max-width: 1200px;
@@ -1082,7 +1880,7 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   overflow-x: auto;
   padding-bottom: 10px;
   
@@ -1160,6 +1958,25 @@
     height: 3px;
     border-radius: 3px;
   }
+}
+
+// Added progress indicator
+.showcaseProgress {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto 20px;
+}
+
+.showcaseProgressTrack {
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.showcaseProgressFill {
+  height: 100%;
+  border-radius: 2px;
 }
 
 .showcaseContent {
@@ -1241,6 +2058,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  transition: all 0.3s ease;
 }
 
 .statValue {
@@ -1252,6 +2070,43 @@
 .statLabel {
   font-size: 14px;
   color: $gray;
+}
+
+// Added view mode toggle for showcases
+.showcaseViewToggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.viewToggleButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: $gray;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: $white;
+  }
+  
+  &.activeView {
+    background: rgba(var(--showcase-color, 232, 197, 71), 0.1);
+    border-color: rgba(var(--showcase-color, 232, 197, 71), 0.2);
+    color: var(--showcase-color, $gold);
+  }
 }
 
 .showcaseJourney {
@@ -1281,6 +2136,7 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
+  transition: all 0.3s ease;
 }
 
 .stepIndicator {
@@ -1301,6 +2157,312 @@
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.8);
   padding-top: 3px;
+}
+
+// Added metrics view for showcases
+.showcaseMetrics {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.metricsTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: $white;
+  margin: 0 0 20px 0;
+}
+
+.metricsSection {
+  margin-bottom: 30px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+}
+
+.pieChartContainer {
+  display: flex;
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.pieChart {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+}
+
+.pieSegment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  top: 0;
+  left: 0;
+}
+
+.pieLabels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    margin-top: 20px;
+  }
+}
+
+.pieLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .pieLabelColor {
+    width: 16px;
+    height: 16px;
+border-radius: 4px;
+  }
+  
+  .pieLabelText {
+    flex: 1;
+    font-size: 14px;
+    color: $gray;
+  }
+  
+  .pieLabelValue {
+    font-size: 14px;
+    font-weight: 600;
+    color: $white;
+  }
+}
+
+.barChartContainer {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.timelineBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .timelineBarLabel {
+    width: 100px;
+    text-align: right;
+    font-size: 14px;
+    color: $gray;
+    padding-right: 15px;
+  }
+  
+  .timelineBarFill {
+    height: 24px;
+    border-radius: 4px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .timelineBarValue {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+.lineChartContainer {
+  height: 200px;
+  position: relative;
+  padding-bottom: 30px;
+  margin-top: 40px;
+}
+
+.lineChart {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chartPoint {
+  position: absolute;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+  
+  .chartPointDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 auto 5px;
+  }
+  
+  .chartPointLabel {
+    font-size: 12px;
+    color: $white;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    transform: translateX(-25%);
+  }
+}
+
+.chartAxis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.chartAxisLabel {
+  font-size: 12px;
+  color: $gray;
+  text-align: center;
+  width: 80px;
+}
+
+// Added demo view for showcases
+.showcaseDemo {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.demoTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: $white;
+  margin: 0 0 20px 0;
+}
+
+.demoContainer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.demoPreview {
+  position: relative;
+}
+
+.demoImageContainer {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.demoImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.demoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  
+  .demoImageContainer:hover & {
+    opacity: 1;
+  }
+}
+
+.playButton {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.demoInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  
+  h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 10px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+  }
+  
+  @media (max-width: 768px) {
+    text-align: center;
+    align-items: center;
+  }
+}
+
+.demoLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: $black;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .showcaseButton {
@@ -1388,11 +2550,36 @@
     display: block;
     border-radius: 12px;
     transition: all 0.3s ease;
-    
-    &:hover {
-      transform: scale(1.02);
-    }
   }
+}
+
+// Added interactive overlay for image
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.imageAction {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .imageBorder {
@@ -1431,7 +2618,7 @@
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .showcaseDot {
@@ -1451,7 +2638,7 @@
   }
 }
 
-// CTA Section
+// Enhanced CTA Section
 .ctaContainer {
   display: flex;
   align-items: center;
@@ -1465,6 +2652,7 @@
   width: 100%;
   position: relative;
   z-index: 5;
+  transition: all 0.3s ease;
   
   &:before {
     content: '';
