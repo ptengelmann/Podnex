@@ -10,19 +10,21 @@ const server = http.createServer(app);
 // Set up Socket.io with the http server
 const io = setupSocket(server);
 
-// Graceful shutdown handling
+// Updated shutdown handler without prom-client dependency
 function handleShutdown() {
-  try {
-    // Increment shutdown counter
-    const promClient = require('prom-client');
-    const register = promClient.register || promClient.Registry.globalRegistry;
-    const counter = register.getSingleMetric('podnex_server_shutdowns_total');
-    if (counter) counter.inc();
-  } catch (e) {
-    console.error('Error incrementing shutdown counter:', e);
-  }
   console.log('Server shutting down gracefully...');
-  process.exit(0);
+  
+  // Close the server
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+  
+  // Force close after 5 seconds if graceful shutdown fails
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 5000);
 }
 
 process.on('SIGTERM', handleShutdown);

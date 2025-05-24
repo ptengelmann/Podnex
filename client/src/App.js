@@ -10,7 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ExplorePage from './pages/ExplorePage/ExplorePage';
 import PodDetailPage from './pages/PodDetailPage/PodDetailPage';
 import CreatePodPage from './pages/CreatePodPage/CreatePodPage';
-import HelpFeed from './pages/HelpFeed/HelpFeed';
+import ProfileDiscoveryFeed from './pages/ProfileDiscoveryFeed/ProfileDiscoveryFeed';
 import AboutPage from './pages/AboutPage/AboutPage';
 import ContactPage from './pages/ContactUs/ContactPage';
 import PricingSection from './pages/Pricing/PricingSection';
@@ -99,7 +99,7 @@ const App = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/help-feed" element={<HelpFeed />} />
+        <Route path="/profile-discovery" element={<ProfileDiscoveryFeed />} />
         <Route path="/pods/:id" element={<PodDetailPage />} />
         <Route path="/create-pod" element={<CreatePodPage />} />
         <Route path="/about" element={<AboutPage />} />
