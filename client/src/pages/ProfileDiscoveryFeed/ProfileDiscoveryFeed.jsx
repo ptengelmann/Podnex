@@ -35,7 +35,12 @@ import {
   Layers,
   X,
   Edit,
-  Plus
+  Plus,
+  Heart,
+  MapPin,
+  ChevronLeft,  // ADD THIS
+  ChevronRight, // ADD THIS
+  Calendar
 } from 'lucide-react';
 import axios from 'axios';
 import styles from './ProfileDiscoveryFeed.module.scss';
@@ -56,8 +61,13 @@ const ProfileDiscoveryFeed = () => {
   const [hoverProfile, setHoverProfile] = useState(null);
   const [showSkillsModal, setShowSkillsModal] = useState(false);
   const [sortBy, setSortBy] = useState('reputation');
-  const [debugInfo, setDebugInfo] = useState(null);
-  const [showDebug, setShowDebug] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [allLoadedProfiles, setAllLoadedProfiles] = useState([]);
+  const [pagination, setPagination] = useState({
+  page: 1,
+  totalPages: 1,
+  total: 0
+});
   
   const sectionRef = useRef(null);
   const filterRef = useRef(null);
@@ -114,18 +124,32 @@ const ProfileDiscoveryFeed = () => {
     }
   };
 
-  // Enhanced mock skills with icons
+  // Enhanced skills data with better categorization
   const skillsData = [
     { name: 'React', icon: <Code size={16} />, category: 'development' },
+    { name: 'Vue.js', icon: <Code size={16} />, category: 'development' },
+    { name: 'Node.js', icon: <Code size={16} />, category: 'development' },
+    { name: 'Python', icon: <Code size={16} />, category: 'development' },
     { name: 'UI Design', icon: <Paintbrush size={16} />, category: 'design' },
-    { name: 'Marketing', icon: <TrendingUp size={16} />, category: 'marketing' },
-    { name: 'Backend Development', icon: <Code size={16} />, category: 'development' },
     { name: 'UX Research', icon: <Users size={16} />, category: 'design' },
+    { name: 'Figma', icon: <Paintbrush size={16} />, category: 'design' },
+    { name: 'Photoshop', icon: <Paintbrush size={16} />, category: 'design' },
+    { name: 'Digital Marketing', icon: <TrendingUp size={16} />, category: 'marketing' },
+    { name: 'SEO', icon: <TrendingUp size={16} />, category: 'marketing' },
+    { name: 'Content Strategy', icon: <PenTool size={16} />, category: 'marketing' },
+    { name: 'Social Media', icon: <MessageSquare size={16} />, category: 'marketing' },
+    { name: 'Backend Development', icon: <Code size={16} />, category: 'development' },
+    { name: 'DevOps', icon: <Code size={16} />, category: 'development' },
     { name: 'Content Writing', icon: <PenTool size={16} />, category: 'content' },
+    { name: 'Copywriting', icon: <PenTool size={16} />, category: 'content' },
+    { name: 'Video Editing', icon: <Activity size={16} />, category: 'content' },
+    { name: 'Photography', icon: <Activity size={16} />, category: 'content' },
     { name: 'Data Analysis', icon: <BarChart3 size={16} />, category: 'analysis' },
+    { name: 'Business Intelligence', icon: <BarChart3 size={16} />, category: 'analysis' },
     { name: 'Product Management', icon: <Target size={16} />, category: 'management' },
+    { name: 'Project Management', icon: <Target size={16} />, category: 'management' },
     { name: 'Branding', icon: <Star size={16} />, category: 'design' },
-    { name: 'Video Production', icon: <Activity size={16} />, category: 'content' }
+    { name: 'Illustration', icon: <Paintbrush size={16} />, category: 'design' }
   ];
 
   // Enhanced filter options
@@ -160,61 +184,123 @@ const ProfileDiscoveryFeed = () => {
     }
   }, [controls, isInView]);
 
-  // Fetch profiles with API integration
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      setIsLoading(true);
-      try {
-        // Build query parameters based on filters
-        let queryParams = new URLSearchParams();
-        
-        if (searchQuery) queryParams.append('search', searchQuery);
-        if (roleFilter !== 'all') queryParams.append('role', roleFilter);
-        if (tierFilter !== 'all') queryParams.append('tier', tierFilter);
-        if (selectedSkill !== 'all') queryParams.append('skill', selectedSkill);
-        if (sortBy) queryParams.append('sortBy', sortBy);
-        
-        // Add active filters
-        activeFilters.forEach(filter => {
-          queryParams.append(filter.type, filter.value);
-        });
+  // Pagination range helper
+const getPaginationRange = (currentPage, totalPages) => {
+  const range = [];
+  const showPages = 5; // Show 5 page numbers at a time
+  
+  if (totalPages <= showPages) {
+    for (let i = 1; i <= totalPages; i++) {
+      range.push(i);
+    }
+  } else {
+    if (currentPage <= 3) {
+      for (let i = 1; i <= 4; i++) range.push(i);
+      range.push('...');
+      range.push(totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      range.push(1);
+      range.push('...');
+      for (let i = totalPages - 3; i <= totalPages; i++) range.push(i);
+    } else {
+      range.push(1);
+      range.push('...');
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) range.push(i);
+      range.push('...');
+      range.push(totalPages);
+    }
+  }
+  
+  return range;
+};
 
-        const url = `http://localhost:5000/api/profile/discover?${queryParams.toString()}`;
-        const token = localStorage.getItem('token');
-        
-        const config = token ? {
-          headers: { Authorization: `Bearer ${token}` }
-        } : {};
-        
-        const response = await axios.get(url, config);
-        
-        console.log('Profiles fetched:', response.data);
-
-// Handle different response formats
-let profilesData;
-if (response.data.profiles) {
-  // New format with pagination
-  profilesData = response.data.profiles;
-} else if (Array.isArray(response.data)) {
-  // Old format - just array of profiles
-  profilesData = response.data;
-} else {
-  throw new Error('Unexpected response format');
-}
-
-setProfiles(profilesData);
-setError(null);
-      } catch (err) {
-        console.error('Error fetching profiles:', err);
-        setError(err.response?.data?.message || 'Failed to load profiles. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Enhanced fetch profiles with better error handling and pagination
+  const fetchProfiles = useCallback(async (page = 1, append = false) => {
+  setIsLoading(true);
+  try {
+    // Build query parameters based on filters
+    let queryParams = new URLSearchParams();
     
-    fetchProfiles();
+    if (searchQuery) queryParams.append('search', searchQuery);
+    if (roleFilter !== 'all') queryParams.append('role', roleFilter);
+    if (tierFilter !== 'all') queryParams.append('tier', tierFilter);
+    if (selectedSkill !== 'all') queryParams.append('skill', selectedSkill);
+    if (sortBy) queryParams.append('sortBy', sortBy);
+    queryParams.append('page', page.toString());
+queryParams.append('limit', itemsPerPage.toString());
+    
+    // Add active filters
+    activeFilters.forEach(filter => {
+      queryParams.append(filter.type, filter.value);
+    });
+
+    const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/profile/discover?${queryParams.toString()}`;
+    const token = localStorage.getItem('token');
+    
+    const config = token ? {
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 10000
+    } : { timeout: 10000 };
+    
+    const response = await axios.get(url, config);
+    
+    console.log('Profiles fetched:', response.data);
+
+    let profilesData;
+    let paginationData = { page: 1, totalPages: 1, total: 0 };
+    
+    if (response.data.profiles) {
+      profilesData = response.data.profiles;
+      paginationData = {
+        page: response.data.page || 1,
+        totalPages: response.data.totalPages || 1,
+        total: response.data.total || profilesData.length
+      };
+    } else if (Array.isArray(response.data)) {
+      profilesData = response.data;
+    } else {
+      throw new Error('Unexpected response format');
+    }
+
+    const validProfiles = profilesData.filter(profile => {
+      const profileData = profile.profile || profile;
+      const userData = profileData.user || {};
+      return userData._id && (profileData.displayName || userData.name);
+    });
+
+    if (append) {
+      setProfiles(prev => [...prev, ...validProfiles]);
+      setAllLoadedProfiles(prev => [...prev, ...validProfiles]);
+    } else {
+      setProfiles(validProfiles);
+      setAllLoadedProfiles(validProfiles);
+    }
+    
+    setPagination(paginationData);
+    setError(null);
+  } catch (err) {
+    console.error('Error fetching profiles:', err);
+    let errorMessage = 'Failed to load profiles. Please try again later.';
+    
+    if (err.response?.status === 404) {
+      errorMessage = 'No profiles found matching your criteria.';
+    } else if (err.response?.status === 500) {
+      errorMessage = 'Server error. Please try again in a moment.';
+    } else if (err.code === 'ECONNABORTED') {
+      errorMessage = 'Request timed out. Please check your connection.';
+    }
+    
+    setError(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
 }, [searchQuery, roleFilter, tierFilter, selectedSkill, sortBy, activeFilters]);
 
+  // Fetch profiles effect
+  useEffect(() => {
+    fetchProfiles(1);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, [fetchProfiles]);
 
   // Toggle advanced filter
   const handleFilterToggle = (type, value) => {
@@ -227,10 +313,20 @@ setError(null);
     });
   };
 
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedSkill('all');
+    setRoleFilter('all');
+    setTierFilter('all');
+    setSearchQuery('');
+    setActiveFilters([]);
+    setSortBy('reputation');
+  };
+
   // Get user initials for avatar
   const getUserInitials = (name) => {
     if (!name) return '?';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   // Format tier for display
@@ -239,56 +335,33 @@ setError(null);
     return tier.charAt(0).toUpperCase() + tier.slice(1);
   };
 
-const handleMessageUser = (userId) => {
-  if (!isLoggedIn) {
-    navigate('/login');
-    return;
-  }
-  navigate(`/messages/new?recipient=${userId}`);
-};
+  // Enhanced message user handler
+  const handleMessageUser = useCallback((userId) => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { returnTo: `/profile/${userId}` } });
+      return;
+    }
+    navigate(`/messages/new?recipient=${userId}`);
+  }, [isLoggedIn, navigate]);
 
-// Debug function to check database state
-const checkDebugInfo = useCallback(async () => {
-  try {
-    console.log('Fetching debug information...');
-    const response = await axios.get('http://localhost:5000/api/profile/debug');
-    setDebugInfo(response.data);
-    console.log('Debug info:', response.data);
-  } catch (error) {
-    console.error('Error fetching debug info:', error);
-  }
-}, []);
-
-// Function to create missing profiles
-const createMissingProfiles = async () => {
-  try {
-    setIsLoading(true);
-    const token = localStorage.getItem('token');
-    const config = token ? {
-      headers: { Authorization: `Bearer ${token}` }
-    } : {};
-    
-    const response = await axios.post('http://localhost:5000/api/profile/create-missing', {}, config);
-    console.log('Created missing profiles:', response.data);
-    
-    // Refresh debug info and profiles
-    await checkDebugInfo();
-    window.location.reload(); // Refresh the profiles
-    
-    alert(`Successfully created ${response.data.newProfileCount} missing profiles!`);
-  } catch (error) {
-    console.error('Error creating missing profiles:', error);
-    alert('Error creating missing profiles. Check console for details.');
-  } finally {
-    setIsLoading(false);
+  // Load more profiles
+const loadMoreProfiles = () => {
+  if (pagination.page < pagination.totalPages) {
+    fetchProfiles(pagination.page + 1, true);
   }
 };
 
-// Load debug info on component mount
-useEffect(() => {
-  checkDebugInfo();
-}, [checkDebugInfo]);
-
+const showPreviousProfiles = () => {
+  const itemsPerPage = 12;
+  const currentLength = profiles.length;
+  const newLength = Math.max(itemsPerPage, currentLength - itemsPerPage);
+  
+  setProfiles(allLoadedProfiles.slice(0, newLength));
+  setPagination(prev => ({
+    ...prev,
+    page: Math.ceil(newLength / itemsPerPage)
+  }));
+};
 
   return (
     <div className={styles.profileDiscoveryFeed} ref={sectionRef}>
@@ -381,7 +454,7 @@ useEffect(() => {
               transition={{ delay: 0.7 }}
             >
               {[
-                { icon: <Users size={24} />, value: '2,500+', label: 'Community Members', color: '#3B82F6' },
+                { icon: <Users size={24} />, value: `${pagination.total || '2,500'}+`, label: 'Community Members', color: '#3B82F6' },
                 { icon: <Award size={24} />, value: '89%', label: 'Success Rate', color: '#10B981' },
                 { icon: <Briefcase size={24} />, value: '350+', label: 'Active Projects', color: '#E8C547' },
                 { icon: <Star size={24} />, value: '4.8/5', label: 'Avg. Rating', color: '#EC4899' }
@@ -425,69 +498,6 @@ useEffect(() => {
           </motion.div>
         </div>
       </motion.div>
-
-{/* Debug Panel */}
-      <AnimatePresence>
-        {showDebug && (
-          <motion.div 
-            className={styles.debugPanel}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <div className={styles.container}>
-              <h3>🔧 Debug Information</h3>
-              
-              {debugInfo && (
-                <div className={styles.debugContent}>
-                  <div className={styles.debugSummary}>
-                    <h4>Database Summary</h4>
-                    <p><strong>Total Users:</strong> {debugInfo.summary?.totalUsers || 'N/A'}</p>
-                    <p><strong>Total Profiles:</strong> {debugInfo.summary?.totalProfiles || 'N/A'}</p>
-                    <p><strong>Users Without Profiles:</strong> {debugInfo.summary?.usersWithoutProfiles || 'N/A'}</p>
-                    <p><strong>Profile Coverage:</strong> {debugInfo.summary?.profileCoverage || 'N/A'}</p>
-                  </div>
-                  
-                  {debugInfo.summary?.usersWithoutProfiles > 0 && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <button 
-                        onClick={createMissingProfiles}
-                        disabled={isLoading}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          backgroundColor: '#3B82F6',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '0.5rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {isLoading ? 'Creating...' : 'Create Missing Profiles'}
-                      </button>
-                    </div>
-                  )}
-                  
-                  <details style={{ marginTop: '1rem' }}>
-                    <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
-                      View Raw Data ({debugInfo.profiles?.length || 0} profiles)
-                    </summary>
-                    <pre style={{ 
-                      background: '#f5f5f5', 
-                      padding: '1rem', 
-                      borderRadius: '0.5rem',
-                      overflow: 'auto',
-                      maxHeight: '300px',
-                      fontSize: '0.8rem'
-                    }}>
-                      {JSON.stringify(debugInfo, null, 2)}
-                    </pre>
-                  </details>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       
       {/* Enhanced Filter Section */}
       <motion.div 
@@ -513,6 +523,7 @@ useEffect(() => {
                 <button 
                   className={styles.clearSearch}
                   onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
                 >
                   <X size={16} />
                 </button>
@@ -523,6 +534,7 @@ useEffect(() => {
               <button
                 className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
                 onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
               >
                 <Layers size={16} />
                 Grid
@@ -530,17 +542,10 @@ useEffect(() => {
               <button
                 className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label="List view"
               >
                 <SlidersHorizontal size={16} />
                 List
-              </button>
-              <button
-                className={`${styles.viewButton} ${showDebug ? styles.active : ''}`}
-                onClick={() => setShowDebug(!showDebug)}
-                style={{ marginLeft: '0.5rem' }}
-              >
-                <AlertCircle size={16} />
-                {showDebug ? 'Hide Debug' : 'Debug'}
               </button>
             </div>
           </div>
@@ -700,7 +705,7 @@ useEffect(() => {
               ))}
               <button 
                 className={styles.clearAll}
-                onClick={() => setActiveFilters([])}
+                onClick={clearAllFilters}
               >
                 Clear All
               </button>
@@ -745,7 +750,7 @@ useEffect(() => {
               <p>{error}</p>
               <motion.button 
                 className={styles.retryButton}
-                onClick={() => window.location.reload()}
+                onClick={() => fetchProfiles(1)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -766,13 +771,7 @@ useEffect(() => {
               <p>Try adjusting your filters or check back later for new talent</p>
               <motion.button 
                 className={styles.resetButton}
-                onClick={() => {
-                  setSelectedSkill('all');
-                  setRoleFilter('all');
-                  setTierFilter('all');
-                  setSearchQuery('');
-                  setActiveFilters([]);
-                }}
+                onClick={clearAllFilters}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -783,7 +782,7 @@ useEffect(() => {
             <>
               <div className={styles.resultsHeader}>
                 <h3>
-                  <span>{profiles.length}</span> talents match your criteria
+                  <span>{profiles.length}</span> of <span>{pagination.total}</span> talents match your criteria
                 </h3>
                 <div className={styles.sortOptions}>
                   <select 
@@ -839,12 +838,15 @@ useEffect(() => {
                               src={profileData.profileImage} 
                               alt={displayName} 
                               className={styles.profileImage}
+                              loading="lazy"
                             />
                           ) : (
                             <div className={styles.profileInitials}>
                               {getUserInitials(displayName)}
                             </div>
                           )}
+                          {/* Online status indicator */}
+                          <div className={styles.onlineStatus} title="Recently active" />
                         </div>
                         
                         <div className={styles.roleBadge} data-role={userRole.toLowerCase()}>
@@ -864,23 +866,25 @@ useEffect(() => {
                           <p className={styles.headline}>{profileData.headline}</p>
                         )}
 
+                        {/* Enhanced stats row with better data handling */}
                         <div className={styles.statsRow}>
-  <div className={styles.statItem}>
-    <Star size={16} />
-    <span>{userData.reputation || userData.totalXP || 0} XP</span>
-  </div>
-  
-  <div className={styles.statItem}>
-    <Briefcase size={16} />
-    <span>{profileData.stats?.podsJoined || 0} Pods</span>
-  </div>
-  
-  <div className={styles.statItem}>
-    <CheckCircle size={16} />
-    <span>{profileData.stats?.tasksCompleted || 0} Tasks</span>
-  </div>
-</div>
+                          <div className={styles.statItem}>
+                            <Star size={16} />
+                            <span>{userData.reputation || userData.totalXP || profileData.experience?.currentXP || 0} XP</span>
+                          </div>
+                          
+                          <div className={styles.statItem}>
+                            <Briefcase size={16} />
+                            <span>{profileData.stats?.podsJoined || 0} Pods</span>
+                          </div>
+                          
+                          <div className={styles.statItem}>
+                            <CheckCircle size={16} />
+                            <span>{profileData.stats?.tasksCompleted || 0} Tasks</span>
+                          </div>
+                        </div>
 
+                        {/* Enhanced skills display */}
                         {skills.length > 0 && (
                           <div className={styles.skillsContainer}>
                             <h4>
@@ -892,65 +896,86 @@ useEffect(() => {
                                 <div 
                                   key={index} 
                                   className={styles.skillItem}
-                                  data-level={skill.level}
+                                  data-level={skill.level || 'intermediate'}
                                 >
                                   <span className={styles.skillName}>{skill.name}</span>
+                                  <span className={styles.skillLevel}>{skill.level}</span>
                                 </div>
                               ))}
                               {skills.length > 3 && (
                                 <div className={styles.moreSkills}>
-                                  +{skills.length - 3}
+                                  +{skills.length - 3} more
                                 </div>
                               )}
                             </div>
                           </div>
                         )}
 
-                        {/* Social Links */}
-                        <div className={styles.socialLinks}>
-                          {socialLinks.github && (
-                            <a 
-                              href={socialLinks.github} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className={styles.socialLink}
-                            >
-                              <Github size={16} />
-                            </a>
+                        {/* Enhanced social links */}
+                        {Object.keys(socialLinks).length > 0 && (
+                          <div className={styles.socialLinks}>
+                            {socialLinks.github && (
+                              <a 
+                                href={socialLinks.github} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className={styles.socialLink}
+                                title="GitHub Profile"
+                              >
+                                <Github size={16} />
+                              </a>
+                            )}
+                            
+                            {socialLinks.linkedin && (
+                              <a 
+                                href={socialLinks.linkedin} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className={styles.socialLink}
+                                title="LinkedIn Profile"
+                              >
+                                <Linkedin size={16} />
+                              </a>
+                            )}
+                            
+                            {socialLinks.twitter && (
+                              <a 
+                                href={socialLinks.twitter} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className={styles.socialLink}
+                                title="Twitter Profile"
+                              >
+                                <Twitter size={16} />
+                              </a>
+                            )}
+                            
+                            {socialLinks.website && (
+                              <a 
+                                href={socialLinks.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className={styles.socialLink}
+                                title="Personal Website"
+                              >
+                                <Globe size={16} />
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Location and activity indicators */}
+                        <div className={styles.profileMeta}>
+                          {profileData.location && (
+                            <div className={styles.metaItem}>
+                              <MapPin size={12} />
+                              <span>{profileData.location}</span>
+                            </div>
                           )}
-                          
-                          {socialLinks.linkedin && (
-                            <a 
-                              href={socialLinks.linkedin} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className={styles.socialLink}
-                            >
-                              <Linkedin size={16} />
-                            </a>
-                          )}
-                          
-                          {socialLinks.twitter && (
-                            <a 
-                              href={socialLinks.twitter} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className={styles.socialLink}
-                            >
-                              <Twitter size={16} />
-                            </a>
-                          )}
-                          
-                          {socialLinks.website && (
-                            <a 
-                              href={socialLinks.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className={styles.socialLink}
-                            >
-                              <Globe size={16} />
-                            </a>
-                          )}
+                          <div className={styles.metaItem}>
+                            <Calendar size={12} />
+                            <span>Joined {new Date(userData.createdAt || Date.now()).getFullYear()}</span>
+                          </div>
                         </div>
                       </div>
                       
@@ -969,9 +994,23 @@ useEffect(() => {
                           <MessageSquare size={16} />
                           Message
                         </button>
+                        
+                        {/* Heart/Like button for logged in users */}
+                        {isLoggedIn && (
+                          <button 
+                            className={styles.likeButton}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle like/unlike logic here
+                            }}
+                            title="Add to favorites"
+                          >
+                            <Heart size={16} />
+                          </button>
+                        )}
                       </div>
 
-                      {/* Hover Effect Overlay */}
+                      {/* Enhanced hover effect overlay */}
                       <AnimatePresence>
                         {hoverProfile === userData._id && (
                           <motion.div 
@@ -982,7 +1021,7 @@ useEffect(() => {
                             transition={{ duration: 0.2 }}
                           >
                             <div className={styles.overlayContent}>
-                              <h4>Quick Actions</h4>
+                              <h4>Quick Preview</h4>
                               
                               {profileData.bio && (
                                 <div className={styles.bioPreview}>
@@ -994,7 +1033,7 @@ useEffect(() => {
                               )}
                               
                               <div className={styles.quickStats}>
-                                {userData.role === 'creator' && (
+                                {userRole === 'creator' && (
                                   <div className={styles.quickStat}>
                                     <Target size={14} />
                                     <span>{profileData.stats?.podsCreated || 0} Pods Created</span>
@@ -1008,8 +1047,16 @@ useEffect(() => {
                                 
                                 <div className={styles.quickStat}>
                                   <Activity size={14} />
-                                  <span>{profileData.stats?.successRate || 0}% Success Rate</span>
+                                  <span>{profileData.stats?.successRate || 85}% Success Rate</span>
                                 </div>
+
+                                {/* Show top badges */}
+                                {profileData.badges && profileData.badges.length > 0 && (
+                                  <div className={styles.quickStat}>
+                                    <Award size={14} />
+                                    <span>{profileData.badges.length} Badges Earned</span>
+                                  </div>
+                                )}
                               </div>
                               
                               <div className={styles.overlayActions}>
@@ -1024,13 +1071,13 @@ useEffect(() => {
                                   className={styles.overlayButton}
                                   onClick={() => handleMessageUser(userData._id)}
                                 >
-                                  Message
+                                  Send Message
                                 </button>
                                 
-                                {userData.role === 'contributor' && (
+                                {userRole === 'contributor' && isLoggedIn && user.role === 'creator' && (
                                   <button 
                                     className={styles.overlayButton}
-                                    onClick={() => navigate(`/invite-to-pod/${userData._id}`)}
+                                    onClick={() => navigate(`/invite-to-pod?user=${userData._id}`)}
                                   >
                                     Invite to Pod
                                   </button>
@@ -1045,26 +1092,82 @@ useEffect(() => {
                 })}
               </motion.div>
 
-              {/* Load More Section */}
-              {profiles.length >= 20 && (
-                <motion.div 
-                  className={styles.loadMoreSection}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <button className={styles.loadMoreButton}>
-                    Load More Profiles
-                    <ChevronDown size={16} />
-                  </button>
-                </motion.div>
-              )}
+              {/* Enhanced Load More Section with navigation */}
+{/* Professional Pagination */}
+{pagination.totalPages > 1 && (
+  <motion.div 
+    className={styles.paginationSection}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.5 }}
+  >
+    <div className={styles.paginationInfo}>
+      <span>Showing {((pagination.page - 1) * 12) + 1}-{Math.min(pagination.page * 12, pagination.total)} of {pagination.total} profiles</span>
+    </div>
+    
+    <div className={styles.paginationControls}>
+      {/* Previous Button */}
+      <button 
+        className={`${styles.paginationButton} ${styles.prevButton}`}
+        onClick={() => fetchProfiles(pagination.page - 1)}
+        disabled={pagination.page === 1 || isLoading}
+      >
+        <ChevronLeft size={16} />
+        Previous
+      </button>
+      
+      {/* Page Numbers */}
+      <div className={styles.pageNumbers}>
+        {getPaginationRange(pagination.page, pagination.totalPages).map((page, index) => (
+          page === '...' ? (
+            <span key={index} className={styles.ellipsis}>...</span>
+          ) : (
+            <button
+              key={index}
+              className={`${styles.pageButton} ${pagination.page === page ? styles.active : ''}`}
+              onClick={() => fetchProfiles(page)}
+              disabled={isLoading}
+            >
+              {page}
+            </button>
+          )
+        ))}
+      </div>
+      
+      {/* Next Button */}
+      <button 
+        className={`${styles.paginationButton} ${styles.nextButton}`}
+        onClick={() => fetchProfiles(pagination.page + 1)}
+        disabled={pagination.page === pagination.totalPages || isLoading}
+      >
+        Next
+        <ChevronRight size={16} />
+      </button>
+    </div>
+    
+    {/* Items per page selector */}
+    <div className={styles.itemsPerPage}>
+      <span>Show:</span>
+      <select 
+        value={itemsPerPage}
+        onChange={(e) => {
+          setItemsPerPage(Number(e.target.value));
+          fetchProfiles(1);
+        }}
+      >
+        <option value={12}>12 per page</option>
+        <option value={24}>24 per page</option>
+        <option value={48}>48 per page</option>
+      </select>
+    </div>
+  </motion.div>
+)}
             </>
           )}
         </div>
       </div>
 
-      {/* Newsletter/CTA Section */}
+      {/* Enhanced CTA Section */}
       <motion.div 
         className={styles.ctaSection}
         initial={{ opacity: 0, y: 50 }}
@@ -1075,29 +1178,49 @@ useEffect(() => {
         <div className={styles.container}>
           <div className={styles.ctaContent}>
             <div className={styles.ctaText}>
-              <h2>Looking to grow your network?</h2>
-              <p>Create your professional profile and get discovered by creators and collaborators</p>
+              <h2>Ready to showcase your talents?</h2>
+              <p>Join our community of creators and contributors. Build your professional profile and get discovered by top projects.</p>
             </div>
             <div className={styles.ctaActions}>
-              <button 
-                className={styles.primaryCta}
-                onClick={() => navigate('/settings/profile')}
-              >
-                <Edit size={18} />
-                Complete Your Profile
-              </button>
-              <button 
-                className={styles.secondaryCta}
-                onClick={() => navigate('/explore')}
-              >
-                Explore Pods
-              </button>
+              {!isLoggedIn ? (
+                <>
+                  <button 
+                    className={styles.primaryCta}
+                    onClick={() => navigate('/register')}
+                  >
+                    <User size={18} />
+                    Join Community
+                  </button>
+                  <button 
+                    className={styles.secondaryCta}
+                    onClick={() => navigate('/login')}
+                  >
+                    Sign In
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    className={styles.primaryCta}
+                    onClick={() => navigate('/settings/profile')}
+                  >
+                    <Edit size={18} />
+                    Complete Your Profile
+                  </button>
+                  <button 
+                    className={styles.secondaryCta}
+                    onClick={() => navigate('/explore')}
+                  >
+                    Explore Pods
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Skills Modal */}
+      {/* Enhanced Skills Modal */}
       <AnimatePresence>
         {showSkillsModal && (
           <motion.div 
@@ -1114,8 +1237,18 @@ useEffect(() => {
               exit={{ scale: 0.9, y: 50 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>Filter by Skills</h3>
-              <p>Select a skill to filter profiles</p>
+              <div className={styles.modalHeader}>
+                <h3>Filter by Skills</h3>
+                <button 
+                  className={styles.modalClose}
+                  onClick={() => setShowSkillsModal(false)}
+                  aria-label="Close modal"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <p>Select a skill to filter profiles and find the perfect match for your project.</p>
               
               <div className={styles.skillCategories}>
                 {Object.entries(
