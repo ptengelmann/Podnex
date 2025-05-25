@@ -6,7 +6,7 @@ const PodMember = require('../models/PodMember');
 const Task = require('../models/Task'); // Assuming you have a Task model
 const { protect } = require('../middleware/authMiddleware');
 
-// Import gamification middleware
+// Import gamification middleware 
 const { autoGamify, extractors } = require('../middleware/gamificationMiddleware');
 
 // CREATE POD - With POD_CREATED gamification
@@ -76,7 +76,7 @@ router.post('/:podId/join',
       const { role, application, motivation } = req.body;
       
       // Check if pod exists
-      const pod = await Pod.findById(podId);
+      const pod = await Pod.findById(podId).populate('creator', 'name tier');
       if (!pod) {
         return res.status(404).json({ message: 'Pod not found' });
       }
@@ -129,7 +129,7 @@ router.post('/:podId/join',
       const responseData = {
         ...populatedMember.toObject(),
         memberCount,
-        podCreatorTier: 'silver' // You can fetch this from UserProgress if needed
+        podCreatorTier: pod.creator?.tier || 'bronze' // Use actual creator tier
       };
       
       res.status(201).json(responseData); // 🎮 Triggers JOINED_POD gamification
@@ -143,11 +143,7 @@ router.post('/:podId/join',
 // LAUNCH POD - With POD_LAUNCHED gamification
 router.put('/:podId/launch', 
   protect, 
-  autoGamify('POD_LAUNCHED', (req, res, data) => ({
-    podId: req.params.podId,
-    launchedAt: new Date(),
-    memberCount: data.memberCount || 0
-  })), 
+  autoGamify('POD_LAUNCHED', extractors.podLaunched), 
   async (req, res) => {
     try {
       const { podId } = req.params;
@@ -193,13 +189,7 @@ router.put('/:podId/launch',
 // COMPLETE POD - With POD_COMPLETED gamification
 router.put('/:podId/complete', 
   protect, 
-  autoGamify('POD_COMPLETED', (req, res, data) => ({
-    podId: req.params.podId,
-    completedAt: new Date(),
-    duration: data.duration || 0,
-    memberCount: data.memberCount || 0,
-    tasksCompleted: data.tasksCompleted || 0
-  })), 
+  autoGamify('POD_COMPLETED', extractors.podCompleted), 
   async (req, res) => {
     try {
       const { podId } = req.params;
@@ -259,11 +249,7 @@ router.put('/:podId/complete',
 // INVITE MEMBER - With INVITED_MEMBER gamification
 router.post('/:podId/invite', 
   protect, 
-  autoGamify('INVITED_MEMBER', (req, res, data) => ({
-    podId: req.params.podId,
-    invitedUserId: req.body.userId,
-    role: req.body.role
-  })), 
+  autoGamify('INVITED_MEMBER', extractors.invitedMember), 
   async (req, res) => {
     try {
       const { podId } = req.params;
@@ -311,11 +297,7 @@ router.post('/:podId/invite',
 // ACCEPT MEMBER - With MEMBER_ACCEPTED gamification (for pod creator)
 router.put('/:podId/members/:memberId/accept', 
   protect, 
-  autoGamify('MEMBER_ACCEPTED', (req, res, data) => ({
-    podId: req.params.podId,
-    memberId: req.params.memberId,
-    acceptedAt: new Date()
-  })), 
+  autoGamify('MEMBER_ACCEPTED', extractors.memberAccepted), 
   async (req, res) => {
     try {
       const { podId, memberId } = req.params;
@@ -355,6 +337,44 @@ router.put('/:podId/members/:memberId/accept',
     }
   }
 );
+
+// MANUAL GAMIFICATION TRIGGER ENDPOINT (for testing/manual triggers)
+router.post('/:podId/trigger-gamification', protect, async (req, res) => {
+  try {
+    const { actionType, actionData } = req.body;
+    const { podId } = req.params;
+    
+    // Verify pod exists and user has permission
+    const pod = await Pod.findById(podId);
+    if (!pod) {
+      return res.status(404).json({ message: 'Pod not found' });
+    }
+    
+    if (pod.creator.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Only pod creator can trigger gamification' });
+    }
+    
+    // Trigger gamification manually
+    const GamificationService = require('../services/GamificationService');
+    const result = await GamificationService.processAction(actionType, req.user._id, {
+      podId,
+      ...actionData
+    });
+    
+    res.json({
+      success: true,
+      message: `${actionType} gamification triggered`,
+      result
+    });
+  } catch (error) {
+    console.error('Manual gamification trigger error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to trigger gamification',
+      error: error.message 
+    });
+  }
+});
 
 // GET ALL PODS
 router.get('/', async (req, res) => {

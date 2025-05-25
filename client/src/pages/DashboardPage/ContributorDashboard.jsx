@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ContributorDashboard.module.scss';
 import useGamification from '../../hooks/useGamification';
+import GamificationToast from '../../components/GamificationToast/GamificationToast'; // ADD TOAST COMPONENT
 import { 
   Briefcase, 
   Clock, 
@@ -21,8 +22,6 @@ import {
   ArrowRight
 } from 'lucide-react';
 import axios from 'axios';
-
-
 
 const ContributorDashboard = () => {
   const [user, setUser] = useState(null);
@@ -46,8 +45,6 @@ const ContributorDashboard = () => {
     error: gamificationError,
     refresh: refreshGamification
   } = useGamification();
-
-
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -134,7 +131,6 @@ const ContributorDashboard = () => {
   const applicationsSent = applications.length;
   const pendingApplications = applications.filter(app => app.status === 'Pending').length;
   
-
   // Get pods user has joined (status Accepted)
   const acceptedPods = applications
     .filter(app => app.status === 'Accepted')
@@ -147,8 +143,6 @@ const ContributorDashboard = () => {
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 3);
-  
-
     
   // Recent applications
   const recentApplications = [...applications]
@@ -190,6 +184,9 @@ const ContributorDashboard = () => {
 
   return (
     <div className={styles.contributorDashboard}>
+      {/* ADD GAMIFICATION TOAST */}
+      <GamificationToast />
+      
       <div className={styles.gridBackground}></div>
       
       {/* Floating decorative elements */}
@@ -318,42 +315,42 @@ const ContributorDashboard = () => {
             )}
             
             <div className={styles.xpBenefits}>
-  <div className={styles.benefitItem}>
-    <div className={styles.benefitIcon}>
-      <TrendingUp size={16} />
-    </div>
-    <div className={styles.benefitText}>
-      Current Level: {currentLevel}
-    </div>
-  </div>
-  
-  <div className={styles.benefitItem}>
-    <div className={styles.benefitIcon}>
-      <Zap size={16} />
-    </div>
-    <div className={styles.benefitText}>
-      Next Level: {xpProgress.needed - xpProgress.current} XP needed
-    </div>
-  </div>
-  
-  <div className={styles.benefitItem}>
-    <div className={styles.benefitIcon}>
-      <BarChart2 size={16} />
-    </div>
-    <div className={styles.benefitText}>
-      Success Rate: {Math.round((applications.filter(app => app.status === 'Accepted').length / Math.max(applications.length, 1)) * 100)}%
-    </div>
-  </div>
-  
-  <div className={styles.benefitItem}>
-    <div className={styles.benefitIcon}>
-      <Award size={16} />
-    </div>
-    <div className={styles.benefitText}>
-      Profile badges ({badges.length} earned)
-    </div>
-  </div>
-</div>
+              <div className={styles.benefitItem}>
+                <div className={styles.benefitIcon}>
+                  <TrendingUp size={16} />
+                </div>
+                <div className={styles.benefitText}>
+                  Current Level: {currentLevel}
+                </div>
+              </div>
+              
+              <div className={styles.benefitItem}>
+                <div className={styles.benefitIcon}>
+                  <Zap size={16} />
+                </div>
+                <div className={styles.benefitText}>
+                  Next Level: {xpProgress.needed - xpProgress.current} XP needed
+                </div>
+              </div>
+              
+              <div className={styles.benefitItem}>
+                <div className={styles.benefitIcon}>
+                  <BarChart2 size={16} />
+                </div>
+                <div className={styles.benefitText}>
+                  Success Rate: {Math.round((applications.filter(app => app.status === 'Accepted').length / Math.max(applications.length, 1)) * 100)}%
+                </div>
+              </div>
+              
+              <div className={styles.benefitItem}>
+                <div className={styles.benefitIcon}>
+                  <Award size={16} />
+                </div>
+                <div className={styles.benefitText}>
+                  Profile badges ({badges.length} earned)
+                </div>
+              </div>
+            </div>
             
             {gamificationError && (
               <div className={styles.gamificationError}>
@@ -445,7 +442,7 @@ const ContributorDashboard = () => {
         </section>
       </div>
 
-      {/* Recent Activity Section */}
+      {/* Rest of your existing sections... */}
       <section className={styles.activitySection}>
         <div className={styles.sectionHeaderWithAction}>
           <h3>Recent Activity</h3>
@@ -493,7 +490,6 @@ const ContributorDashboard = () => {
         </div>
       </section>
 
-      {/* Insights (Pro feature) Section */}
       <section className={styles.insightsSection}>
         <div className={styles.sectionHeaderWithAction}>
           <h3>
@@ -582,7 +578,6 @@ const ContributorDashboard = () => {
         )}
       </section>
 
-      {/* Quick Actions Section */}
       <section className={styles.quickActionsSection}>
         <h3>Quick Actions</h3>
         

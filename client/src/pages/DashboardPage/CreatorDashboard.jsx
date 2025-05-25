@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './CreatorDashboard.module.scss';
+import useGamification from '../../hooks/useGamification';
+import GamificationToast from '../../components/GamificationToast/GamificationToast'; // ADD TOAST COMPONENT
 import { 
   Briefcase, 
   Clock, 
@@ -28,6 +30,20 @@ const CreatorDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [error, setError] = useState(null);
+
+  // ADD GAMIFICATION HOOK
+  const {
+    totalXP,
+    currentLevel,
+    tier,
+    badges,
+    trustLevel,
+    xpProgress,
+    tierInfo,
+    loading: gamificationLoading,
+    error: gamificationError,
+    refresh: refreshGamification
+  } = useGamification();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -121,11 +137,6 @@ const CreatorDashboard = () => {
   
   const podViews = pods.reduce((total, pod) => total + (pod.viewCount || 0), 0);
   
-  // For XP progress - assuming 450 XP as in your example
-  const userXP = 450;
-  const xpToNextLevel = 1000;
-  const xpProgress = (userXP / xpToNextLevel) * 100;
-  
   // Calculate pod with most applications
   const podApplicationCounts = pods.map(pod => {
     const appCount = applications.filter(app => app.podId === pod._id).length;
@@ -188,6 +199,9 @@ const CreatorDashboard = () => {
 
   return (
     <div className={styles.creatorDashboard}>
+      {/* ADD GAMIFICATION TOAST */}
+      <GamificationToast />
+      
       <div className={styles.gridBackground}></div>
       
       {/* Floating decorative elements */}
@@ -208,7 +222,13 @@ const CreatorDashboard = () => {
             </div>
             <div className={styles.trustLevel}>
               <Shield size={14} />
-              <span>Trust Level: {userXP >= 500 ? 'Gold' : userXP >= 200 ? 'Silver' : 'Bronze'}</span>
+              <span>Trust Level: {trustLevel}</span>
+              {/* ADD TIER BADGE */}
+              {!gamificationLoading && (
+                <div className={styles.tierBadge} style={{ color: tierInfo.color }}>
+                  {tierInfo.icon} {tierInfo.name}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -260,13 +280,14 @@ const CreatorDashboard = () => {
             </div>
           </div>
           
+          {/* UPDATED: Show XP instead of pod views */}
           <div className={styles.statCard}>
             <div className={styles.statIconContainer} style={{ backgroundColor: 'rgba(255, 107, 107, 0.1)' }}>
-              <Eye size={24} style={{ color: '#FF6B6B' }} />
+              <Award size={24} style={{ color: '#FF6B6B' }} />
             </div>
             <div>
-              <h3>{podViews}</h3>
-              <p>Total Pod Views</p>
+              <h3>{gamificationLoading ? '...' : totalXP.toLocaleString()}</h3>
+              <p>XP Earned</p>
             </div>
           </div>
         </div>
@@ -274,51 +295,90 @@ const CreatorDashboard = () => {
 
       {/* XP & Pods Summary Section */}
       <div className={styles.twoColumnSection}>
-        {/* XP Progress */}
+        {/* UPDATED XP PROGRESS SECTION */}
         <section className={styles.xpSection}>
           <div className={styles.xpCard}>
             <div className={styles.xpHeader}>
               <h3>Your XP Progress</h3>
               <div className={styles.tier}>
                 <Star size={14} />
-                <span>{userXP >= 800 ? 'Gold Tier' : userXP >= 300 ? 'Silver Tier' : 'Bronze Tier'}</span>
+                <span style={{ color: tierInfo.color }}>
+                  {tierInfo.icon} {tierInfo.name} Tier
+                </span>
               </div>
             </div>
             
-            <div className={styles.xpProgressBar}>
-              <div
-                className={styles.fill}
-                style={{ width: `${xpProgress}%` }}
-              />
-            </div>
+            {gamificationLoading ? (
+              <div className={styles.loadingXP}>Loading XP data...</div>
+            ) : (
+              <>
+                <div className={styles.xpProgressBar}>
+                  <div
+                    className={styles.fill}
+                    style={{ 
+                      width: `${xpProgress.percentage}%`,
+                      backgroundColor: tierInfo.color 
+                    }}
+                  />
+                </div>
+                
+                <div className={styles.xpFooter}>
+                  <span>{totalXP.toLocaleString()} XP</span>
+                  <span>
+                    Level {currentLevel} • {xpProgress.needed - xpProgress.current} XP to Level {currentLevel + 1}
+                  </span>
+                </div>
+              </>
+            )}
             
-            <div className={styles.xpFooter}>
-              <span>{userXP} XP</span>
-              <span>Next Unlock: {userXP >= 800 ? 'Platinum Tier' : userXP >= 300 ? 'Gold Tier' : 'Silver Tier'} ({xpToNextLevel - userXP} XP needed)</span>
-            </div>
-            
+            {/* UPDATED XP BENEFITS FOR CREATORS */}
             <div className={styles.xpBenefits}>
               <div className={styles.benefitItem}>
                 <div className={styles.benefitIcon}>
-                  <Zap size={16} />
+                  <TrendingUp size={16} />
                 </div>
-                <div className={styles.benefitText}>Higher application prioritization</div>
+                <div className={styles.benefitText}>
+                  Current Level: {currentLevel}
+                </div>
               </div>
               
               <div className={styles.benefitItem}>
                 <div className={styles.benefitIcon}>
-                  <Shield size={16} />
+                  <Zap size={16} />
                 </div>
-                <div className={styles.benefitText}>Increased trust score</div>
+                <div className={styles.benefitText}>
+                  Next Level: {xpProgress.needed - xpProgress.current} XP needed
+                </div>
+              </div>
+              
+              <div className={styles.benefitItem}>
+                <div className={styles.benefitIcon}>
+                  <BarChart2 size={16} />
+                </div>
+                <div className={styles.benefitText}>
+                  Pods Created: {pods.length}
+                </div>
               </div>
               
               <div className={styles.benefitItem}>
                 <div className={styles.benefitIcon}>
                   <Award size={16} />
                 </div>
-                <div className={styles.benefitText}>Exclusive badges on your profile</div>
+                <div className={styles.benefitText}>
+                  Badges Earned: {badges.length}
+                </div>
               </div>
             </div>
+            
+            {/* SHOW GAMIFICATION ERROR IF ANY */}
+            {gamificationError && (
+              <div className={styles.gamificationError}>
+                <p>Error loading XP data</p>
+                <button onClick={refreshGamification} className={styles.refreshButton}>
+                  Refresh
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -391,13 +451,13 @@ const CreatorDashboard = () => {
                   </div>
                   
                   <div className={styles.podActions}>
-                  <a 
-  href={`/pods/${pod._id}/manage`} 
-  className={styles.podDetailsLink}
->
-  <span>Manage Pod</span>
-  <Settings size={14} />
-</a>
+                    <a 
+                      href={`/pods/${pod._id}/manage`} 
+                      className={styles.podDetailsLink}
+                    >
+                      <span>Manage Pod</span>
+                      <Settings size={14} />
+                    </a>
                     <a 
                       href={`/pod-environment/${pod._id}`} 
                       className={styles.podEnvLink}
@@ -413,6 +473,7 @@ const CreatorDashboard = () => {
         </section>
       </div>
 
+      {/* Rest of your existing sections... */}
       {/* Recent Activity Section */}
       <section className={styles.activitySection}>
         <div className={styles.sectionHeaderWithAction}>
