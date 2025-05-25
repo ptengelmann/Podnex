@@ -1,3 +1,4 @@
+// server/socketSetup.js - INTEGRATED VERSION
 const socketIO = require('socket.io');
 const Message = require('./models/Message');
 
@@ -16,9 +17,19 @@ function setupSocket(server) {
   // Store active pod users
   const podUsers = {};
   
+  // Store connected users for gamification notifications
+  const connectedUsers = new Map();
+  
   // Connection event
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
+    
+    // 🎮 GAMIFICATION: User joins their notification room
+    socket.on('join_user_room', (userId) => {
+      socket.join(`user_${userId}`);
+      connectedUsers.set(socket.id, userId);
+      console.log(`👤 User ${userId} joined notification room`);
+    });
     
     // Handle pod join
     socket.on('join_pod', ({ podId, userId, userName }) => {
@@ -27,7 +38,7 @@ function setupSocket(server) {
         
         // Leave any existing pods this socket might be in
         Object.keys(socket.rooms).forEach(room => {
-          if (room !== socket.id) {
+          if (room !== socket.id && !room.startsWith('user_')) {
             socket.leave(room);
           }
         });
@@ -66,6 +77,11 @@ function setupSocket(server) {
       }
     });
     
+    // 🎮 GAMIFICATION: Handle user joining pod room for notifications
+    socket.on('join_pod_room', (podId) => {
+      socket.join(`pod_${podId}`);
+    });
+    
     // Handle messages
     socket.on('send_message', async (messageData) => {
       try {
@@ -96,6 +112,24 @@ function setupSocket(server) {
           sender: populatedMessage.sender,
           createdAt: populatedMessage.createdAt
         });
+        
+        // 🎮 GAMIFICATION: Trigger MESSAGE_SENT action
+        try {
+          const GamificationService = require('./services/GamificationService');
+          setImmediate(async () => {
+            try {
+              await GamificationService.processAction('MESSAGE_SENT', messageData.senderId, {
+                podId: messageData.podId,
+                messageLength: messageData.text.length
+              });
+            } catch (gamError) {
+              console.error('Gamification error for MESSAGE_SENT:', gamError);
+            }
+          });
+        } catch (error) {
+          console.error('Error loading GamificationService:', error);
+        }
+        
       } catch (error) {
         console.error('Error handling send_message:', error);
         
@@ -106,7 +140,6 @@ function setupSocket(server) {
         });
         
         // Still broadcast original message if save fails but with temporary ID
-        // This allows for optimistic UI updates even with DB failures
         if (messageData && messageData.podId) {
           io.to(messageData.podId).emit('receive_message', {
             ...messageData,
@@ -139,6 +172,13 @@ function setupSocket(server) {
     // Handle disconnections
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
+      
+      // 🎮 GAMIFICATION: Clean up user notification tracking
+      const userId = connectedUsers.get(socket.id);
+      if (userId) {
+        console.log(`👤 User ${userId} disconnected from notifications`);
+        connectedUsers.delete(socket.id);
+      }
       
       // Find which pods this user was in
       Object.keys(podUsers).forEach(podId => {
@@ -198,8 +238,81 @@ function setupSocket(server) {
     });
   });
   
+  // 🎮 GAMIFICATION NOTIFICATION METHODS
+  // Add these methods to the io object for the NotificationService to use
+  io.sendXPGained = function(userId, xpData) {
+    io.to(`user_${userId}`).emit('xp_gained', {
+      type: 'xp_update',
+      data: {
+        xpGained: xpData.xpGained,
+        totalXP: xpData.totalXP,
+        currentLevel: xpData.currentLevel,
+        tier: xpData.tier,
+        leveledUp: xpData.leveledUp,
+        actionType: xpData.actionType
+      },
+      timestamp: new Date()
+    });
+    console.log(`📱 XP notification sent to user ${userId}: +${xpData.xpGained} XP`);
+  };
+  
+  io.sendAchievementNotification = function(userId, badge) {
+    io.to(`user_${userId}`).emit('achievement_unlocked', {
+      type: 'badge',
+      data: {
+        badgeId: badge.badgeId,
+        earnedAt: badge.earnedAt,
+        context: badge.context,
+        metadata: badge.metadata
+      },
+      timestamp: new Date()
+    });
+    console.log(`🏆 Badge notification sent to user ${userId}: ${badge.badgeId}`);
+  };
+  
+  io.sendLevelUp = function(userId, levelData) {
+    io.to(`user_${userId}`).emit('level_up', {
+      type: 'level_up',
+      data: {
+        newLevel: levelData.newLevel,
+        totalXP: levelData.totalXP,
+        celebration: true
+      },
+      timestamp: new Date()
+    });
+    console.log(`🎉 Level up notification sent to user ${userId}: Level ${levelData.newLevel}`);
+  };
+  
+  io.sendTierPromotion = function(userId, tierData) {
+    io.to(`user_${userId}`).emit('tier_promotion', {
+      type: 'tier_promotion',
+      data: {
+        newTier: tierData.newTier,
+        oldTier: tierData.oldTier,
+        celebration: true
+      },
+      timestamp: new Date()
+    });
+    console.log(`⭐ Tier promotion notification sent to user ${userId}: ${tierData.newTier}`);
+  };
+  
+  io.sendNotification = function(userId, notification) {
+    io.to(`user_${userId}`).emit('notification', {
+      type: 'general',
+      data: notification,
+      timestamp: new Date()
+    });
+  };
+  
+  io.broadcastToPod = function(podId, event, data) {
+    io.to(`pod_${podId}`).emit(event, {
+      data,
+      timestamp: new Date()
+    });
+  };
+  
   // Log socket server start
-  console.log('Socket.IO server initialized');
+  console.log('Socket.IO server initialized with Gamification support');
   
   return io;
 }

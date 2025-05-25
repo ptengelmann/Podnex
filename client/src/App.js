@@ -19,6 +19,7 @@ import FAQPage from './pages/FAQ/FAQPage';
 import TermsOfService from './pages/TermsOfService/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import Ecosystem from './pages/Ecosystem/Ecosystem';
+
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
 import ApplicationsCreator from './pages/Applications/ApplicationsCreator';
@@ -29,10 +30,16 @@ import PodEnvironment from './pages/PodEnvironment/PodEnvironment';
 // Import the new PodManagementPage component from components directory
 import PodManagementPage from './components/PodManagement/PodManagementPage';
 
-// To these
+// Profile components
 import ProfilePage from './components/profile/ProfilePage';
 import ProfileEdit from './components/profile/ProfileEdit';
 import AddPortfolioItem from './components/profile/AddPortfolioItem';
+
+// Import ContributionTracker component
+import ContributionTracker from './components/ContributionTracker/ContributionTracker';
+
+// Import GamificationToast component
+import GamificationToast from './components/GamificationToast/GamificationToast';
 
 // RoleBasedRoute component for handling role-specific routing
 const RoleBasedRoute = ({ componentType }) => {
@@ -162,6 +169,25 @@ const App = () => {
           }
         />
         
+        {/* ContributionTracker routes */}
+        <Route
+          path="/contributions"
+          element={
+            <ProtectedRoute>
+              <ContributionTracker />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/pods/:podId/contributions"
+          element={
+            <ProtectedRoute>
+              <ContributionTracker />
+            </ProtectedRoute>
+          }
+        />
+        
         {/* Role-based dashboard route */}
         <Route
           path="/dashboard"
@@ -182,6 +208,9 @@ const App = () => {
           }
         />
       </Routes>
+      
+      {/* GamificationToast - Global component for achievement notifications */}
+      <GamificationToast />
     </Layout>
   );
 };

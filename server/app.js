@@ -3,6 +3,8 @@ const dotenv = require('dotenv').config();
 const connectDB = require('./config/db');
 const cors = require('cors');
 const path = require('path');
+
+// Import routes
 const podRoutes = require('./routes/pods');
 const applicationRoutes = require('./routes/applications');
 const podMembersRoutes = require('./routes/podMembers'); 
@@ -12,9 +14,13 @@ const messageRoutes = require('./routes/messageRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const milestoneRoutes = require('./routes/milestoneRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
+const contributionRoutes = require('./routes/contributionRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+
+// Import auth middleware for protected routes
+const { protect } = require('./middleware/authMiddleware');
 
 const promClient = require('prom-client');
-const profileRoutes = require('./routes/profileRoutes');
 
 // Log environment variables
 console.log('Environment variables loaded:');
@@ -58,14 +64,18 @@ serverStartCounter.inc();
 console.debug('>Server started, incrementing start counter');
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Register the auth routes first
-app.use('/api/auth', authRoutes);
-// Add this near the top of your middleware configuration
+// Static file serving
 app.use('/uploads', express.static('uploads'));
+
+// Register the auth routes first (no authentication required)
+app.use('/api/auth', authRoutes);
 
 // Direct test route for debugging
 app.get('/api/test', (req, res) => {
@@ -86,11 +96,87 @@ app.get('/api/auth-test', (req, res) => {
   });
 });
 
+// Gamification API routes
+app.get('/api/gamification/user/:userId/progress', async (req, res) => {
+  try {
+    const GamificationService = require('./services/GamificationService');
+    const userProgress = await GamificationService.getUserProgress(req.params.userId);
+    res.json({
+      success: true,
+      data: userProgress
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get current user's gamification data (authenticated)
+app.get('/api/gamification/me', protect, async (req, res) => {
+  try {
+    const GamificationService = require('./services/GamificationService');
+    const userProgress = await GamificationService.getUserProgress(req.user._id);
+    res.json({
+      success: true,
+      data: userProgress
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/gamification/user/:userId/badges', async (req, res) => {
+  try {
+    const GamificationService = require('./services/GamificationService');
+    const userProgress = await GamificationService.getUserProgress(req.params.userId);
+    
+    // Add metadata to badges
+    const badgesWithMetadata = userProgress.badges.map(badge => ({
+      ...badge.toObject(),
+      metadata: GamificationService.BADGE_METADATA[badge.badgeId] || {}
+    }));
+    
+    res.json({
+      success: true,
+      data: badgesWithMetadata
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Manual gamification trigger (for testing)
+app.post('/api/gamification/trigger', async (req, res) => {
+  try {
+    const { actionType, userId, actionData } = req.body;
+    const GamificationService = require('./services/GamificationService');
+    
+    const result = await GamificationService.processAction(actionType, userId, actionData);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Register application routes
 app.use('/api/applications', applicationRoutes);
 
 // Register creator routes to handle creator-specific endpoints
 app.use('/api/creator', creatorRoutes);
+
+// Register contribution routes
+app.use('/api/contributions', contributionRoutes);
 
 // Register message routes
 app.use('/api/messages', messageRoutes);
@@ -108,12 +194,12 @@ console.log('Registering profile routes...');
 app.use('/api/profile', profileRoutes);
 console.log('Profile routes registered successfully');
 
-// Register general pod routes
+// Register general pod routes (keep this last among pod routes)
 app.use('/api/pods', podRoutes);
 
 // Basic test route
 app.get('/', (req, res) => {
-  res.send('API is running');
+  res.send('API is running with Gamification System 🎮');
 });
 
 // Expose /metrics endpoint for Prometheus/Grafana
@@ -138,5 +224,24 @@ setTimeout(() => {
   }
 }, 1000);
 
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  serverShutdownCounter.inc();
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
 
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  serverShutdownCounter.inc();
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+// Export just the app (your existing server.js will handle the server creation)
 module.exports = app;

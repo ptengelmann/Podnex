@@ -982,3 +982,48 @@
     font-weight: 500;
   }
 }
+
+.tierBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.loadingXP {
+  color: $gray;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.gamificationError {
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  text-align: center;
+  
+  p {
+    margin: 0 0 8px 0;
+    color: #FF6B6B;
+    font-size: 13px;
+  }
+  
+  .refreshButton {
+    background-color: rgba(255, 107, 107, 0.2);
+    color: #FF6B6B;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: rgba(255, 107, 107, 0.3);
+    }
+  }
+}

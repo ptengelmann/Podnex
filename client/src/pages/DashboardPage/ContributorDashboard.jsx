@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ContributorDashboard.module.scss';
+import useGamification from '../../hooks/useGamification';
 import { 
   Briefcase, 
   Clock, 
@@ -21,6 +22,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
+
+
 const ContributorDashboard = () => {
   const [user, setUser] = useState(null);
   const [applications, setApplications] = useState([]);
@@ -29,6 +32,22 @@ const ContributorDashboard = () => {
   const [isPro, setIsPro] = useState(false);
   const [activePods, setActivePods] = useState([]);
   const [error, setError] = useState(null);
+
+  // Use the gamification hook
+  const {
+    totalXP,
+    currentLevel,
+    tier,
+    badges,
+    trustLevel,
+    xpProgress,
+    tierInfo,
+    loading: gamificationLoading,
+    error: gamificationError,
+    refresh: refreshGamification
+  } = useGamification();
+
+
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -115,11 +134,7 @@ const ContributorDashboard = () => {
   const applicationsSent = applications.length;
   const pendingApplications = applications.filter(app => app.status === 'Pending').length;
   
-  // For XP progress - assuming 450 XP as in your example
-  const userXP = 450;
-  const xpToNextLevel = 1000;
-  const xpProgress = (userXP / xpToNextLevel) * 100;
-  
+
   // Get pods user has joined (status Accepted)
   const acceptedPods = applications
     .filter(app => app.status === 'Accepted')
@@ -133,6 +148,8 @@ const ContributorDashboard = () => {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 3);
   
+
+    
   // Recent applications
   const recentApplications = [...applications]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -193,7 +210,12 @@ const ContributorDashboard = () => {
             </div>
             <div className={styles.trustLevel}>
               <Shield size={14} />
-              <span>Trust Level: {userXP >= 500 ? 'Gold' : userXP >= 200 ? 'Silver' : 'Bronze'}</span>
+              <span>Trust Level: {trustLevel}</span>
+              {!gamificationLoading && (
+                <div className={styles.tierBadge} style={{ color: tierInfo.color }}>
+                  {tierInfo.icon} {tierInfo.name}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -250,7 +272,7 @@ const ContributorDashboard = () => {
               <Award size={24} style={{ color: '#FF6B6B' }} />
             </div>
             <div>
-              <h3>{userXP}</h3>
+              <h3>{gamificationLoading ? '...' : totalXP.toLocaleString()}</h3>
               <p>XP Earned</p>
             </div>
           </div>
@@ -266,21 +288,34 @@ const ContributorDashboard = () => {
               <h3>Your XP Progress</h3>
               <div className={styles.tier}>
                 <Star size={14} />
-                <span>{userXP >= 800 ? 'Gold Tier' : userXP >= 300 ? 'Silver Tier' : 'Bronze Tier'}</span>
+                <span style={{ color: tierInfo.color }}>
+                  {tierInfo.icon} {tierInfo.name} Tier
+                </span>
               </div>
             </div>
             
-            <div className={styles.xpProgressBar}>
-              <div
-                className={styles.fill}
-                style={{ width: `${xpProgress}%` }}
-              />
-            </div>
-            
-            <div className={styles.xpFooter}>
-              <span>{userXP} XP</span>
-              <span>Next Unlock: {userXP >= 800 ? 'Platinum Tier' : userXP >= 300 ? 'Gold Tier' : 'Silver Tier'} ({xpToNextLevel - userXP} XP needed)</span>
-            </div>
+            {gamificationLoading ? (
+              <div className={styles.loadingXP}>Loading XP data...</div>
+            ) : (
+              <>
+                <div className={styles.xpProgressBar}>
+                  <div
+                    className={styles.fill}
+                    style={{ 
+                      width: `${xpProgress.percentage}%`,
+                      backgroundColor: tierInfo.color 
+                    }}
+                  />
+                </div>
+                
+                <div className={styles.xpFooter}>
+                  <span>{totalXP.toLocaleString()} XP</span>
+                  <span>
+                    Level {currentLevel} • {xpProgress.needed - xpProgress.current} XP to Level {currentLevel + 1}
+                  </span>
+                </div>
+              </>
+            )}
             
             <div className={styles.xpBenefits}>
               <div className={styles.benefitItem}>
@@ -308,9 +343,20 @@ const ContributorDashboard = () => {
                 <div className={styles.benefitIcon}>
                   <Award size={16} />
                 </div>
-                <div className={styles.benefitText}>Profile badges</div>
+                <div className={styles.benefitText}>
+                  Profile badges ({badges.length} earned)
+                </div>
               </div>
             </div>
+            
+            {gamificationError && (
+              <div className={styles.gamificationError}>
+                <p>Error loading XP data</p>
+                <button onClick={refreshGamification} className={styles.refreshButton}>
+                  Refresh
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
