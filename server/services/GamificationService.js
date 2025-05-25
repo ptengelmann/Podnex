@@ -253,11 +253,14 @@ class GamificationService {
       // Check for newly earned badges
       const newBadges = await this.checkForNewBadges(userId, userProgress, actionType);
       
-      // Save all changes
-      await userProgress.save();
-      
-      // Update main user reputation
-      await this.updateUserReputation(userId, xpGained);
+     // Save all changes
+await userProgress.save();
+
+// Sync gamification data with User model
+await this.syncUserWithProgress(userId, userProgress);
+
+// Update main user reputation
+await this.updateUserReputation(userId, xpGained);
       
       // Update profile stats
       await this.updateProfileStats(userId, actionType, actionData);
@@ -585,6 +588,21 @@ class GamificationService {
     
     return userProgress;
   }
+
+  // Sync UserProgress data with the main User model
+async syncUserWithProgress(userId, userProgress) {
+  try {
+    await User.findByIdAndUpdate(userId, {
+      reputation: userProgress.reputation?.score || 0,
+      totalXP: userProgress.totalXP,
+      currentLevel: userProgress.currentLevel,
+      tier: userProgress.tier
+    });
+    console.log(`🔄 Synced gamification data for user ${userId}`);
+  } catch (error) {
+    console.error('Error syncing UserProgress with User:', error);
+  }
+}
 
   // Update main user reputation - adjust for your reputation structure
   async updateUserReputation(userId, xpGained) {

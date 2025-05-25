@@ -10,17 +10,18 @@ const ProfileSchema = new mongoose.Schema({
   displayName: {
     type: String,
     default: function() {
-      // Will be populated when profile is created
-      return '';
+      return this.user?.name || '';
     }
   },
   headline: {
     type: String,
-    maxlength: 100
+    maxlength: 100,
+    default: ''
   },
   bio: {
     type: String,
-    maxlength: 500
+    maxlength: 500,
+    default: ''
   },
   skills: [{
     name: {
@@ -34,16 +35,17 @@ const ProfileSchema = new mongoose.Schema({
     },
     yearsExperience: {
       type: Number,
-      default: 0
+      default: 0,
+      min: 0
     }
   }],
   socialLinks: {
-    website: String,
-    github: String,
-    linkedin: String,
-    twitter: String,
-    dribbble: String,
-    behance: String
+    website: { type: String, default: '' },
+    github: { type: String, default: '' },
+    linkedin: { type: String, default: '' },
+    twitter: { type: String, default: '' },
+    dribbble: { type: String, default: '' },
+    behance: { type: String, default: '' }
   },
   profileImage: {
     type: String,
@@ -58,62 +60,29 @@ const ProfileSchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    description: String,
-    icon: String,
+    description: { type: String, default: '' },
+    icon: { type: String, default: '' },
     awardedOn: {
       type: Date,
       default: Date.now
     }
   }],
   stats: {
-    podsCreated: {
-      type: Number,
-      default: 0
-    },
-    podsJoined: {
-      type: Number,
-      default: 0
-    },
-    tasksCompleted: {
-      type: Number,
-      default: 0
-    },
-    contributionCount: {
-      type: Number,
-      default: 0
-    },
-    successRate: {
-      type: Number,
-      default: 0 // Percentage
-    }
+    podsCreated: { type: Number, default: 0, min: 0 },
+    podsJoined: { type: Number, default: 0, min: 0 },
+    tasksCompleted: { type: Number, default: 0, min: 0 },
+    contributionCount: { type: Number, default: 0, min: 0 },
+    successRate: { type: Number, default: 0, min: 0, max: 100 }
   },
   visibility: {
-    skills: {
-      type: Boolean,
-      default: true
-    },
-    badges: {
-      type: Boolean,
-      default: true
-    },
-    stats: {
-      type: Boolean,
-      default: true
-    },
-    podsHistory: {
-      type: Boolean,
-      default: true
-    }
+    skills: { type: Boolean, default: true },
+    badges: { type: Boolean, default: true },
+    stats: { type: Boolean, default: true },
+    podsHistory: { type: Boolean, default: true }
   },
   experience: {
-    currentXP: {
-      type: Number,
-      default: 0
-    },
-    level: {
-      type: Number,
-      default: 1
-    },
+    currentXP: { type: Number, default: 0, min: 0 },
+    level: { type: Number, default: 1, min: 1 },
     tier: {
       type: String,
       enum: ['bronze', 'silver', 'gold', 'platinum'],
@@ -125,22 +94,31 @@ const ProfileSchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    description: String,
+    description: { type: String, default: '' },
     podId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Pod'
     },
-    images: [String],
-    link: String,
-    featured: {
-      type: Boolean,
-      default: false
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
+    images: [{ type: String }],
+    link: { type: String, default: '' },
+    featured: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
   }]
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Index for better query performance
+ProfileSchema.index({ 'user': 1 });
+ProfileSchema.index({ 'skills.name': 1 });
+ProfileSchema.index({ 'experience.tier': 1 });
+ProfileSchema.index({ 'experience.currentXP': -1 });
+
+// Virtual for computed fields
+ProfileSchema.virtual('totalBadges').get(function() {
+  return this.badges ? this.badges.length : 0;
+});
 
 module.exports = mongoose.model('Profile', ProfileSchema);

@@ -17,6 +17,7 @@ const resourceRoutes = require('./routes/resourceRoutes');
 const contributionRoutes = require('./routes/contributionRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 
+
 // Import auth middleware for protected routes
 const { protect } = require('./middleware/authMiddleware');
 
@@ -223,25 +224,6 @@ setTimeout(() => {
     console.log('Router not initialized yet or structure changed');
   }
 }, 1000);
-
-// Graceful shutdown handling
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  serverShutdownCounter.inc();
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
-  serverShutdownCounter.inc();
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
 
 // Export just the app (your existing server.js will handle the server creation)
 module.exports = app;

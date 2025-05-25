@@ -115,20 +115,21 @@ function setupSocket(server) {
         
         // 🎮 GAMIFICATION: Trigger MESSAGE_SENT action
         try {
-          const GamificationService = require('./services/GamificationService');
-          setImmediate(async () => {
-            try {
-              await GamificationService.processAction('MESSAGE_SENT', messageData.senderId, {
-                podId: messageData.podId,
-                messageLength: messageData.text.length
-              });
-            } catch (gamError) {
-              console.error('Gamification error for MESSAGE_SENT:', gamError);
-            }
-          });
-        } catch (error) {
-          console.error('Error loading GamificationService:', error);
-        }
+  const GamificationService = require('./services/GamificationService');
+  setImmediate(async () => {
+    try {
+      console.log(`🎮 Triggering MESSAGE_SENT for user: ${messageData.senderId}`);
+      await GamificationService.processAction('MESSAGE_SENT', messageData.senderId, {
+        podId: messageData.podId,
+        messageLength: messageData.text.length
+      });
+    } catch (gamError) {
+      console.error('Gamification error for MESSAGE_SENT:', gamError);
+    }
+  });
+} catch (error) {
+  console.error('Error loading GamificationService:', error);
+}
         
       } catch (error) {
         console.error('Error handling send_message:', error);

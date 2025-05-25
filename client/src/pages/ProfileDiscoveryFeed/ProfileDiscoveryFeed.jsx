@@ -808,7 +808,7 @@ useEffect(() => {
                   const profileData = profile.profile || profile;
                   const userData = profileData.user || {};
                   const displayName = profileData.displayName || userData.name || 'User';
-                  const tier = formatTier(profileData.experience?.tier || 'bronze');
+                  const tier = formatTier(userData.tier || profileData.experience?.tier || 'bronze');
                   const skills = profileData.skills || [];
                   const userRole = userData.role || 'contributor';
                   const socialLinks = profileData.socialLinks || {};
@@ -865,21 +865,21 @@ useEffect(() => {
                         )}
 
                         <div className={styles.statsRow}>
-                          <div className={styles.statItem}>
-                            <Star size={16} />
-                            <span>{userData.reputation || 0} XP</span>
-                          </div>
-                          
-                          <div className={styles.statItem}>
-                            <Briefcase size={16} />
-                            <span>{profileData.stats?.podsJoined || 0} Pods</span>
-                          </div>
-                          
-                          <div className={styles.statItem}>
-                            <CheckCircle size={16} />
-                            <span>{profileData.stats?.tasksCompleted || 0} Tasks</span>
-                          </div>
-                        </div>
+  <div className={styles.statItem}>
+    <Star size={16} />
+    <span>{userData.reputation || userData.totalXP || 0} XP</span>
+  </div>
+  
+  <div className={styles.statItem}>
+    <Briefcase size={16} />
+    <span>{profileData.stats?.podsJoined || 0} Pods</span>
+  </div>
+  
+  <div className={styles.statItem}>
+    <CheckCircle size={16} />
+    <span>{profileData.stats?.tasksCompleted || 0} Tasks</span>
+  </div>
+</div>
 
                         {skills.length > 0 && (
                           <div className={styles.skillsContainer}>

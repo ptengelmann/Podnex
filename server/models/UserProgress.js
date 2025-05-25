@@ -58,6 +58,26 @@ const UserProgressSchema = new mongoose.Schema({
   lastUpdated: { type: Date, default: Date.now }
 });
 
+// Add this method to update the main User model when tier/level changes
+UserProgressSchema.methods.syncWithUser = async function() {
+  try {
+    const User = require('./User');
+    await User.findByIdAndUpdate(this.userId, {
+      reputation: this.reputation?.score || 0,
+      totalXP: this.totalXP,
+      currentLevel: this.currentLevel,
+      tier: this.tier
+    });
+  } catch (error) {
+    console.error('Error syncing UserProgress with User:', error);
+  }
+};
+
+// Call this method whenever UserProgress is saved
+UserProgressSchema.post('save', async function() {
+  await this.syncWithUser();
+});
+
 // Calculate level from XP
 UserProgressSchema.methods.calculateLevel = function() {
   // Simple level calculation: level = sqrt(XP/100) + 1

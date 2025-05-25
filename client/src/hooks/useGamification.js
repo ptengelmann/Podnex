@@ -36,7 +36,7 @@ const useGamification = () => {
         }
 
         // Fetch user's gamification progress
-        const response = await axios.get('/api/gamification/me', {
+const response = await axios.get('http://localhost:5000/api/gamification/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
 

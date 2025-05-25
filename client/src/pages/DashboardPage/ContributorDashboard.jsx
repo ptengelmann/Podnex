@@ -318,36 +318,42 @@ const ContributorDashboard = () => {
             )}
             
             <div className={styles.xpBenefits}>
-              <div className={styles.benefitItem}>
-                <div className={styles.benefitIcon}>
-                  <TrendingUp size={16} />
-                </div>
-                <div className={styles.benefitText}>Boosted profile visibility</div>
-              </div>
-              
-              <div className={styles.benefitItem}>
-                <div className={styles.benefitIcon}>
-                  <Zap size={16} />
-                </div>
-                <div className={styles.benefitText}>Priority pod matching</div>
-              </div>
-              
-              <div className={styles.benefitItem}>
-                <div className={styles.benefitIcon}>
-                  <BarChart2 size={16} />
-                </div>
-                <div className={styles.benefitText}>Monthly analytics</div>
-              </div>
-              
-              <div className={styles.benefitItem}>
-                <div className={styles.benefitIcon}>
-                  <Award size={16} />
-                </div>
-                <div className={styles.benefitText}>
-                  Profile badges ({badges.length} earned)
-                </div>
-              </div>
-            </div>
+  <div className={styles.benefitItem}>
+    <div className={styles.benefitIcon}>
+      <TrendingUp size={16} />
+    </div>
+    <div className={styles.benefitText}>
+      Current Level: {currentLevel}
+    </div>
+  </div>
+  
+  <div className={styles.benefitItem}>
+    <div className={styles.benefitIcon}>
+      <Zap size={16} />
+    </div>
+    <div className={styles.benefitText}>
+      Next Level: {xpProgress.needed - xpProgress.current} XP needed
+    </div>
+  </div>
+  
+  <div className={styles.benefitItem}>
+    <div className={styles.benefitIcon}>
+      <BarChart2 size={16} />
+    </div>
+    <div className={styles.benefitText}>
+      Success Rate: {Math.round((applications.filter(app => app.status === 'Accepted').length / Math.max(applications.length, 1)) * 100)}%
+    </div>
+  </div>
+  
+  <div className={styles.benefitItem}>
+    <div className={styles.benefitIcon}>
+      <Award size={16} />
+    </div>
+    <div className={styles.benefitText}>
+      Profile badges ({badges.length} earned)
+    </div>
+  </div>
+</div>
             
             {gamificationError && (
               <div className={styles.gamificationError}>
