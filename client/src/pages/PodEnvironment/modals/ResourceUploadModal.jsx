@@ -102,39 +102,39 @@ const ResourceUploadModal = ({ isOpen, onClose, onSubmit, podId }) => {
   };
   
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!file) {
-      setValidationError('Please select a file to upload');
-      return;
-    }
-    
-    if (!name.trim()) {
-      setValidationError('Resource name is required');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setValidationError('');
-    
-    // Create FormData object to send file
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('tags', tags);
-    formData.append('podId', podId);
-    
-    try {
-      await onSubmit(formData);
-      onClose();
-    } catch (error) {
-      console.error('Error uploading resource:', error);
-      setValidationError(error.message || 'Failed to upload resource. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  e.preventDefault();
+  
+  if (!file) {
+    setValidationError('Please select a file to upload');
+    return;
+  }
+  
+  if (!name.trim()) {
+    setValidationError('Resource name is required');
+    return;
+  }
+  
+  setIsSubmitting(true);
+  setValidationError('');
+  
+  // Create FormData object to send file
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('name', name);
+  formData.append('description', description);
+  formData.append('tags', tags);
+  // Don't append podId - it comes from the URL params in the route
+  
+  try {
+    await onSubmit(formData);
+    onClose();
+  } catch (error) {
+    console.error('Error uploading resource:', error);
+    setValidationError(error.response?.data?.message || error.message || 'Failed to upload resource. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   
   const handleModalClick = (e) => {
     // Only close if clicking the overlay directly, not its children

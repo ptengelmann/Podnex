@@ -1,13 +1,26 @@
-// routes/taskRoutes.js - MODIFY YOUR EXISTING FILE
+// routes/taskRoutes.js - COMPLETE UPDATED FILE
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const { protect } = require('../middleware/authMiddleware');
 
-// ADD THIS LINE - Import gamification middleware
+// Import gamification middleware
 const { autoGamify, extractors } = require('../middleware/gamificationMiddleware');
 
-// Your existing routes - JUST ADD MIDDLEWARE
+// Helper function to update milestone progress
+const updateMilestoneProgress = async (milestoneId) => {
+  if (!milestoneId) return;
+  
+  const Milestone = require('../models/Milestone');
+  const milestone = await Milestone.findById(milestoneId);
+  
+  if (milestone) {
+    await milestone.calculateProgressFromTasks();
+    await milestone.save();
+  }
+};
+
+// Get all tasks for a pod
 router.get('/:podId/tasks', protect, async (req, res) => {
   try {
     const { podId } = req.params;
@@ -16,6 +29,9 @@ router.get('/:podId/tasks', protect, async (req, res) => {
       .populate('assignedTo', 'name profileImage')
       .populate('createdBy', 'name')
       .populate('milestone', 'title')
+      .populate('comments.userId', 'name profileImage')
+      .populate('completedBy', 'name')
+      .populate('reviews.reviewerId', 'name profileImage')
       .sort({ createdAt: -1 });
     
     res.json(tasks);
@@ -25,30 +41,41 @@ router.get('/:podId/tasks', protect, async (req, res) => {
   }
 });
 
-// Task creation - ADD GAMIFICATION MIDDLEWARE
+// Create new task with gamification
 router.post('/:podId/tasks', 
   protect, 
-  autoGamify('TASK_CREATED', extractors.taskCreated), // ADD THIS LINE
+  autoGamify('TASK_CREATED', extractors.taskCreated),
   async (req, res) => {
     try {
-      // ALL YOUR EXISTING CODE STAYS THE SAME
       const { podId } = req.params;
-      const { title, description, assignedTo, milestone, priority, dueDate, type, difficulty } = req.body;
+      const { title, description, assignedTo, milestoneId, priority, dueDate } = req.body;
       
       const task = new Task({
-        title, description, pod: podId, assignedTo, 
-        createdBy: req.user._id, milestone, priority, dueDate,
-        type, difficulty, status: 'to-do'
+        title, 
+        description, 
+        pod: podId, 
+        assignedTo, 
+        createdBy: req.user._id, 
+        milestone: milestoneId, 
+        priority, 
+        dueDate,
+        status: 'to-do'
       });
       
       await task.save();
       
+      // Update milestone progress if task is assigned to a milestone
+      if (milestoneId) {
+        await updateMilestoneProgress(milestoneId);
+      }
+      
       const populatedTask = await Task.findById(task._id)
         .populate('assignedTo', 'name profileImage')
         .populate('createdBy', 'name')
-        .populate('milestone', 'title');
+        .populate('milestone', 'title')
+        .populate('comments.userId', 'name profileImage');
       
-      res.status(201).json(populatedTask); // Triggers TASK_CREATED gamification
+      res.status(201).json(populatedTask);
     } catch (error) {
       console.error('Error creating task:', error);
       res.status(500).json({ message: 'Server error' });
@@ -56,9 +83,7 @@ router.post('/:podId/tasks',
   }
 );
 
-// ADD NEW ROUTES WITH GAMIFICATION
-
-// Task completion route - NEW
+// Complete task with gamification
 router.put('/:podId/tasks/:taskId/complete', 
   protect, 
   autoGamify('TASK_COMPLETED', extractors.taskCompleted), 
@@ -79,6 +104,9 @@ router.put('/:podId/tasks/:taskId/complete',
         return res.status(403).json({ message: 'Not authorized to complete this task' });
       }
       
+      // Store milestone ID before updating task
+      const milestoneId = task.milestone;
+      
       // Update task
       task.status = 'completed';
       task.completedAt = new Date();
@@ -90,13 +118,19 @@ router.put('/:podId/tasks/:taskId/complete',
       
       await task.save();
       
+      // Update milestone progress after task completion
+      if (milestoneId) {
+        await updateMilestoneProgress(milestoneId);
+      }
+      
       const populatedTask = await Task.findById(task._id)
         .populate('assignedTo', 'name profileImage')
         .populate('createdBy', 'name')
         .populate('completedBy', 'name')
-        .populate('milestone', 'title');
+        .populate('milestone', 'title')
+        .populate('comments.userId', 'name profileImage');
       
-      res.json(populatedTask); // Triggers TASK_COMPLETED gamification
+      res.json(populatedTask);
     } catch (error) {
       console.error('Error completing task:', error);
       res.status(500).json({ message: 'Server error' });
@@ -104,7 +138,7 @@ router.put('/:podId/tasks/:taskId/complete',
   }
 );
 
-// Task comment/review route - NEW
+// Add task review with gamification
 router.post('/:podId/tasks/:taskId/review', 
   protect, 
   autoGamify('PEER_REVIEW_GIVEN', extractors.peerReviewGiven), 
@@ -136,9 +170,11 @@ router.post('/:podId/tasks/:taskId/review',
       const populatedTask = await Task.findById(task._id)
         .populate('assignedTo', 'name profileImage')
         .populate('createdBy', 'name')
-        .populate('reviews.reviewerId', 'name profileImage');
+        .populate('reviews.reviewerId', 'name profileImage')
+        .populate('comments.userId', 'name profileImage')
+        .populate('milestone', 'title');
       
-      res.json(populatedTask); // Triggers PEER_REVIEW_GIVEN gamification
+      res.json(populatedTask);
     } catch (error) {
       console.error('Error adding review:', error);
       res.status(500).json({ message: 'Server error' });
@@ -146,32 +182,163 @@ router.post('/:podId/tasks/:taskId/review',
   }
 );
 
-// Update task assignment - NEW
-router.put('/:podId/tasks/:taskId/assign', 
-  protect, 
-  autoGamify('TASK_ASSIGNED'), 
-  async (req, res) => {
-    try {
-      const { taskId } = req.params;
-      const { assignedTo } = req.body;
-      
-      const task = await Task.findByIdAndUpdate(
-        taskId,
-        { assignedTo, updatedAt: new Date() },
-        { new: true }
-      ).populate('assignedTo', 'name profileImage')
-       .populate('createdBy', 'name');
-      
-      if (!task) {
-        return res.status(404).json({ message: 'Task not found' });
+// Update task status (general update route)
+router.patch('/:podId/tasks/:taskId', protect, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const updates = req.body;
+    
+    // Get the old task to check if milestone changed
+    const oldTask = await Task.findById(taskId);
+    const oldMilestoneId = oldTask ? oldTask.milestone : null;
+    
+    const task = await Task.findByIdAndUpdate(
+      taskId,
+      { ...updates, updatedAt: new Date() },
+      { new: true }
+    )
+    .populate('assignedTo', 'name profileImage')
+    .populate('createdBy', 'name')
+    .populate('milestone', 'title')
+    .populate('comments.userId', 'name profileImage')
+    .populate('completedBy', 'name')
+    .populate('reviews.reviewerId', 'name profileImage');
+    
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    // Update milestone progress if milestone changed or status changed
+    if (updates.status || updates.milestone) {
+      // Update old milestone if it changed
+      if (oldMilestoneId && oldMilestoneId.toString() !== task.milestone?.toString()) {
+        await updateMilestoneProgress(oldMilestoneId);
       }
       
-      res.json(task); // Triggers TASK_ASSIGNED gamification
-    } catch (error) {
-      console.error('Error assigning task:', error);
-      res.status(500).json({ message: 'Server error' });
+      // Update new milestone
+      if (task.milestone) {
+        await updateMilestoneProgress(task.milestone);
+      }
     }
+    
+    res.json(task);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ message: 'Server error' });
   }
-);
+});
+
+// Add task comment
+router.post('/:podId/tasks/:taskId/comments', protect, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { text } = req.body;
+    
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    // Add comment
+    task.comments.push({
+      userId: req.user._id,
+      text,
+      createdAt: new Date()
+    });
+    
+    await task.save();
+    
+    // Return populated task
+    const populatedTask = await Task.findById(task._id)
+      .populate('assignedTo', 'name profileImage')
+      .populate('createdBy', 'name')
+      .populate('milestone', 'title')
+      .populate('comments.userId', 'name profileImage')
+      .populate('completedBy', 'name')
+      .populate('reviews.reviewerId', 'name profileImage');
+    
+    res.json(populatedTask);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update task status (general update route)
+router.patch('/:podId/tasks/:taskId', protect, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const updates = req.body;
+    
+    const task = await Task.findByIdAndUpdate(
+      taskId,
+      { ...updates, updatedAt: new Date() },
+      { new: true }
+    )
+    .populate('assignedTo', 'name profileImage')
+    .populate('createdBy', 'name')
+    .populate('milestone', 'title')
+    .populate('comments.userId', 'name profileImage')
+    .populate('completedBy', 'name')
+    .populate('reviews.reviewerId', 'name profileImage');
+    
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    res.json(task);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get single task by ID
+router.get('/:podId/tasks/:taskId', protect, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    
+    const task = await Task.findById(taskId)
+      .populate('assignedTo', 'name profileImage')
+      .populate('createdBy', 'name')
+      .populate('milestone', 'title')
+      .populate('comments.userId', 'name profileImage')
+      .populate('completedBy', 'name')
+      .populate('reviews.reviewerId', 'name profileImage');
+    
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    res.json(task);
+  } catch (error) {
+    console.error('Error fetching task:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete task (creator only)
+router.delete('/:podId/tasks/:taskId', protect, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    // Check if user is creator
+    if (task.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this task' });
+    }
+    
+    await Task.findByIdAndDelete(taskId);
+    
+    res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;

@@ -385,48 +385,115 @@ const getProgressStage = () => {
 
   // Handler functions at component scope
   const handleCreateTask = async (taskData) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authentication required');
-      
-      const response = await axios.post(`http://localhost:5000/api/pods/${podId}/tasks`, taskData, {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    const response = await axios.post(`http://localhost:5000/api/pods/${podId}/tasks`, taskData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    // Add new task to state
+    setTasks(prevTasks => [...prevTasks, response.data]);
+    
+    // Refresh tasks to get the populated data
+    await fetchTasks();
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error creating task:', error);
+    throw error;
+  }
+};
+
+// Add this function after handleCreateTask
+const handleUpdateTaskStatus = async (taskId, newStatus) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    const endpoint = newStatus === 'completed' 
+      ? `http://localhost:5000/api/pods/${podId}/tasks/${taskId}/complete`
+      : `http://localhost:5000/api/pods/${podId}/tasks/${taskId}`;
+    
+    const method = newStatus === 'completed' ? 'put' : 'patch';
+    
+    const response = await axios[method](endpoint, 
+      newStatus !== 'completed' ? { status: newStatus } : {}, 
+      {
         headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      // Add new task to state
-      setTasks(prevTasks => [...prevTasks, response.data]);
-      
-      // Close modal and show notification if needed
-      setTaskModalOpen(false);
-      
-      return response.data;
-    } catch (error) {
-      console.error('Error creating task:', error);
-      throw error;
-    }
-  };
+      }
+    );
+    
+    // Update tasks in state
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task._id === taskId ? response.data : task
+      )
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    throw error;
+  }
+};
+
+// Add this function for adding comments
+const handleAddComment = async (taskId, commentText) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    const response = await axios.post(
+      `http://localhost:5000/api/pods/${podId}/tasks/${taskId}/comments`,
+      { text: commentText },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+    
+    // Update tasks in state
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task._id === taskId ? response.data : task
+      )
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    throw error;
+  }
+};
 
   const handleCreateMilestone = async (milestoneData) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authentication required');
-      
-      const response = await axios.post(`http://localhost:5000/api/pods/${podId}/milestones`, milestoneData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      // Add new milestone to state
-      setMilestones(prevMilestones => [...prevMilestones, response.data]);
-      
-      // Close modal
-      setMilestoneModalOpen(false);
-      
-      return response.data;
-    } catch (error) {
-      console.error('Error creating milestone:', error);
-      throw error;
-    }
-  };
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    // Add createdBy field
+    const milestonePayload = {
+      ...milestoneData,
+      createdBy: currentUser._id
+    };
+    
+    const response = await axios.post(`http://localhost:5000/api/pods/${podId}/milestones`, milestonePayload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    // Add new milestone to state
+    setMilestones(prevMilestones => [...prevMilestones, response.data]);
+    
+    // Refresh milestones to get populated data
+    await fetchMilestones();
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error creating milestone:', error);
+    throw error;
+  }
+};
   
   const handleResourceUpload = async (resourceData) => {
     try {
@@ -767,17 +834,10 @@ const handleCreateTask = async (taskData) => {
 
 
 // Handle resource upload
-const handleResourceUpload = async (resourceData) => {
+const handleResourceUpload = async (formData) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Authentication required');
-    
-    // Create FormData for file upload
-    const formData = new FormData();
-    formData.append('file', resourceData.file);
-    if (resourceData.name) formData.append('name', resourceData.name);
-    if (resourceData.description) formData.append('description', resourceData.description);
-    if (resourceData.tags) formData.append('tags', JSON.stringify(resourceData.tags));
     
     const response = await axios.post(`http://localhost:5000/api/pods/${podId}/resources`, formData, {
       headers: { 
@@ -789,8 +849,8 @@ const handleResourceUpload = async (resourceData) => {
     // Add new resource to state
     setResources(prevResources => [...prevResources, response.data]);
     
-    // Show success notification
-    // You could implement a toast notification system here
+    // Refresh resources to get populated data
+    await fetchResources();
     
     return response.data;
   } catch (error) {
@@ -1562,35 +1622,61 @@ setPodMessages(prev => [...prev, response.data]);
   </div>
   
   <div className={styles.milestonesList}>
-    {milestones.length === 0 ? (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyStateIcon}>
-          <Target size={40} />
-        </div>
-        <h3>No Milestones Yet</h3>
-        <p>This pod doesn't have any milestones created yet.</p>
-        {isCreator && (
-          <motion.button 
-            className={styles.primaryButton}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setMilestoneModalOpen(true)}
-          >
-            <Plus size={16} />
-            <span>New Milestone</span>
-          </motion.button>
-        )}
+    {(() => {
+  const upcomingMilestones = milestones.filter(milestone => 
+    milestone.status !== 'completed'
+  );
+  
+  return upcomingMilestones.length === 0 ? (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyStateIcon}>
+        <Target size={40} />
       </div>
-    ) : (
-      milestones
-        .filter(milestone => milestone.status !== 'completed')
-        .slice(0, 3)
-        .map(milestone => (
-          <div key={milestone._id} className={styles.milestoneCard}>
-            {/* existing milestone card content */}
+      <h3>No Upcoming Milestones</h3>
+      <p>{milestones.length === 0 ? 
+        "This pod doesn't have any milestones created yet." : 
+        "All milestones have been completed!"
+      }</p>
+      {isCreator && (
+        <motion.button 
+          className={styles.primaryButton}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setMilestoneModalOpen(true)}
+        >
+          <Plus size={16} />
+          <span>New Milestone</span>
+        </motion.button>
+      )}
+    </div>
+  ) : (
+    upcomingMilestones.slice(0, 3).map(milestone => (
+      <div key={milestone._id} className={styles.milestoneCard}>
+        <div className={styles.milestoneHeader}>
+          <div className={`${styles.milestoneStatus} ${styles[milestone.status.replace('-', '')]}`}></div>
+          <h4>{milestone.title}</h4>
+        </div>
+        
+        <div className={styles.milestoneProgress}>
+          <div className={styles.progressTrack}>
+            <div 
+              className={styles.progressFill}
+              style={{ width: `${milestone.progress || 0}%` }}
+            ></div>
           </div>
-        ))
-    )}
+          <span className={styles.progressPercentage}>{milestone.progress || 0}%</span>
+        </div>
+        
+        <div className={styles.milestoneMeta}>
+          <div className={styles.metaItem}>
+            <Calendar size={12} />
+            <span>Due {milestone.dueDate ? formatDate(milestone.dueDate) : 'No deadline'}</span>
+          </div>
+        </div>
+      </div>
+    ))
+  );
+})()}
   </div>
 </motion.div>
                     
@@ -1933,17 +2019,11 @@ setPodMessages(prev => [...prev, response.data]);
         </div>
         {(isCreator || isMember) && (
           <motion.button 
-            className={styles.primaryButton}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // Open a modal or navigate to create task page
-              // This will be implemented with a modal component
-              // For now, we'll implement a placeholder
-              console.log('Open create task modal');
-              // You would implement a modal open function here
-            }}
-          >
+  className={styles.primaryButton}
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  onClick={() => setTaskModalOpen(true)}
+>
             <Plus size={16} />
             <span>New Task</span>
           </motion.button>
@@ -2102,19 +2182,23 @@ setPodMessages(prev => [...prev, response.data]);
                             
                             {(isCreator || isMember) && (
                               <form 
-                                className={styles.addCommentForm} 
-                                onSubmit={(e) => {
-                                  e.preventDefault();
-                                  // Implement comment submission
-                                  // This would call an API endpoint to add a comment
-                                  console.log('Submit comment');
-                                }}
-                              >
+  className={styles.addCommentForm} 
+  onSubmit={async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const commentText = formData.get('comment');
+    if (commentText.trim()) {
+      await handleAddComment(task._id, commentText);
+      e.target.reset();
+    }
+  }}
+>
                                 <textarea 
-                                  placeholder="Add a comment..."
-                                  rows={2}
-                                  // Handle comment input state
-                                ></textarea>
+  name="comment"
+  placeholder="Add a comment..."
+  rows={2}
+  required
+></textarea>
                                 <button type="submit" className={styles.commentButton}>
                                   <Send size={14} />
                                   <span>Send</span>
@@ -2132,16 +2216,12 @@ setPodMessages(prev => [...prev, response.data]);
                             )}
                             {(isCreator || isMember) && (
                               <button 
-                                className={styles.primaryButton}
-                                onClick={() => {
-                                  // Implement status update
-                                  // This would call an API endpoint to update task status
-                                  console.log('Update task status to in-progress');
-                                }}
-                              >
-                                <CheckCircle size={14} />
-                                <span>Mark as In Progress</span>
-                              </button>
+  className={styles.primaryButton}
+  onClick={() => handleUpdateTaskStatus(task._id, 'in-progress')}
+>
+  <CheckCircle size={14} />
+  <span>Mark as In Progress</span>
+</button>
                             )}
                           </div>
                         </motion.div>
@@ -2166,38 +2246,168 @@ setPodMessages(prev => [...prev, response.data]);
                 <p>No tasks in progress</p>
               </div>
             ) : (
-              /* Similar mapping structure as todoTasks - with appropriate status change buttons */
               inProgressTasks
-                .filter(task => 
-                  task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                )
-                .map(task => (
-                  /* Similar task item structure with "Mark as Completed" action */
-                  <div 
-                    key={task._id} 
-                    className={`${styles.taskItem} ${expandedTask === task._id ? styles.expanded : ''}`}
-                  >
-                    {/* Task header and content similar to above */}
-                    <div 
-                      className={styles.taskHeader} 
-                      onClick={() => toggleTaskExpanded(task._id)}
-                    >
-                      <div className={styles.taskTitle}>
-                        <h4>{task.title}</h4>
-                        {task.priority === 'high' && (
-                          <span className={styles.highPriorityTag}>High Priority</span>
-                        )}
+  .filter(task => 
+    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
+  .map(task => (
+    <div 
+      key={task._id} 
+      className={`${styles.taskItem} ${expandedTask === task._id ? styles.expanded : ''}`}
+    >
+      <div 
+        className={styles.taskHeader} 
+        onClick={() => toggleTaskExpanded(task._id)}
+      >
+        <div className={styles.taskTitle}>
+          <h4>{task.title}</h4>
+          {task.priority === 'high' && (
+            <span className={styles.highPriorityTag}>High Priority</span>
+          )}
+        </div>
+        <div className={styles.taskCollapse}>
+          {expandedTask === task._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </div>
+      </div>
+      
+      <AnimatePresence>
+        {expandedTask === task._id && (
+          <motion.div 
+            className={styles.taskDetails}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className={styles.taskDescription}>
+              <p>{task.description || 'No description provided.'}</p>
+            </div>
+            
+            <div className={styles.taskMetadata}>
+              <div className={styles.metadataRow}>
+                <div className={styles.metaItem}>
+                  <Calendar size={14} />
+                  <span>Due {task.dueDate ? formatDate(task.dueDate) : 'No deadline'}</span>
+                </div>
+                {task.milestone && (
+                  <div className={styles.metaItem}>
+                    <Target size={14} />
+                    <span>Milestone: {task.milestone.title}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className={styles.metadataRow}>
+                <div className={styles.metaItem}>
+                  <Users size={14} />
+                  <span>Assigned to:</span>
+                  <div className={styles.assigneesList}>
+                    {task.assignedTo && task.assignedTo.length > 0 ? (
+                      task.assignedTo.map(assignee => (
+                        <div key={assignee._id} className={styles.assigneeTag}>
+                          {assignee.profileImage ? (
+                            <img src={assignee.profileImage} alt={assignee.name} />
+                          ) : (
+                            <div className={styles.smallInitials}>{getInitials(assignee.name)}</div>
+                          )}
+                          <span>{assignee.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className={styles.noAssignees}>No one assigned</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.taskComments}>
+              <h5>Comments</h5>
+              {task.comments && task.comments.length > 0 ? (
+                <div className={styles.commentsSection}>
+                  {task.comments.map(comment => (
+                    <div key={comment._id || `comment-${comment.createdAt}`} className={styles.commentItem}>
+                      <div className={styles.commentAvatar}>
+                        {(() => {
+                          const commenter = podMembers.find(m => 
+                            m.user._id === comment.userId
+                          )?.user;
+                          
+                          return commenter?.profileImage ? (
+                            <img src={commenter.profileImage} alt={commenter.name} />
+                          ) : (
+                            <div className={styles.commentInitials}>
+                              {commenter ? getInitials(commenter.name) : '?'}
+                            </div>
+                          );
+                        })()}
                       </div>
-                      <div className={styles.taskCollapse}>
-                        {expandedTask === task._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      <div className={styles.commentContent}>
+                        <div className={styles.commentMeta}>
+                          <span className={styles.commentAuthor}>
+                            {podMembers.find(m => m.user._id === comment.userId)?.user.name || 'Unknown User'}
+                          </span>
+                          <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
+                        </div>
+                        <p className={styles.commentText}>{comment.text}</p>
                       </div>
                     </div>
-                    
-                    {/* For brevity, details are omitted but would be similar to above */}
-                    {/* Action button would be "Mark as Completed" instead */}
-                  </div>
-                ))
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.noComments}>No comments yet.</p>
+              )}
+              
+              {(isCreator || isMember) && (
+                <form 
+                  className={styles.addCommentForm} 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const commentText = formData.get('comment');
+                    if (commentText.trim()) {
+                      await handleAddComment(task._id, commentText);
+                      e.target.reset();
+                    }
+                  }}
+                >
+                  <textarea 
+                    name="comment"
+                    placeholder="Add a comment..."
+                    rows={2}
+                    required
+                  ></textarea>
+                  <button type="submit" className={styles.commentButton}>
+                    <Send size={14} />
+                    <span>Send</span>
+                  </button>
+                </form>
+              )}
+            </div>
+            
+            <div className={styles.taskActions}>
+              {isCreator && (
+                <button className={styles.secondaryButton}>
+                  <Edit size={14} />
+                  <span>Edit</span>
+                </button>
+              )}
+              {(isCreator || isMember) && (
+                <button 
+                  className={styles.primaryButton}
+                  onClick={() => handleUpdateTaskStatus(task._id, 'completed')}
+                >
+                  <CheckCircle size={14} />
+                  <span>Mark as Completed</span>
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  ))
             )}
           </div>
         </div>
@@ -2215,34 +2425,173 @@ setPodMessages(prev => [...prev, response.data]);
                 <p>No completed tasks yet</p>
               </div>
             ) : (
-              /* Similar mapping structure as above - with Archive action */
               completedTasks
-                .filter(task => 
-                  task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                )
-                .map(task => (
-                  /* Similar task item structure with "Archive" action */
-                  <div 
-                    key={task._id} 
-                    className={`${styles.taskItem} ${expandedTask === task._id ? styles.expanded : ''}`}
-                  >
-                    <div 
-                      className={styles.taskHeader} 
-                      onClick={() => toggleTaskExpanded(task._id)}
-                    >
-                      <div className={styles.taskTitle}>
-                        <h4>{task.title}</h4>
+  .filter(task => 
+    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
+  .map(task => (
+    <div 
+      key={task._id} 
+      className={`${styles.taskItem} ${expandedTask === task._id ? styles.expanded : ''}`}
+    >
+      <div 
+        className={styles.taskHeader} 
+        onClick={() => toggleTaskExpanded(task._id)}
+      >
+        <div className={styles.taskTitle}>
+          <h4>{task.title}</h4>
+          <span className={styles.completedTag}>✓ Completed</span>
+        </div>
+        <div className={styles.taskCollapse}>
+          {expandedTask === task._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </div>
+      </div>
+      
+      <AnimatePresence>
+        {expandedTask === task._id && (
+          <motion.div 
+            className={styles.taskDetails}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className={styles.taskDescription}>
+              <p>{task.description || 'No description provided.'}</p>
+            </div>
+            
+            <div className={styles.taskMetadata}>
+              <div className={styles.metadataRow}>
+                <div className={styles.metaItem}>
+                  <Calendar size={14} />
+                  <span>Completed {task.completedAt ? formatDate(task.completedAt) : formatDate(task.updatedAt)}</span>
+                </div>
+                {task.milestone && (
+                  <div className={styles.metaItem}>
+                    <Target size={14} />
+                    <span>Milestone: {task.milestone.title}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className={styles.metadataRow}>
+                <div className={styles.metaItem}>
+                  <Users size={14} />
+                  <span>Completed by:</span>
+                  <div className={styles.assigneesList}>
+                    {task.completedBy ? (
+                      <div className={styles.assigneeTag}>
+                        {task.completedBy.profileImage ? (
+                          <img src={task.completedBy.profileImage} alt={task.completedBy.name} />
+                        ) : (
+                          <div className={styles.smallInitials}>{getInitials(task.completedBy.name)}</div>
+                        )}
+                        <span>{task.completedBy.name}</span>
                       </div>
-                      <div className={styles.taskCollapse}>
-                        {expandedTask === task._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    ) : (
+                      <span className={styles.noAssignees}>Unknown</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.taskComments}>
+              <h5>Comments</h5>
+              {task.comments && task.comments.length > 0 ? (
+                <div className={styles.commentsSection}>
+                  {task.comments.map(comment => (
+                    <div key={comment._id || `comment-${comment.createdAt}`} className={styles.commentItem}>
+                      <div className={styles.commentAvatar}>
+                        {(() => {
+                          const commenter = podMembers.find(m => 
+                            m.user._id === comment.userId
+                          )?.user;
+                          
+                          return commenter?.profileImage ? (
+                            <img src={commenter.profileImage} alt={commenter.name} />
+                          ) : (
+                            <div className={styles.commentInitials}>
+                              {commenter ? getInitials(commenter.name) : '?'}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <div className={styles.commentContent}>
+                        <div className={styles.commentMeta}>
+                          <span className={styles.commentAuthor}>
+                            {podMembers.find(m => m.user._id === comment.userId)?.user.name || 'Unknown User'}
+                          </span>
+                          <span className={styles.commentDate}>{formatDate(comment.createdAt)}</span>
+                        </div>
+                        <p className={styles.commentText}>{comment.text}</p>
                       </div>
                     </div>
-                    
-                    {/* For brevity, details are omitted but would be similar to above */}
-                    {/* Action button would be "Archive" instead */}
-                  </div>
-                ))
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.noComments}>No comments yet.</p>
+              )}
+              
+              {(isCreator || isMember) && (
+                <form 
+                  className={styles.addCommentForm} 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const commentText = formData.get('comment');
+                    if (commentText.trim()) {
+                      await handleAddComment(task._id, commentText);
+                      e.target.reset();
+                    }
+                  }}
+                >
+                  <textarea 
+                    name="comment"
+                    placeholder="Add a comment..."
+                    rows={2}
+                    required
+                  ></textarea>
+                  <button type="submit" className={styles.commentButton}>
+                    <Send size={14} />
+                    <span>Send</span>
+                  </button>
+                </form>
+              )}
+            </div>
+            
+            <div className={styles.taskActions}>
+              {isCreator && (
+                <button 
+                  className={styles.secondaryButton}
+                  onClick={() => {
+                    // Reopen task for editing
+                    handleUpdateTaskStatus(task._id, 'in-progress');
+                  }}
+                >
+                  <Edit size={14} />
+                  <span>Reopen Task</span>
+                </button>
+              )}
+              {isCreator && (
+                <button 
+                  className={styles.dangerButton}
+                  onClick={() => {
+                    // Archive or delete task
+                    console.log('Archive task');
+                  }}
+                >
+                  <Archive size={14} />
+                  <span>Archive</span>
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  ))
             )}
           </div>
         </div>
@@ -2337,10 +2686,13 @@ setPodMessages(prev => [...prev, response.data]);
                 <div className={styles.milestonesTasksHeader}>
                   <h4>Tasks in this milestone</h4>
                   {isCreator && (
-                    <button className={styles.smallActionButton}>
-                      <Plus size={14} />
-                      <span>Add Task</span>
-                    </button>
+                    <button 
+  className={styles.smallActionButton}
+  onClick={() => setTaskModalOpen(true)}
+>
+  <Plus size={14} />
+  <span>Add Task</span>
+</button>
                   )}
                 </div>
                 
@@ -2623,18 +2975,14 @@ setPodMessages(prev => [...prev, response.data]);
         </div>
         {(isCreator || isMember) && (
           <motion.button 
-            className={styles.primaryButton}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // Open resource upload modal
-              console.log('Open resource upload modal');
-              // This would integrate with your modal component
-            }}
-          >
-            <Plus size={16} />
-            <span>Upload Resource</span>
-          </motion.button>
+  className={styles.primaryButton}
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  onClick={() => setResourceModalOpen(true)}
+>
+  <Plus size={16} />
+  <span>Upload Resource</span>
+</motion.button>
         )}
       </div>
     </motion.div>
@@ -2705,26 +3053,38 @@ setPodMessages(prev => [...prev, response.data]);
               </div>
               <div className={styles.resourceActions}>
                 <a 
-                  href={resource.fileUrl}
-                  download={resource.name}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.iconButton}
-                >
-                  <Download size={16} />
-                </a>
+  href={`http://localhost:5000/api/pods/${podId}/resources/${resource._id}`}
+  download={resource.name}
+  className={styles.iconButton}
+>
+  <Download size={16} />
+</a>
                 {(isCreator || 
                   (resource.uploadedBy && currentUser && 
                     resource.uploadedBy._id === currentUser._id)) && (
                   <button 
-                    className={styles.iconButton}
-                    onClick={() => {
-                      // Open delete confirmation modal
-                      console.log('Open delete resource confirmation');
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+  className={styles.iconButton}
+  onClick={async () => {
+    if (window.confirm('Are you sure you want to delete this resource?')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:5000/api/pods/${podId}/resources/${resource._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Remove from state
+        setResources(prevResources => 
+          prevResources.filter(r => r._id !== resource._id)
+        );
+      } catch (error) {
+        console.error('Error deleting resource:', error);
+        alert('Failed to delete resource');
+      }
+    }
+  }}
+>
+  <Trash2 size={16} />
+</button>
                 )}
               </div>
             </div>

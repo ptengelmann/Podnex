@@ -868,6 +868,110 @@ $status-completed: rgba(52, 211, 153, 0.7);
           border-radius: 12px;
           padding: 20px;
           
+.milestoneCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .milestoneHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    
+    .milestoneStatus {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      
+      &.completed {
+        background: $status-completed;
+      }
+      
+      &.inProgress, &.inprogress {
+        background: $status-in-progress;
+      }
+      
+      &.notStarted, &.notstarted, &.not-started {
+        background: $status-todo;
+      }
+    }
+    
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+    }
+  }
+  
+  .milestoneProgress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    
+    .progressTrack {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      
+      .progressFill {
+        height: 100%;
+        background: $pod-gold;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+    }
+    
+    .progressPercentage {
+      font-size: 12px;
+      font-weight: 600;
+      color: $pod-gold;
+      min-width: 36px;
+      text-align: right;
+    }
+  }
+  
+  .milestoneMeta {
+    .metaItem {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: $gray;
+      
+      svg {
+        color: $pod-gold;
+      }
+    }
+  }
+}
+
+// Additional status variations for milestones
+.inprogress {
+  .taskStatusDot, .statusIndicator, .milestoneStatus {
+    background: $status-in-progress;
+  }
+}
+
+.notstarted, .notStarted {
+  .taskStatusDot, .statusIndicator, .milestoneStatus {
+    background: $status-todo;
+  }
+}
+
           .sectionHeader {
             display: flex;
             justify-content: space-between;
@@ -1629,356 +1733,412 @@ $status-completed: rgba(52, 211, 153, 0.7);
     }
     
     // Milestones specific styles
-    .milestonesTab {
-      .milestoneTimeline {
-        position: relative;
+.milestonesTab {
+  .milestoneTimeline {
+    position: relative;
+    padding: 20px 0;
+    
+    // Enhanced timeline connector line
+    &::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      bottom: 60px;
+      left: 24px;
+      width: 3px;
+      background: linear-gradient(
+        to bottom,
+        rgba($pod-gold, 0.6) 0%,
+        rgba($pod-gold, 0.3) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      border-radius: 2px;
+      z-index: 0;
+      
+      @media (max-width: 576px) {
+        left: 15px;
+        width: 2px;
+      }
+    }
+    
+    .milestoneTimelineItem {
+      position: relative;
+      display: flex;
+      margin-bottom: 50px;
+      
+      &:last-child {
+        margin-bottom: 0;
         
-        &::before {
+        // Fade out the timeline at the end
+        &::after {
           content: '';
           position: absolute;
-          top: 24px;
-          bottom: 24px;
+          bottom: -20px;
           left: 24px;
-          width: 2px;
-          background: rgba(255, 255, 255, 0.1);
-          z-index: 0;
+          width: 3px;
+          height: 20px;
+          background: linear-gradient(
+            to bottom,
+            rgba($pod-gold, 0.3),
+            transparent
+          );
+          border-radius: 2px;
+          z-index: 1;
           
           @media (max-width: 576px) {
             left: 15px;
+            width: 2px;
+          }
+        }
+      }
+      
+      // Status-based styling
+      &.completed {
+        .milestoneMarker {
+          background: linear-gradient(135deg, $pod-green, lighten($pod-green, 10%));
+          color: $black;
+          box-shadow: 0 0 20px rgba($pod-green, 0.4);
+          border: 3px solid rgba($pod-green, 0.2);
+        }
+        
+        .milestoneTimelineContent {
+          border-left: 3px solid $pod-green;
+          background: rgba($pod-green, 0.03);
+        }
+      }
+      
+      &.inProgress, &.in-progress {
+        .milestoneMarker {
+          background: linear-gradient(135deg, $pod-gold, lighten($pod-gold, 10%));
+          color: $black;
+          box-shadow: 0 0 20px rgba($pod-gold, 0.4);
+          border: 3px solid rgba($pod-gold, 0.2);
+          animation: pulse 2s infinite;
+        }
+        
+        .milestoneTimelineContent {
+          border-left: 3px solid $pod-gold;
+          background: rgba($pod-gold, 0.03);
+        }
+        
+        .milestoneTimelineConnector .connector {
+          background: linear-gradient(to bottom, $pod-gold 0%, rgba(255, 255, 255, 0.1) 100%);
+        }
+      }
+      
+      &.notStarted, &.not-started {
+        .milestoneMarker {
+          background: rgba(255, 255, 255, 0.08);
+          color: $gray;
+          border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .milestoneTimelineContent {
+          border-left: 3px solid rgba(255, 255, 255, 0.1);
+          opacity: 0.7;
+        }
+      }
+      
+      .milestoneTimelineConnector {
+        position: relative;
+        width: 50px;
+        flex-shrink: 0;
+        
+        @media (max-width: 576px) {
+          width: 32px;
+        }
+        
+        .milestoneMarker {
+          position: relative;
+          z-index: 2;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 8px;
+          font-weight: 700;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          
+          @media (max-width: 576px) {
+            width: 28px;
+            height: 28px;
+            margin-left: 1px;
+            font-size: 12px;
+          }
+          
+          &:hover {
+            transform: scale(1.1);
+          }
+          
+          .milestoneNumber {
+            font-size: 14px;
+            font-weight: 700;
+            
+            @media (max-width: 576px) {
+              font-size: 12px;
+            }
+          }
+          
+          // Completion checkmark
+          svg {
+            width: 18px;
+            height: 18px;
+            
+            @media (max-width: 576px) {
+              width: 16px;
+              height: 16px;
+            }
+          }
+        }
+      }
+      
+      .milestoneTimelineContent {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-left: 20px;
+        position: relative;
+        transition: all 0.3s ease;
+        
+        @media (max-width: 576px) {
+          margin-left: 16px;
+          padding: 20px;
+        }
+        
+        // Arrow pointing to timeline
+        &::before {
+          content: '';
+          position: absolute;
+          left: -8px;
+          top: 20px;
+          width: 0;
+          height: 0;
+          border-top: 8px solid transparent;
+          border-bottom: 8px solid transparent;
+          border-right: 8px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.04);
+          transform: translateX(5px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .milestoneHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 16px;
+          
+          @media (max-width: 576px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+          }
+          
+          h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: $white;
+            margin: 0;
+            background: linear-gradient(135deg, #FFFFFF 70%, $pod-gold 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+          
+          .milestoneDueDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: $gray;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            svg {
+              color: $pod-gold;
+            }
           }
         }
         
-        .milestoneTimelineItem {
-          position: relative;
-          display: flex;
-          margin-bottom: 40px;
+        .milestoneDescription {
+          font-size: 15px;
+          line-height: 1.6;
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0 0 24px;
+        }
+        
+        .milestoneProgress {
+          margin-bottom: 28px;
           
-          &:last-child {
-            margin-bottom: 0;
-          }
-          
-          &.completed {
-            .milestoneMarker {
-              background: $pod-green;
-              color: $black;
-            }
-          }
-          
-          &.in-progress {
-            .milestoneMarker {
-              background: $pod-orange;
-              color: $black;
-            }
+          .progressLabel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
             
-            .milestoneTimelineConnector .connector {
-              background: linear-gradient(to bottom, $pod-orange 0%, rgba(255, 255, 255, 0.1) 100%);
-            }
-          }
-          
-          &.not-started {
-            .milestoneMarker {
-              background: rgba(255, 255, 255, 0.1);
+            .progressText {
+              font-size: 15px;
+              font-weight: 600;
               color: $white;
             }
+            
+            .progressPercentage {
+              font-size: 18px;
+              font-weight: 700;
+              color: $pod-gold;
+              text-shadow: 0 0 10px rgba($pod-gold, 0.3);
+            }
           }
           
-          .milestoneTimelineConnector {
-            position: relative;
-            width: 50px;
-            flex-shrink: 0;
+          .progressTrack {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             
-            @media (max-width: 576px) {
-              width: 30px;
-            }
-            
-            .connector {
-              position: absolute;
-              top: 24px;
-              bottom: -40px;
-              left: 24px;
-              width: 2px;
-              background: rgba(255, 255, 255, 0.1);
-              z-index: 0;
-              
-              @media (max-width: 576px) {
-                left: 15px;
-              }
-            }
-            
-            .milestoneMarker {
+            .progressFill {
+              height: 100%;
+              background: linear-gradient(90deg, 
+                rgba($pod-gold, 0.8) 0%, 
+                $pod-gold 50%, 
+                lighten($pod-gold, 10%) 100%
+              );
+              border-radius: 5px;
               position: relative;
-              z-index: 1;
-              width: 24px;
-              height: 24px;
-              border-radius: 50%;
+              transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+              
+              // Animated shine effect
+              &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(
+                  90deg,
+                  transparent 0%,
+                  rgba(255, 255, 255, 0.4) 50%,
+                  transparent 100%
+                );
+                animation: shine 2s infinite;
+              }
+            }
+          }
+        }
+        
+        .milestoneTasks {
+          .milestonesTasksHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            
+            h4 {
+              font-size: 16px;
+              font-weight: 600;
+              color: $white;
+              margin: 0;
               display: flex;
               align-items: center;
-              justify-content: center;
-              margin-left: 12px;
+              gap: 8px;
               
-              @media (max-width: 576px) {
-                margin-left: 3px;
-              }
-              
-              .milestoneNumber {
-                font-size: 12px;
-                font-weight: 600;
+              &::before {
+                content: '';
+                width: 4px;
+                height: 16px;
+                background: $pod-gold;
+                border-radius: 2px;
               }
             }
           }
           
-          .milestoneTimelineContent {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
+          .milestonesTasksList {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             
-            .milestoneHeader {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 12px;
+            .emptyCategory {
+              padding: 24px;
+              text-align: center;
+              background: rgba(0, 0, 0, 0.2);
+              border-radius: 12px;
+              border: 1px dashed rgba(255, 255, 255, 0.1);
               
-              @media (max-width: 576px) {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-              }
-              
-              h3 {
-                font-size: 18px;
-                font-weight: 600;
-                color: $white;
-                margin: 0;
-              }
-              
-              .milestoneDueDate {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                font-size: 13px;
+              p {
                 color: $gray;
-                
-                svg {
-                  color: $pod-gold;
-                }
-              }
-            }
-            
-            .milestoneDescription {
-              font-size: 14px;
-              line-height: 1.5;
-              color: $gray;
-              margin: 0 0 20px;
-            }
-            
-            .milestoneProgress {
-              margin-bottom: 24px;
-              
-              .progressLabel {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 8px;
-                
-                .progressText {
-                  font-size: 14px;
-                  font-weight: 600;
-                  color: $white;
-                }
-                
-                .progressPercentage {
-                  font-size: 14px;
-                  font-weight: 600;
-                  color: $pod-gold;
-                }
-              }
-              
-              .progressTrack {
-                height: 8px;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 4px;
-                overflow: hidden;
-                
-                .progressFill {
-                  height: 100%;
-                  background: $pod-gold;
-                  border-radius: 4px;
-                }
-              }
-            }
-            
-            .milestoneTasks {
-              .milestonesTasksHeader {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-                
-                h4 {
-                  font-size: 15px;
-                  font-weight: 600;
-                  color: $white;
-                  margin: 0;
-                }
-                
-                .smallActionButton {
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  background: rgba(255, 255, 255, 0.05);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  border-radius: 6px;
-                  padding: 6px 10px;
-                  color: $white;
-                  font-size: 12px;
-                  cursor: pointer;
-                  
-                  &:hover {
-                    background: rgba(255, 255, 255, 0.08);
-                  }
-                }
-              }
-              
-              .milestonesTasksList {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                
-                .milestoneTask {
-                  background: rgba(255, 255, 255, 0.02);
-                  border: 1px solid rgba(255, 255, 255, 0.08);
-                  border-radius: 8px;
-                  padding: 12px;
-                  
-                  &.completed {
-                    border-left: 3px solid $status-completed;
-                    
-                    .taskStatusDot {
-                      background: $status-completed;
-                    }
-                  }
-                  
-                  &.in-progress {
-                    border-left: 3px solid $status-in-progress;
-                    
-                    .taskStatusDot {
-                      background: $status-in-progress;
-                    }
-                  }
-                  
-                  &.to-do {
-                    border-left: 3px solid $status-todo;
-                    
-                    .taskStatusDot {
-                      background: $status-todo;
-                    }
-                  }
-                  
-                  .milestoneTaskHeader {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 12px;
-                    
-                    .taskStatusDot {
-                      width: 8px;
-                      height: 8px;
-                      border-radius: 50%;
-                      flex-shrink: 0;
-                    }
-                    
-                    h5 {
-                      font-size: 14px;
-                      font-weight: 600;
-                      color: $white;
-                      margin: 0;
-                      flex: 1;
-                    }
-                    
-                    .taskActions {
-                      .iconButton {
-                        width: 24px;
-                        height: 24px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: rgba(255, 255, 255, 0.05);
-                        border: none;
-                        border-radius: 4px;
-                        color: $gray;
-                        cursor: pointer;
-                        
-                        &:hover {
-                          background: rgba(255, 255, 255, 0.1);
-                          color: $white;
-                        }
-                      }
-                    }
-                  }
-                  
-                  .milestoneTaskMeta {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    
-                    .metaItem {
-                      display: flex;
-                      align-items: center;
-                      gap: 4px;
-                      font-size: 12px;
-                      color: $gray;
-                      
-                      svg {
-                        color: $pod-gold;
-                      }
-                    }
-                    
-                    .assigneesList {
-                      display: flex;
-                      align-items: center;
-                      
-                      .taskAssignee {
-                        width: 24px;
-                        height: 24px;
-                        border-radius: 50%;
-                        overflow: hidden;
-                        margin-left: -6px;
-                        border: 2px solid rgba(0, 0, 0, 0.8);
-                        
-                        &:first-child {
-                          margin-left: 0;
-                        }
-                        
-                        img {
-                          width: 100%;
-                          height: 100%;
-                          object-fit: cover;
-                        }
-                        
-                        .assigneeInitials {
-                          width: 100%;
-                          height: 100%;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          background: rgba(255, 255, 255, 0.1);
-                          color: $white;
-                          font-weight: 600;
-                          font-size: 10px;
-                        }
-                      }
-                    }
-                  }
-                }
+                font-style: italic;
+                margin: 0;
               }
             }
           }
         }
       }
     }
+  }
+}
+
+// Enhanced animations
+@keyframes pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba($pod-gold, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba($pod-gold, 0.7);
+  }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  border: 1px dashed rgba($pod-gold, 0.2);
+  margin: 40px 0;
+  
+  .emptyStateIcon {
+    margin-bottom: 20px;
+    color: rgba($pod-gold, 0.6);
     
+    svg {
+      filter: drop-shadow(0 0 10px rgba($pod-gold, 0.2));
+    }
+  }
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 12px;
+  }
+  
+  p {
+    color: $gray;
+    margin-bottom: 24px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
     // Communication specific styles
     .communicationTab {
       .chatInterface {
@@ -3212,6 +3372,54 @@ $status-completed: rgba(52, 211, 153, 0.7);
       width: 10px;
       height: 10px;
     }
+    
+     .completedTag {
+  font-size: 11px;
+  color: $white;
+  background: rgba($pod-green, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dangerButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba($pod-red, 0.1);
+  border: 1px solid rgba($pod-red, 0.3);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: $pod-red;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  
+  &:hover {
+    background: rgba($pod-red, 0.2);
+  }
+}
+
+.smallActionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba($pod-gold, 0.05);
+  border: 1px solid rgba($pod-gold, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: $pod-gold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba($pod-gold, 0.1);
+  }
+}
     
     .statusCount {
       font-weight: 500;

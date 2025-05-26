@@ -48,7 +48,34 @@ const TaskSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  dueDate: Date
+  dueDate: Date,
+  completedAt: Date,
+  completedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  completedEarly: {
+    type: Boolean,
+    default: false
+  },
+  reviews: [{
+    reviewerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    feedback: String,
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    constructive: Boolean,
+    codeSuggestions: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

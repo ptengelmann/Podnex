@@ -32,7 +32,7 @@ console.log('JWT_EXPIRE:', process.env.JWT_EXPIRE);
 
 // Create upload directories if they don't exist
 const fs = require('fs');
-const uploadDirs = ['uploads', 'uploads/profiles'];
+const uploadDirs = ['uploads', 'uploads/profiles', 'uploads/resources'];
 uploadDirs.forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

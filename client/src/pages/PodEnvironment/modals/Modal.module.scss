@@ -600,3 +600,170 @@ $modal-gray: rgba(255, 255, 255, 0.5);
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// Enhanced PodNex branding styles
+.modalTitleSection {
+  flex: 1;
+  
+  .modalSubtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 4px 0 0 0;
+    font-weight: 400;
+  }
+}
+
+.iconSpark {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  color: $modal-gold;
+  opacity: 0.8;
+}
+
+.buttonSpark {
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+.charCount {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.dateHelper {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.milestonePreview {
+  background: rgba($modal-gold, 0.05);
+  border: 1px solid rgba($modal-gold, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  
+  .previewHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $modal-gold;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    
+    svg {
+      color: $modal-gold;
+    }
+  }
+  
+  .previewContent {
+    .previewTitle {
+      font-size: 16px;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+    
+    .previewMeta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      
+      .previewStatus {
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      
+      .previewDate {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+    
+    .previewProgress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .progressBar {
+        flex: 1;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        
+        .progressFill {
+          height: 100%;
+          background: $modal-gold;
+          border-radius: 3px;
+          transition: width 0.3s ease;
+        }
+      }
+      
+      .progressText {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        min-width: 80px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+// Enhanced floating shapes
+.shape3 {
+  top: 60%;
+  right: 8%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50% 30% 60% 40% / 30% 60% 40% 70%;
+  background: linear-gradient(135deg, rgba($modal-gold, 0.2), rgba(59, 130, 246, 0.1), transparent);
+  filter: blur(40px);
+}
+
+// Enhanced animations
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.modalIcon {
+  &::after {
+    animation: pulse 3s infinite;
+  }
+}
+
+// Better responsive design
+@media (max-width: 768px) {
+  .modalContainer {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+  }
+  
+  .milestonePreview {
+    margin: 16px 0;
+    padding: 12px;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+    gap: 12px;
+    
+    .cancelButton,
+    .submitButton {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
