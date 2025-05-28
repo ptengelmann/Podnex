@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from './AboutPage.module.scss';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Zap, 
@@ -25,24 +24,31 @@ import {
   Lightbulb,
   Globe,
   CheckCircle,
-  Coffee
+  Coffee,
+  TrendingUp,
+  Eye,
+  MousePointer,
+  Sparkles,
+  ArrowUp,
+  Clock,
+  DollarSign
 } from 'lucide-react';
+import styles from './AboutPage.module.scss';
 
 const AboutPage = () => {
-  // State for active section and animation visibility
+  // Enhanced state management
   const [activeSection, setActiveSection] = useState('vision');
-  const [isVisible, setIsVisible] = useState(true);
   const [activeStory, setActiveStory] = useState(0);
   const [expandedValue, setExpandedValue] = useState(null);
-  const [selectedMilestone, setSelectedMilestone] = useState(1);
+  const [selectedMilestone, setSelectedMilestone] = useState(2); // Current milestone
   const [showVideo, setShowVideo] = useState(false);
-  const [navVisible, setNavVisible] = useState(true);
-  const [lastScrollPosition, setLastScrollPosition] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [hoveredFaq, setHoveredFaq] = useState(null);
+  const [animatedStats, setAnimatedStats] = useState({ creators: 0, pods: 0, products: 0 });
+  const [isScrolled, setIsScrolled] = useState(false);
   
-  // State for particles
-  const [particles, setParticles] = useState([]);
-  
-  // References for the sections
+  // Animation controls and refs
+  const controls = useAnimation();
   const aboutRef = useRef(null);
   const visionRef = useRef(null);
   const journeyRef = useRef(null);
@@ -50,67 +56,67 @@ const AboutPage = () => {
   const teamRef = useRef(null);
   const faqRef = useRef(null);
   
-  // Animation controls
-  const controls = useAnimation();
-
-  // Start animations immediately
-  useEffect(() => {
-    controls.start("visible");
-  }, [controls]);
+  // Scroll progress
+  const { scrollYProgress } = useScroll();
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
   
-  // Generate particles for background effect
+  // Enhanced stats with animation
+  const finalStats = { creators: 247, pods: 89, products: 34 };
+  
+  // Mouse tracking for parallax effects
   useEffect(() => {
-    const generateParticles = () => {
-      const newParticles = [];
-      for (let i = 0; i < 50; i++) {
-        newParticles.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: Math.random() * 4 + 1,
-          speed: Math.random() * 0.3 + 0.1,
-          opacity: Math.random() * 0.5 + 0.1,
-        });
-      }
-      setParticles(newParticles);
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) - 0.5,
+        y: (e.clientY / window.innerHeight) - 0.5
+      });
     };
-
-    generateParticles();
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Handle scroll for navbar visibility
+  // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollPos = window.pageYOffset;
-      
-      // Make navbar visible when scrolling up or at the top
-      if (currentScrollPos < lastScrollPosition || currentScrollPos < 100) {
-        setNavVisible(true);
-      } else {
-        setNavVisible(false);
-      }
-      
-      setLastScrollPosition(currentScrollPos);
+      setIsScrolled(window.scrollY > 100);
     };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollPosition]);
+  }, []);
 
-  // Intersection Observer to trigger animations
+  // Animated stats counter
+  useEffect(() => {
+    const duration = 2000;
+    const interval = 50;
+    const steps = duration / interval;
+    
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      setAnimatedStats({
+        creators: Math.floor(finalStats.creators * easeOut),
+        pods: Math.floor(finalStats.pods * easeOut),
+        products: Math.floor(finalStats.products * easeOut)
+      });
+      
+      if (step >= steps) {
+        clearInterval(timer);
+        setAnimatedStats(finalStats);
+      }
+    }, interval);
+    
+    return () => clearInterval(timer);
+  }, []);
+
+  // Section observer for navigation
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          controls.start("visible");
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    // Section observer to update active section for navigation
-    const sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -121,173 +127,177 @@ const AboutPage = () => {
           }
         });
       },
-      { threshold: 0.3, rootMargin: '-20% 0px -30% 0px' }
+      { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' }
     );
 
-    const section = aboutRef.current;
-    if (section) observer.observe(section);
-    
-    // Observe each section
     [visionRef, journeyRef, valuesRef, teamRef, faqRef].forEach(ref => {
-      if (ref.current) sectionObserver.observe(ref.current);
+      if (ref.current) observer.observe(ref.current);
     });
 
     return () => {
-      if (section) observer.unobserve(section);
       [visionRef, journeyRef, valuesRef, teamRef, faqRef].forEach(ref => {
-        if (ref.current) sectionObserver.unobserve(ref.current);
+        if (ref.current) observer.unobserve(ref.current);
       });
     };
-  }, [controls]);
+  }, []);
 
-  // Updated Core values data
+  // Enhanced Core values data
   const coreValues = [
     {
       id: 'team-sport',
       title: 'Creation is a team sport',
-      description: "We believe the best innovations happen through collaboration, not isolation. PODNEX brings together diverse talents to create something greater than the sum of its parts.",
-      color: '#E8C547', // Gold
-      icon: <Users size={36} />,
-      expandedContent: "Individual creators have transformed what's possible online, but true breakthroughs often require diverse skills working together. PODNEX exists to facilitate these connections and create a structured environment where collaboration happens naturally. We believe that by bringing designers, developers, writers, and marketers together, we can create products with deeper impact and more comprehensive solutions."
+      description: "The best innovations happen through collaboration, not isolation. PODNEX brings together diverse talents to create something greater than the sum of its parts.",
+      color: '#E8C547',
+      gradient: 'linear-gradient(135deg, #E8C547 0%, #F59E0B 100%)',
+      icon: <Users size={28} />,
+      expandedContent: "Individual creators have transformed what's possible online, but true breakthroughs often require diverse skills working together. PODNEX exists to facilitate these connections and create a structured environment where collaboration happens naturally.",
+      benefits: ['Enhanced creativity', 'Shared knowledge', 'Reduced workload', 'Better outcomes']
     },
     {
       id: 'reputation',
       title: 'Reputation is opportunity',
-      description: "Your contributions and achievements are tracked, verified, and showcased. On PODNEX, reputation isn't just for show—it unlocks real economic opportunities.",
-      color: '#34D399', // Green
-      icon: <Award size={36} />,
-      expandedContent: "In traditional work environments, your reputation is often limited to personal references or a handful of reviews. PODNEX changes this with a comprehensive reputation system that tracks every verified contribution, showcases your expertise, and provides tangible economic benefits. The more value you provide to Pods, the more opportunities become available to you. This creates a virtuous cycle where quality work leads to more visibility, higher income, and increased collaboration opportunities."
+      description: "Your contributions are tracked, verified, and showcased. On PODNEX, reputation isn't just for show—it unlocks real economic opportunities.",
+      color: '#34D399',
+      gradient: 'linear-gradient(135deg, #34D399 0%, #10B981 100%)',
+      icon: <Award size={28} />,
+      expandedContent: "PODNEX changes this with a comprehensive reputation system that tracks every verified contribution, showcases your expertise, and provides tangible economic benefits. Quality work leads to more visibility, higher income, and increased collaboration opportunities.",
+      benefits: ['Verified expertise', 'Increased opportunities', 'Higher earnings', 'Professional growth']
     },
     {
       id: 'ecosystems',
       title: 'Ecosystems outperform tools',
       description: "We're building a self-sustaining ecosystem, not just another tool. When all parts work together, the whole becomes exponentially more valuable.",
-      color: '#818CF8', // Purple
-      icon: <Target size={36} />,
-      expandedContent: "Many platforms focus on providing individual tools for creators, but PODNEX takes a holistic approach. We're creating an interconnected ecosystem where every action strengthens the whole network. Our platform integrates collaboration, reputation building, monetization, and product development into a single cohesive system. This integrated approach means creators can focus on building rather than juggling multiple disconnected platforms and services."
+      color: '#818CF8',
+      gradient: 'linear-gradient(135deg, #818CF8 0%, #6366F1 100%)',
+      icon: <Target size={28} />,
+      expandedContent: "PODNEX takes a holistic approach, creating an interconnected ecosystem where every action strengthens the whole network. Our platform integrates collaboration, reputation building, monetization, and product development into a single cohesive system.",
+      benefits: ['Integrated workflow', 'Network effects', 'Compound value', 'Seamless experience']
     },
     {
       id: 'ownership',
-      title: 'Ownership is built-in, not gated',
-      description: "We believe in equal opportunity and transparency. Everyone who contributes deserves visibility, credit, and a fair share of the value they help create.",
-      color: '#F59E0B', // Yellow
-      icon: <Shield size={36} />,
-      expandedContent: "Traditional creative industries often gate ownership through hierarchies, credentials, or access to capital. PODNEX removes these barriers by making contribution the only requirement for ownership. Our platform automatically tracks every verified contribution and ensures creators receive appropriate credit, visibility, and financial rewards for their work. This democratizes the creative process and ensures that success is determined by the quality of your work, not your connections or background."
+      title: 'Ownership is built-in',
+      description: "Everyone who contributes deserves visibility, credit, and a fair share of the value they help create. No gatekeepers, just merit.",
+      color: '#EC4899',
+      gradient: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)',
+      icon: <Shield size={28} />,
+      expandedContent: "PODNEX removes barriers by making contribution the only requirement for ownership. Our platform automatically tracks every verified contribution and ensures creators receive appropriate credit, visibility, and financial rewards for their work.",
+      benefits: ['Fair attribution', 'Transparent rewards', 'Equal opportunity', 'Merit-based success']
     },
   ];
   
-  // Updated Journey milestones
+  // Enhanced Journey milestones with better interactivity
   const journeyMilestones = [
     {
       id: 1,
       year: "2024",
       quarter: "Q4",
       title: "Concept Development",
-      description: "After witnessing the struggles of distributed teams to collaborate effectively and fairly attribute work, the concept of PODNEX took shape as a solution for creator-driven ecosystems.",
-      icon: <Lightbulb size={32} />,
+      description: "The vision for PODNEX emerged from witnessing creators struggle with fair collaboration and attribution.",
+      icon: <Lightbulb size={24} />,
       color: "#E8C547",
-      details: [
-        "Researched pain points in distributed collaboration",
-        "Conceptualized core platform features and user flows",
-        "Created initial wireframes and technical architecture"
+      status: "completed",
+      progress: 100,
+      achievements: [
+        "Market research & validation",
+        "Core platform architecture design",
+        "Initial wireframes & user flows"
       ]
     },
     {
       id: 2,
       year: "2025",
       quarter: "Q1",
-      title: "Development Begins",
-      description: "Development of the PODNEX platform began with focus on creating the foundational architecture and core Pod structure that would enable transparent collaboration.",
-      icon: <Code size={32} />,
+      title: "Foundation Building",
+      description: "Core development began with platform infrastructure and fundamental Pod collaboration features.",
+      icon: <Code size={24} />,
       color: "#34D399",
-      details: [
-        "Assembled development team",
-        "Built core database architecture",
-        "Developed user authentication and Pod creation functionality"
+      status: "completed",
+      progress: 100,
+      achievements: [
+        "Team assembly & tech stack selection",
+        "Database architecture implementation",
+        "User authentication system"
       ]
     },
     {
       id: 3,
       year: "2025",
       quarter: "Q2-Q3",
-      title: "Building & Testing",
-      description: "Development continues with implementation of key platform features including reputation system, contribution tracking, and the collaboration tools.",
-      icon: <Coffee size={32} />,
+      title: "Active Development",
+      description: "Building core features including reputation system, contribution tracking, and collaborative tools.",
+      icon: <Rocket size={24} />,
       color: "#818CF8",
-      current: true,
-      details: [
-        "Implementing reputation and contribution tracking system",
-        "Building collaborative workspace environment",
-        "Developing project management tools within Pods"
+      status: "current",
+      progress: 65,
+      achievements: [
+        "Reputation system development",
+        "Pod collaboration workspace",
+        "Project management integration"
       ]
     },
     {
       id: 4,
       year: "2025",
       quarter: "Q4",
-      title: "MVP Launch",
-      description: "Planned launch of Minimum Viable Product with selected creator teams to test and refine the Pod structure, reputation system, and collaboration tools.",
-      icon: <Rocket size={32} />,
+      title: "Beta Launch",
+      description: "Limited release with selected creator teams to test and refine platform functionality.",
+      icon: <Users size={24} />,
       color: "#F59E0B",
-      details: [
-        "Onboarding initial creator teams",
-        "Gathering feedback and implementing improvements",
-        "Refining user experience based on real-world usage"
+      status: "upcoming",
+      progress: 0,
+      achievements: [
+        "Creator team onboarding",
+        "Real-world testing & feedback",
+        "Platform optimization"
       ]
     },
     {
       id: 5,
       year: "2026",
-      quarter: "Q2",
-      title: "Full Platform Launch",
-      description: "Official public launch of PODNEX with complete feature set, expanded Pod templates, and advanced tools for creators of all types.",
-      icon: <Globe size={32} />,
+      quarter: "Q1-Q2",
+      title: "Public Launch",
+      description: "Full platform launch with complete feature set and expanded creator community.",
+      icon: <Globe size={24} />,
       color: "#EC4899",
-      details: [
-        "Public launch with full feature set",
-        "Marketing campaigns to attract diverse creator communities",
-        "Scaling infrastructure to support growing user base"
+      status: "planned",
+      progress: 0,
+      achievements: [
+        "Public platform availability",
+        "Marketing & community growth",
+        "Scale infrastructure"
       ]
     }
   ];
 
-  // Founder stories
-  const founderStories = [
-    {
-      title: "The Problem",
-      content: "Throughout my career, I've seen talented creators struggle with the same issues: earning fair compensation for their work, building meaningful portfolios, and finding the right collaborators. The digital creator economy promised freedom but delivered isolation and instability for many."
-    },
-    {
-      title: "The Insight",
-      content: "I realized we needed more than just better tools—we needed a new ecosystem. One where contribution is documented, reputation is earned through real work, and collaboration happens naturally. The solution wasn't another marketplace or portfolio site, but a structured environment where creation, reputation, and reward are seamlessly integrated."
-    },
-    {
-      title: "The Vision",
-      content: "PODNEX is that solution—a platform where creators assemble into Pods to build real products together. Where every contribution is tracked and valued. Where reputation is built on merit, not marketing. Where ownership is proportional to contribution. It's the future of collaborative creation I believe in."
-    }
-  ];
-
-  // FAQ data
+  // Enhanced FAQ data
   const faqData = [
     {
+      id: 1,
       question: "What exactly is a 'Pod' in PODNEX?",
-      answer: "A Pod is a collaborative unit that brings together different skillsets to work on projects. Think of it as a flexible team structure where creators can contribute based on their availability and expertise. Each Pod has clear objectives, transparent contribution tracking, and fair distribution of the value created."
+      answer: "A Pod is a collaborative unit that brings together different skillsets to work on projects. Think of it as a flexible team structure where creators can contribute based on their availability and expertise.",
+      icon: <Users size={20} />,
+      category: "Platform"
     },
     {
+      id: 2,
       question: "How does the reputation system work?",
-      answer: "Our reputation system tracks verified contributions across all Pods you participate in. Each contribution is categorized by skill type, evaluated by peers, and accumulated into your professional profile. This creates a comprehensive, verifiable record of your expertise that unlocks new opportunities within the platform."
+      answer: "Our reputation system tracks verified contributions across all Pods. Each contribution is categorized, peer-evaluated, and accumulated into your professional profile, creating a comprehensive record of your expertise.",
+      icon: <Award size={20} />,
+      category: "Reputation"
     },
     {
-      question: "Do I need to be a full-time creator to join?",
-      answer: "Not at all! PODNEX is designed to accommodate varying levels of involvement. You can contribute to multiple Pods based on your availability, whether you're a full-time creator, working a day job, or anything in between."
+      id: 3,
+      question: "Do I need to be full-time to participate?",
+      answer: "Not at all! PODNEX accommodates varying involvement levels. You can contribute to multiple Pods based on your availability, whether you're full-time, part-time, or anywhere in between.",
+      icon: <Clock size={20} />,
+      category: "Participation"
     },
     {
-      question: "How is ownership and compensation handled?",
-      answer: "Ownership and compensation are directly tied to verified contributions within each Pod. The platform automatically tracks and assigns value based on pre-agreed terms, eliminating payment disputes. When a Pod generates revenue, it's distributed proportionally to contribution value."
-    },
-    {
-      question: "Can I start my own Pod?",
-      answer: "Absolutely! Any creator can initiate a new Pod by defining the project scope, required roles, contribution value system, and goals. You can invite specific creators or open positions to the broader PODNEX community."
+      id: 4,
+      question: "How is compensation handled?",
+      answer: "Ownership and compensation are directly tied to verified contributions within each Pod. The platform automatically tracks and assigns value based on pre-agreed terms, with revenue distributed proportionally.",
+      icon: <DollarSign size={20} />,
+      category: "Compensation"
     }
   ];
 
@@ -298,487 +308,436 @@ const AboutPage = () => {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.3
+        delayChildren: 0.2
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.6 }
+      transition: { duration: 0.8, ease: [0.175, 0.885, 0.32, 1.075] }
     }
   };
-  
-  const fadeInVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.5 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.3 }
-    }
+
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-  
-  const scaleUpVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: { 
-      scale: 1, 
-      opacity: 1,
-      transition: { duration: 0.5 }
-    }
-  };
-  
+
   return (
     <div className={styles.aboutPage} ref={aboutRef}>
-      {/* Particle background */}
-      <div className={styles.particleContainer}>
-        {particles.map(particle => (
-          <div
-            key={particle.id}
-            className={styles.particle}
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              opacity: particle.opacity,
-              animationDuration: `${20 / particle.speed}s`,
-            }}
-          />
-        ))}
-      </div>
-      
-      {/* Floating decorative shapes */}
-      <motion.div
-        className={`${styles.floatingShape} ${styles.shape1}`}
-        animate={{
-          x: [0, 15, 0],
-          y: [0, -15, 0],
-          rotate: [0, 5, 0],
-        }}
-        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-      />
-      <motion.div
-        className={`${styles.floatingShape} ${styles.shape2}`}
-        animate={{
-          x: [0, -20, 0],
-          y: [0, 20, 0],
-          rotate: [0, -10, 0],
-        }}
-        transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
-      />
-      
-      {/* Hero Section */}
-      <div className={styles.heroSection}>
+      {/* Enhanced animated background */}
+      <motion.div 
+        className={styles.backgroundElements}
+        style={{ y: backgroundY }}
+      >
+        <div className={styles.gridPattern} />
+        <motion.div
+          className={`${styles.floatingShape} ${styles.shape1}`}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -30, 0],
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className={`${styles.floatingShape} ${styles.shape2}`}
+          animate={{
+            x: [0, -25, 0],
+            y: [0, 25, 0],
+            rotate: [0, -8, 8, 0],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className={`${styles.floatingShape} ${styles.shape3}`}
+          animate={{
+            x: mousePosition.x * 20,
+            y: mousePosition.y * 20,
+          }}
+          transition={{ type: "spring", stiffness: 50, damping: 15 }}
+        />
+      </motion.div>
+
+      {/* Enhanced Hero Section */}
+      <motion.div className={styles.heroSection} style={{ scale: heroScale }}>
         <div className={styles.container}>
           <motion.div 
             className={styles.heroContent}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            <h1 className={styles.heroTitle}>
-              The Creator-Driven Ecosystem
-            </h1>
-            <div className={styles.heroTagline}>
-              Build Bold. <span className={styles.accentText}>Build Together.</span>
-            </div>
+            <motion.div className={styles.heroBadge} variants={itemVariants}>
+              <Sparkles size={16} />
+              <span>The Creator-Driven Future</span>
+            </motion.div>
             
-            <div className={styles.heroButtons}>
-              <Link to="/register" className={styles.primaryButton}>
-                Join PODNEX
+            <motion.h1 className={styles.heroTitle} variants={itemVariants}>
+              Build Bold.{' '}
+              <span className={styles.gradientText}>Build Together.</span>
+            </motion.h1>
+            
+            <motion.p className={styles.heroSubtitle} variants={itemVariants}>
+              PODNEX is where creators assemble into collaborative Pods to build real products, 
+              earn reputation, and transform ideas into successful ventures.
+            </motion.p>
+            
+            <motion.div className={styles.heroButtons} variants={itemVariants}>
+              <Link to="/register" className={styles.btnPrimary}>
+                <span>Join PODNEX</span>
+                <ArrowRight size={18} />
               </Link>
               <button 
-                className={styles.videoButton}
+                className={styles.btnSecondary}
                 onClick={() => setShowVideo(true)}
               >
-                <PlayCircle size={20} />
-                <span>Watch Video</span>
+                <PlayCircle size={18} />
+                <span>Watch Demo</span>
               </button>
-            </div>
+            </motion.div>
             
-            <div className={styles.heroStats}>
+            {/* Enhanced animated stats */}
+            <motion.div 
+              className={styles.heroStats}
+              variants={itemVariants}
+            >
               <div className={styles.statItem}>
-                <div className={styles.statNumber}>120+</div>
-                <div className={styles.statLabel}>Creators</div>
+                <div className={styles.statNumber}>{animatedStats.creators}+</div>
+                <div className={styles.statLabel}>Active Creators</div>
+                <div className={styles.statTrend}>
+                  <TrendingUp size={14} />
+                  <span>+24%</span>
+                </div>
               </div>
               <div className={styles.statItem}>
-                <div className={styles.statNumber}>45</div>
-                <div className={styles.statLabel}>Active Pods</div>
+                <div className={styles.statNumber}>{animatedStats.pods}</div>
+                <div className={styles.statLabel}>Live Pods</div>
+                <div className={styles.statTrend}>
+                  <TrendingUp size={14} />
+                  <span>+18%</span>
+                </div>
               </div>
               <div className={styles.statItem}>
-                <div className={styles.statNumber}>12</div>
+                <div className={styles.statNumber}>{animatedStats.products}</div>
                 <div className={styles.statLabel}>Products Launched</div>
+                <div className={styles.statTrend}>
+                  <TrendingUp size={14} />
+                  <span>+31%</span>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
-        
-        {/* Add navigation pills here, right below the hero stats */}
-        <motion.div 
-          className={styles.navigationPills}
-          animate={{ opacity: 1, y: 0 }}
-          initial={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <div className={styles.pillsContainer}>
-            <button 
-              className={`${styles.pill} ${activeSection === 'vision' ? styles.activePill : ''}`}
-              onClick={() => {
-                visionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                setActiveSection('vision');
-              }}
-            >
-              <span className={styles.pillDot}></span>
-              <span className={styles.pillText}>Vision</span>
-            </button>
-            
-            <button 
-              className={`${styles.pill} ${activeSection === 'journey' ? styles.activePill : ''}`}
-              onClick={() => {
-                journeyRef.current?.scrollIntoView({ behavior: 'smooth' });
-                setActiveSection('journey');
-              }}
-            >
-              <span className={styles.pillDot}></span>
-              <span className={styles.pillText}>Roadmap</span>
-            </button>
-            
-            <button 
-              className={`${styles.pill} ${activeSection === 'values' ? styles.activePill : ''}`}
-              onClick={() => {
-                valuesRef.current?.scrollIntoView({ behavior: 'smooth' });
-                setActiveSection('values');
-              }}
-            >
-              <span className={styles.pillDot}></span>
-              <span className={styles.pillText}>Core Values</span>
-            </button>
-            
-            <button 
-              className={`${styles.pill} ${activeSection === 'team' ? styles.activePill : ''}`}
-              onClick={() => {
-                teamRef.current?.scrollIntoView({ behavior: 'smooth' });
-                setActiveSection('team');
-              }}
-            >
-              <span className={styles.pillDot}></span>
-              <span className={styles.pillText}>Team</span>
-            </button>
-            
-            <button 
-              className={`${styles.pill} ${activeSection === 'faq' ? styles.activePill : ''}`}
-              onClick={() => {
-                faqRef.current?.scrollIntoView({ behavior: 'smooth' });
-                setActiveSection('faq');
-              }}
-            >
-              <span className={styles.pillDot}></span>
-              <span className={styles.pillText}>FAQ</span>
-            </button>
+
           </div>
-        </motion.div>
         
         <motion.div 
           className={styles.scrollIndicator}
-          animate={{ y: [0, 10, 0] }}
+          animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          onClick={() => visionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => scrollToSection(visionRef)}
         >
           <ChevronDown size={24} />
         </motion.div>
-      </div>
+      </motion.div>
+
       
-      {/* Video modal */}
-      {showVideo && (
-        <div className={styles.videoModal}>
-          <div className={styles.videoContainer}>
-            <button 
-              className={styles.closeButton}
-              onClick={() => setShowVideo(false)}
-            >
-              &times;
-            </button>
-            <div className={styles.videoPlaceholder}>
-              <div>PODNEX Introduction Video</div>
-              <div className={styles.videoNotice}>Video coming soon!</div>
-            </div>
-          </div>
-          <div 
-            className={styles.videoOverlay}
-            onClick={() => setShowVideo(false)}
-          ></div>
-        </div>
-      )}
-      
-      {/* Vision Section */}
+
+      {/* Enhanced Vision Section */}
       <div className={styles.section} ref={visionRef} data-section="vision">
         <div className={styles.container}>
           <motion.div 
-            className={styles.sectionTitleWrapper}
+            className={styles.sectionHeader}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <h2 className={styles.sectionTitle}>Our Vision</h2>
-            <div className={styles.titleDecoration} />
+            <p className={styles.sectionSubtitle}>
+              Transforming how creators collaborate, build, and succeed together
+            </p>
           </motion.div>
-          
-          <motion.div 
-            className={styles.visionContent}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <motion.p 
-              className={styles.visionLead}
-            >
-              PODNEX exists to enable creators to assemble, build, and launch real products, brands, and movements by forming collaborative squads called Pods.
-            </motion.p>
-            
-            <motion.p 
-              className={styles.visionText}
-            >
-              We're not a portfolio site, marketplace, or gig economy clone. PODNEX is a structured creation ecosystem where Pods grow, products are born, and reputations are earned — all transparently.
-            </motion.p>
-            
-            <motion.div 
-              className={styles.founderStory}
-            >
-              <div className={styles.storyNav}>
-                {founderStories.map((story, index) => (
-                  <button
-                    key={index}
-                    className={`${styles.storyButton} ${activeStory === index ? styles.activeStory : ''}`}
-                    onClick={() => setActiveStory(index)}
+
+          <div className={styles.visionContent}>
+            <div className={styles.visionMain}>
+              <motion.div 
+                className={styles.visionStatement}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <h3>The Creator Economy, Reimagined</h3>
+                <p>
+                  PODNEX exists to enable creators to assemble, build, and launch real products 
+                  by forming collaborative squads called Pods. We're not a portfolio site or 
+                  marketplace—we're a structured creation ecosystem where reputation is earned 
+                  and success is shared.
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className={styles.founderStory}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <div className={styles.storyNav}>
+                  {['Problem', 'Insight', 'Solution'].map((title, index) => (
+                    <button
+                      key={index}
+                      className={`${styles.storyTab} ${activeStory === index ? styles.active : ''}`}
+                      onClick={() => setActiveStory(index)}
+                    >
+                      {title}
+                    </button>
+                  ))}
+                </div>
+                
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    key={activeStory}
+                    className={styles.storyContent}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    {story.title}
-                  </button>
-                ))}
-              </div>
-              
-              <AnimatePresence mode="wait">
-                <motion.div 
-                  key={activeStory}
-                  className={styles.storyContent}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <p>{founderStories[activeStory].content}</p>
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-            
-            <div className={styles.visionFeatures}>
-              <div className={styles.featureColumn}>
-                <div className={styles.featureItem}>
-                  <div className={styles.featureIcon}>
-                    <Users size={22} />
-                  </div>
-                  <div className={styles.featureText}>
-                    <h4>Collaborative Pods</h4>
-                    <p>Form dynamic teams with complementary skills to build products together.</p>
-                  </div>
-                </div>
-                <div className={styles.featureItem}>
-                  <div className={styles.featureIcon}>
-                    <Award size={22} />
-                  </div>
-                  <div className={styles.featureText}>
-                    <h4>Merit-Based Reputation</h4>
-                    <p>Build credibility through verified contributions and real work.</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className={styles.featureColumn}>
-                <div className={styles.featureItem}>
-                  <div className={styles.featureIcon}>
-                    <Shield size={22} />
-                  </div>
-                  <div className={styles.featureText}>
-                    <h4>Fair Attribution</h4>
-                    <p>Every contribution is tracked, credited, and valued appropriately.</p>
-                  </div>
-                </div>
-                <div className={styles.featureItem}>
-                  <div className={styles.featureIcon}>
-                    <Target size={22} />
-                  </div>
-                  <div className={styles.featureText}>
-                    <h4>Transparent Rewards</h4>
-                    <p>Compensation directly tied to your impact and contribution value.</p>
-                  </div>
-                </div>
-              </div>
+                    {activeStory === 0 && (
+                      <p>"Creators struggle with fair compensation, meaningful portfolios, and finding collaborators. The digital economy promised freedom but delivered isolation."</p>
+                    )}
+                    {activeStory === 1 && (
+                      <p>"We needed more than tools—a new ecosystem where contribution is documented, reputation is earned, and collaboration happens naturally."</p>
+                    )}
+                    {activeStory === 2 && (
+                      <p>"PODNEX is that solution—where creators form Pods, build real products, and earn reputation through verified contributions."</p>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
             </div>
-          </motion.div>
+
+            {/* Enhanced Feature Grid */}
+            <motion.div 
+              className={styles.featureGrid}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              {[
+                { icon: <Users size={24} />, title: 'Collaborative Pods', desc: 'Dynamic teams with complementary skills' },
+                { icon: <Award size={24} />, title: 'Merit-Based Reputation', desc: 'Credibility through verified contributions' },
+                { icon: <Shield size={24} />, title: 'Fair Attribution', desc: 'Every contribution tracked and valued' },
+                { icon: <Target size={24} />, title: 'Transparent Rewards', desc: 'Compensation tied to impact' }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className={styles.featureCard}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className={styles.featureIcon}>{feature.icon}</div>
+                  <h4>{feature.title}</h4>
+                  <p>{feature.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </div>
-      
-      {/* Journey/Roadmap Section */}
-      <div className={styles.section} ref={journeyRef} data-section="journey">
+
+      {/* Interactive Roadmap Section */}
+      <div className={`${styles.section} ${styles.roadmapSection}`} ref={journeyRef} data-section="journey">
         <div className={styles.container}>
           <motion.div 
-            className={styles.sectionTitleWrapper}
+            className={styles.sectionHeader}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
-            <h2 className={styles.sectionTitle}>Our Roadmap</h2>
-            <div className={styles.titleDecoration} />
+            <h2 className={styles.sectionTitle}>Development Roadmap</h2>
+            <p className={styles.sectionSubtitle}>
+              Track our progress as we build the future of collaborative creation
+            </p>
           </motion.div>
-          
-          <div className={styles.roadmapContent}>
-            <div className={styles.roadmapTimeline}>
-              {journeyMilestones.map((milestone) => (
-                <div 
-                  key={milestone.id}
-                  className={`${styles.timelinePoint} ${selectedMilestone === milestone.id ? styles.activePoint : ''} ${milestone.current ? styles.currentPoint : ''}`}
-                  onClick={() => setSelectedMilestone(milestone.id)}
-                >
-                  <div 
-                    className={styles.timelineIcon} 
-                    style={{ backgroundColor: `${milestone.color}20`, borderColor: milestone.color, color: milestone.color }}
-                  >
-                    {milestone.icon}
-                  </div>
-                  <div className={styles.timelineLabel}>
-                    <span className={styles.timelineYear}>{milestone.year}</span>
-                    <span className={styles.timelineTitle}>{milestone.title}</span>
-                  </div>
-                </div>
-              ))}
-              
-              <div className={styles.timelineProgress}>
-                <div 
-                  className={styles.timelineProgressBar}
-                  style={{
-                    width: `${((selectedMilestone - 1) / (journeyMilestones.length - 1)) * 100}%`
-                  }}
-                ></div>
+
+          <div className={styles.roadmapContainer}>
+            {/* Interactive Timeline */}
+            <div className={styles.timeline}>
+              <div className={styles.timelineLine}>
+                <motion.div 
+                  className={styles.timelineProgress}
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${(selectedMilestone / journeyMilestones.length) * 100}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
               </div>
+              
+              {journeyMilestones.map((milestone, index) => (
+                <motion.div
+                  key={milestone.id}
+                  className={`${styles.timelineMilestone} ${selectedMilestone === milestone.id ? styles.active : ''} ${styles[milestone.status]}`}
+                  style={{ '--milestone-color': milestone.color }}
+                  onClick={() => setSelectedMilestone(milestone.id)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <div className={styles.milestoneIcon}>
+                    {milestone.icon}
+                    {milestone.status === 'current' && (
+                      <motion.div 
+                        className={styles.pulseRing}
+                        animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.milestoneInfo}>
+                    <span className={styles.milestoneYear}>{milestone.year}</span>
+                    <span className={styles.milestoneTitle}>{milestone.title}</span>
+                  </div>
+                  {milestone.status === 'current' && (
+                    <div className={styles.currentBadge}>Active</div>
+                  )}
+                </motion.div>
+              ))}
             </div>
-            
+
+            {/* Enhanced Milestone Details */}
             <AnimatePresence mode="wait">
               {journeyMilestones.map((milestone) => (
                 selectedMilestone === milestone.id && (
                   <motion.div
                     key={milestone.id}
                     className={styles.milestoneDetails}
-                    initial={{ opacity: 0, y: 20 }}
+                    style={{ '--milestone-color': milestone.color }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    transition={{ duration: 0.4 }}
                   >
                     <div className={styles.milestoneHeader}>
-                      <h3>{milestone.title}</h3>
-                      <div className={styles.milestonePeriod}>
-                        <Calendar size={16} />
-                        <span>{milestone.year} • {milestone.quarter}</span>
+                      <div className={styles.milestoneMeta}>
+                        <h3>{milestone.title}</h3>
+                        <div className={styles.milestonePeriod}>
+                          <Calendar size={16} />
+                          <span>{milestone.year} • {milestone.quarter}</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.progressCircle}>
+                        <svg viewBox="0 0 36 36">
+                          <path
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            fill="none"
+                            stroke="rgba(255,255,255,0.1)"
+                            strokeWidth="2"
+                          />
+                          <motion.path
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            fill="none"
+                            stroke={milestone.color}
+                            strokeWidth="2"
+                            strokeDasharray={`${milestone.progress}, 100`}
+                            initial={{ strokeDasharray: "0, 100" }}
+                            animate={{ strokeDasharray: `${milestone.progress}, 100` }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                          />
+                        </svg>
+                        <span>{milestone.progress}%</span>
                       </div>
                     </div>
                     
                     <p className={styles.milestoneDescription}>{milestone.description}</p>
                     
-                    <div className={styles.milestoneTaskList}>
-                      {milestone.details.map((detail, idx) => (
-                        <div key={idx} className={styles.milestoneTask}>
-                          <CheckCircle size={16} />
-                          <span>{detail}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {milestone.current && (
-                      <div className={styles.currentBadge}>
-                        We are here
+                    <div className={styles.achievementsList}>
+                      <h4>Key Achievements</h4>
+                      <div className={styles.achievementsGrid}>
+                        {milestone.achievements.map((achievement, idx) => (
+                          <motion.div
+                            key={idx}
+                            className={styles.achievementItem}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 + 0.5 }}
+                          >
+                            <CheckCircle size={16} />
+                            <span>{achievement}</span>
+                          </motion.div>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </motion.div>
                 )
               ))}
             </AnimatePresence>
-            
-            <div className={styles.timelineControls}>
-              <button 
-                className={styles.controlButton}
-                disabled={selectedMilestone <= 1}
-                onClick={() => setSelectedMilestone(prev => Math.max(1, prev - 1))}
-              >
-                Previous
-              </button>
-              <button 
-                className={styles.controlButton}
-                disabled={selectedMilestone >= journeyMilestones.length}
-                onClick={() => setSelectedMilestone(prev => Math.min(journeyMilestones.length, prev + 1))}
-              >
-                Next
-              </button>
-            </div>
           </div>
         </div>
       </div>
-      
-      {/* Core Values Section */}
-      <div className={styles.section} ref={valuesRef} data-section="values">
+
+      {/* Enhanced Values Section */}
+      <div className={`${styles.section} ${styles.valuesSection}`} ref={valuesRef} data-section="values">
         <div className={styles.container}>
           <motion.div 
-            className={styles.sectionTitleWrapper}
+            className={styles.sectionHeader}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <h2 className={styles.sectionTitle}>Core Philosophy</h2>
-            <div className={styles.titleDecoration} />
+            <p className={styles.sectionSubtitle}>
+              The principles that guide everything we build at PODNEX
+            </p>
           </motion.div>
-          
-          <motion.div 
-            className={styles.valuesGrid}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            {coreValues.map((value, idx) => (
-              <motion.div 
+
+          <div className={styles.valuesGrid}>
+            {coreValues.map((value, index) => (
+              <motion.div
                 key={value.id}
                 className={`${styles.valueCard} ${expandedValue === value.id ? styles.expanded : ''}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * idx + 0.5, duration: 0.6 }}
                 style={{ '--value-color': value.color }}
                 onClick={() => setExpandedValue(expandedValue === value.id ? null : value.id)}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -5 }}
               >
                 <div className={styles.valueHeader}>
-                  <div className={styles.valueIconContainer} style={{ backgroundColor: `${value.color}20` }}>
-                    <div className={styles.valueIcon} style={{ color: value.color }}>
-                      {value.icon}
-                    </div>
+                  <div className={styles.valueIcon} style={{ background: value.gradient }}>
+                    {value.icon}
                   </div>
                   <h3>{value.title}</h3>
                 </div>
                 
                 <p className={styles.valueDescription}>{value.description}</p>
                 
-                <div className={styles.expandControl}>
-                  {expandedValue === value.id ? 
-                    <span>Show Less <ChevronDown size={16} style={{ transform: 'rotate(180deg)' }} /></span> : 
-                    <span>Learn More <ChevronDown size={16} /></span>
-                  }
+                <div className={styles.expandTrigger}>
+                  <span>{expandedValue === value.id ? 'Show Less' : 'Learn More'}</span>
+                  <motion.div
+                    animate={{ rotate: expandedValue === value.id ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ChevronDown size={16} />
+                  </motion.div>
                 </div>
                 
                 <AnimatePresence>
                   {expandedValue === value.id && (
-                    <motion.div 
+                    <motion.div
                       className={styles.expandedContent}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
@@ -786,137 +745,134 @@ const AboutPage = () => {
                       transition={{ duration: 0.3 }}
                     >
                       <p>{value.expandedContent}</p>
+                      <div className={styles.benefitsList}>
+                        {value.benefits.map((benefit, idx) => (
+                          <div key={idx} className={styles.benefitItem}>
+                            <CheckCircle size={14} />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
-      
-      {/* Team Section */}
-      <div className={styles.section} ref={teamRef} data-section="team">
+
+      {/* Enhanced Team Section */}
+      <div className={`${styles.section} ${styles.teamSection}`} ref={teamRef} data-section="team">
         <div className={styles.container}>
           <motion.div 
-            className={styles.sectionTitleWrapper}
+            className={styles.sectionHeader}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <h2 className={styles.sectionTitle}>Leadership</h2>
-            <div className={styles.titleDecoration} />
+            <p className={styles.sectionSubtitle}>
+              Meet the visionaries building the future of collaborative creation
+            </p>
           </motion.div>
-          
+
           <div className={styles.teamContent}>
             <motion.div 
-              className={styles.teamMember}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              className={styles.founderProfile}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
             >
-              <div className={styles.memberImage}>
-                <div className={styles.memberImagePlaceholder}>
+              <div className={styles.founderImage}>
+                <div className={styles.imagePlaceholder}>
                   <span>PP</span>
                 </div>
-                <div className={styles.imageBorder}></div>
+                <div className={styles.imageGlow} />
               </div>
               
-              <div className={styles.memberInfo}>
-                <div className={styles.memberNameWrapper}>
-                  <h3>Pedro Perez Serapião</h3>
-                  <div className={styles.memberSocials}>
-                    <a href="https://www.linkedin.com/in/pedro-perez-serapi%C3%A3o-379079121/" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                      <Linkedin size={18} />
+              <div className={styles.founderInfo}>
+                <div className={styles.founderHeader}>
+                  <div className={styles.nameSection}>
+                    <h3>Pedro Perez Serapião</h3>
+                    <span className={styles.role}>Founder & CEO</span>
+                  </div>
+                  <div className={styles.socialLinks}>
+                    <a href="https://www.linkedin.com/in/pedro-perez-serapi%C3%A3o-379079121/" target="_blank" rel="noopener noreferrer">
+                      <Linkedin size={20} />
                     </a>
-                    <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                      <Github size={18} />
+                    <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
+                      <Github size={20} />
                     </a>
                   </div>
                 </div>
                 
-                <div className={styles.memberRole}>Founder & CEO</div>
-                
-                <p className={styles.memberBio}>
-                  Visionary entrepreneur with a passion for building innovative platforms that empower creators. 
-                  Pedro leads PODNEX with a commitment to transforming how collaborative creation happens online.
+                <p className={styles.founderBio}>
+                  Visionary entrepreneur passionate about building innovative platforms that empower creators. 
+                  Pedro leads PODNEX with a commitment to transforming collaborative creation online.
                 </p>
                 
-                <div className={styles.memberExperience}>
-                  <div className={styles.experienceItem}>
-                    <div className={styles.experienceIcon}>
-                      <Code size={18} />
+                <div className={styles.expertiseTags}>
+                  {[
+                    { icon: <Code size={16} />, label: 'Software Development' },
+                    { icon: <Rocket size={16} />, label: 'Startup Leadership' },
+                    { icon: <Users size={16} />, label: 'Community Building' }
+                  ].map((expertise, index) => (
+                    <div key={index} className={styles.expertiseTag}>
+                      {expertise.icon}
+                      <span>{expertise.label}</span>
                     </div>
-                    <span>Software Development</span>
-                  </div>
-                  <div className={styles.experienceItem}>
-                    <div className={styles.experienceIcon}>
-                      <Rocket size={18} />
-                    </div>
-                    <span>Startup Leadership</span>
-                  </div>
-                  <div className={styles.experienceItem}>
-                    <div className={styles.experienceIcon}>
-                      <Users size={18} />
-                    </div>
-                    <span>Community Building</span>
-                  </div>
+                  ))}
                 </div>
                 
-                <blockquote className={styles.memberQuote}>
-                  "I believe in a future where creators are valued fairly for their contributions, where collaboration is frictionless, and where great ideas can come to life without traditional gatekeepers."
+                <blockquote className={styles.founderQuote}>
+                  "I believe in a future where creators are valued fairly for their contributions, 
+                  where collaboration is frictionless, and where great ideas can come to life 
+                  without traditional gatekeepers."
                 </blockquote>
               </div>
             </motion.div>
-            
-            <div className={styles.teamGrid}>
+
+            <div className={styles.teamValuesGrid}>
               <motion.div
-                className={styles.teamValues}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
+                className={styles.teamValuesCard}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <h3>Our Team Values</h3>
-                <ul className={styles.valuesList}>
-                  <li>
-                    <div className={styles.valueIconSmall}>
-                      <Zap size={16} />
+                <h3>Our Values</h3>
+                <div className={styles.valuesList}>
+                  {[
+                    { icon: <Zap size={18} />, text: 'Relentless innovation' },
+                    { icon: <Shield size={18} />, text: 'Radical transparency' },
+                    { icon: <Target size={18} />, text: 'Creator empowerment' },
+                    { icon: <Award size={18} />, text: 'Merit-based recognition' }
+                  ].map((item, index) => (
+                    <div key={index} className={styles.valueItem}>
+                      <div className={styles.valueIconSmall}>{item.icon}</div>
+                      <span>{item.text}</span>
                     </div>
-                    <span>Relentless innovation</span>
-                  </li>
-                  <li>
-                    <div className={styles.valueIconSmall}>
-                      <Shield size={16} />
-                    </div>
-                    <span>Radical transparency</span>
-                  </li>
-                  <li>
-                    <div className={styles.valueIconSmall}>
-                      <Target size={16} />
-                    </div>
-                    <span>Creator empowerment</span>
-                  </li>
-                  <li>
-                    <div className={styles.valueIconSmall}>
-                      <Award size={16} />
-                    </div>
-                    <span>Merit-based recognition</span>
-                  </li>
-                </ul>
+                  ))}
+                </div>
               </motion.div>
-              
+
               <motion.div
-                className={styles.joinTeam}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
+                className={styles.joinTeamCard}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.4 }}
               >
-                <h3>Join Our Team</h3>
+                <h3>Join Our Mission</h3>
                 <p>
-                  We're looking for passionate individuals who believe in creating a more collaborative, transparent digital creator economy.
+                  We're looking for passionate individuals who believe in creating 
+                  a more collaborative, transparent digital creator economy.
                 </p>
-                <Link to="/careers" className={styles.joinTeamLink}>
-                  <span>View Open Positions</span>
+                <Link to="/careers" className={styles.joinLink}>
+                  <span>View Opportunities</span>
                   <ArrowRight size={16} />
                 </Link>
               </motion.div>
@@ -924,78 +880,151 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-      
-      {/* FAQ Section */}
-      <div className={styles.section} ref={faqRef} data-section="faq">
+
+      {/* Enhanced FAQ Section */}
+      <div className={`${styles.section} ${styles.faqSection}`} ref={faqRef} data-section="faq">
         <div className={styles.container}>
           <motion.div 
-            className={styles.sectionTitleWrapper}
+            className={styles.sectionHeader}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <h2 className={styles.sectionTitle}>Frequently Asked Questions</h2>
-            <div className={styles.titleDecoration} />
+            <p className={styles.sectionSubtitle}>
+              Everything you need to know about PODNEX and how it works
+            </p>
           </motion.div>
-          
-          <motion.div 
-            className={styles.faqContainer}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
+
+          <div className={styles.faqContainer}>
             <div className={styles.faqList}>
               {faqData.map((faq, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.faqItem}
+                <motion.div
+                  key={faq.id}
+                  className={`${styles.faqItem} ${hoveredFaq === faq.id ? styles.hovered : ''}`}
+                  onMouseEnter={() => setHoveredFaq(faq.id)}
+                  onMouseLeave={() => setHoveredFaq(null)}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index + 0.4, duration: 0.6 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
                 >
-                  <h3 className={styles.faqQuestion}>
-                    <BookOpen size={18} />
-                    {faq.question}
-                  </h3>
+                  <div className={styles.faqHeader}>
+                    <div className={styles.faqIcon}>{faq.icon}</div>
+                    <div className={styles.faqMeta}>
+                      <h3>{faq.question}</h3>
+                      <span className={styles.faqCategory}>{faq.category}</span>
+                    </div>
+                  </div>
                   <p className={styles.faqAnswer}>{faq.answer}</p>
                 </motion.div>
               ))}
             </div>
-            
-            <div className={styles.faqMore}>
+
+            <motion.div
+              className={styles.faqCta}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
               <h3>Still have questions?</h3>
-              <p>We'd love to hear from you and help answer any questions about PODNEX.</p>
-              <Link to="/contact" className={styles.faqContact}>
+              <p>We'd love to help answer any questions about PODNEX.</p>
+              <Link to="/contact" className={styles.contactLink}>
+                <MessageSquare size={18} />
                 <span>Contact Us</span>
                 <ArrowRight size={16} />
               </Link>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </div>
-      
-      {/* CTA Section */}
+
+      {/* Enhanced CTA Section */}
       <div className={styles.ctaSection}>
         <div className={styles.container}>
           <motion.div 
             className={styles.ctaContent}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
-            <h2>Ready to join the creator revolution?</h2>
-            <p>Start building, collaborating, and launching together on PODNEX.</p>
+            <div className={styles.ctaHeader}>
+              <h2>Ready to Transform Your Creative Journey?</h2>
+              <p>Join the creator revolution and start building, collaborating, and earning together.</p>
+            </div>
+            
             <div className={styles.ctaButtons}>
-              <Link to="/register" className={styles.primaryButton}>
-                Create Account
+              <Link to="/register" className={`${styles.btnPrimary} ${styles.large}`}>
+                <span>Create Account</span>
+                <ArrowRight size={20} />
               </Link>
-              <Link to="/explore" className={styles.secondaryButton}>
-                Explore Pods
+              <Link to="/explore" className={`${styles.btnSecondary} ${styles.large}`}>
+                <Eye size={20} />
+                <span>Explore Pods</span>
               </Link>
+            </div>
+            
+            <div className={styles.ctaFeatures}>
+              {[
+                'No setup fees',
+                'Start earning immediately',
+                'Join active community'
+              ].map((feature, index) => (
+                <div key={index} className={styles.ctaFeature}>
+                  <CheckCircle size={16} />
+                  <span>{feature}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {showVideo && (
+          <motion.div
+            className={styles.videoModal}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowVideo(false)}
+          >
+            <motion.div
+              className={styles.videoContainer}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                className={styles.closeButton}
+                onClick={() => setShowVideo(false)}
+              >
+                ×
+              </button>
+              <div className={styles.videoPlaceholder}>
+                <PlayCircle size={48} />
+                <h3>PODNEX Platform Demo</h3>
+                <p>Coming Soon!</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scroll to top button */}
+      <motion.button
+        className={`${styles.scrollTop} ${isScrolled ? styles.visible : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        <ArrowUp size={20} />
+      </motion.button>
     </div>
   );
 };
