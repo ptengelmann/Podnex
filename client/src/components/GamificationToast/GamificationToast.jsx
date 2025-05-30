@@ -9,60 +9,81 @@ const GamificationToast = () => {
   const [notifications, setNotifications] = useState([]);
   const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return;
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user) return;
 
-    // Connect to socket
-    const newSocket = io('http://localhost:5000', {
-      transports: ['websocket', 'polling']
-    });
-    
-    setSocket(newSocket);
+  // Connect to socket with better error handling
+  const newSocket = io('http://localhost:5000', {
+    transports: ['websocket', 'polling'],
+    timeout: 5000,
+    reconnection: false, // Disable auto-reconnection for now
+    forceNew: true
+  });
 
-    // Join user's notification room
+  // Handle connection success
+  newSocket.on('connect', () => {
+    console.log('🎉 Gamification WebSocket connected');
+    // Join user's notification room only after successful connection
     newSocket.emit('join_user_room', user._id);
+  });
 
-    // Listen for XP updates
-    newSocket.on('xp_gained', (payload) => {
-      showNotification({
-        type: 'xp',
-        data: payload.data,
-        duration: 4000
-      });
+  // Handle connection errors silently
+  newSocket.on('connect_error', (error) => {
+    console.log('Gamification socket connection failed - server may be offline:', error.message);
+    // Don't crash the app, just log it
+  });
+
+  // Handle disconnection
+  newSocket.on('disconnect', (reason) => {
+    console.log('Gamification socket disconnected:', reason);
+  });
+
+  setSocket(newSocket);
+
+  // Listen for XP updates (only if connected)
+  newSocket.on('xp_gained', (payload) => {
+    showNotification({
+      type: 'xp',
+      data: payload.data,
+      duration: 4000
     });
+  });
 
-    // Listen for achievements
-    newSocket.on('achievement_unlocked', (payload) => {
-      showNotification({
-        type: 'badge',
-        data: payload.data,
-        duration: 6000
-      });
+  // Listen for achievements
+  newSocket.on('achievement_unlocked', (payload) => {
+    showNotification({
+      type: 'badge',
+      data: payload.data,
+      duration: 6000
     });
+  });
 
-    // Listen for level ups
-    newSocket.on('level_up', (payload) => {
-      showNotification({
-        type: 'level_up',
-        data: payload.data,
-        duration: 8000
-      });
+  // Listen for level ups
+  newSocket.on('level_up', (payload) => {
+    showNotification({
+      type: 'level_up',
+      data: payload.data,
+      duration: 8000
     });
+  });
 
-    // Listen for tier promotions
-    newSocket.on('tier_promotion', (payload) => {
-      showNotification({
-        type: 'tier_promotion',
-        data: payload.data,
-        duration: 10000
-      });
+  // Listen for tier promotions
+  newSocket.on('tier_promotion', (payload) => {
+    showNotification({
+      type: 'tier_promotion',
+      data: payload.data,
+      duration: 10000
     });
+  });
 
-    return () => {
+  return () => {
+    if (newSocket) {
+      newSocket.removeAllListeners();
       newSocket.close();
-    };
-  }, []);
+    }
+  };
+}, []);
 
   const showNotification = (notification) => {
     const id = Date.now() + Math.random();

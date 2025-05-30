@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './NavBar.module.scss';
@@ -6,62 +6,93 @@ import styles from './NavBar.module.scss';
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
+  const [token, setToken] = useState(localStorage.getItem('token')); // ADD THIS LINE
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user')) || {};
+    } catch {
+      return {};
+    }
+  });
   
   // Ref for detecting clicks outside the dropdown
   const profileDropdownRef = useRef(null);
 
-  // Improved auth checking
-  useEffect(() => {
-    const checkAuth = () => {
-      const currentToken = localStorage.getItem('token');
-      const currentUser = localStorage.getItem('user');
-      
-      console.log('Auth check - Token:', !!currentToken, 'User:', !!currentUser);
-      
-      setToken(currentToken);
-      
-      if (currentUser) {
-        try {
-          const parsedUser = JSON.parse(currentUser);
-          console.log('Parsed user:', parsedUser);
-          setUser(parsedUser);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          // Clear invalid user data
-          localStorage.removeItem('user');
-          setUser({});
-        }
-      } else {
-        setUser({});
-      }
-    };
-    
-    // Check auth on component mount
-    checkAuth();
-    
-    // Create a listener for storage events to detect login/logout in other tabs
-    const handleStorageChange = (e) => {
-      console.log('Storage changed:', e.key, e.newValue ? 'set' : 'removed');
-      if (e.key === 'token' || e.key === 'user') {
-        checkAuth();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Create an interval to periodically check auth status (fallback)
-    const authCheckInterval = setInterval(checkAuth, 10000); // Increased interval to reduce frequency
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(authCheckInterval);
-    };
-  }, []);
+const checkAuth = useCallback(() => {
+  const currentToken = localStorage.getItem('token');
+  const currentUser = localStorage.getItem('user');
+  
+  console.log('🔍 Auth check - Raw token:', currentToken);
+  console.log('🔍 Auth check - Raw user:', currentUser);
+  
+  // Set token directly - no complex logic
+  if (currentToken) {
+    console.log('🔍 Setting token from localStorage');
+    setToken(currentToken);
+  } else {
+    console.log('🔍 No token found, setting to null');
+    setToken(null);
+  }
+  
+  // Set user data
+  if (currentUser) {
+    try {
+      const parsedUser = JSON.parse(currentUser);
+      console.log('🔍 Setting user:', parsedUser);
+      // Remove token from user object to avoid duplication
+      const { token: userToken, ...userWithoutToken } = parsedUser;
+      setUser(userWithoutToken);
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      localStorage.removeItem('user');
+      setUser({});
+    }
+  } else {
+    setUser({});
+  }
+}, []);
+// Single auth effect - runs only on mount and when storage changes
+useEffect(() => {
+  // Check auth on component mount
+  checkAuth();
+  
+  // Create a listener for storage events to detect login/logout in other tabs
+  const handleStorageChange = (e) => {
+    console.log('Storage changed:', e.key, e.newValue ? 'set' : 'removed');
+    if (e.key === 'token' || e.key === 'user') {
+      checkAuth();
+    }
+  };
+  
+  window.addEventListener('storage', handleStorageChange);
+  
+  return () => {
+    window.removeEventListener('storage', handleStorageChange);
+  };
+}, [checkAuth]);
+
+// Force auth check when location changes (important for login flow)
+useEffect(() => {
+  console.log('🔄 Route changed, checking auth state');
+  checkAuth();
+}, [location.pathname, checkAuth]);
+
+// Handle scroll effects
+useEffect(() => {
+  const handleScroll = () => {
+    if (window.scrollY > 20) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
 
   // Handle scroll effects
   useEffect(() => {
@@ -97,31 +128,14 @@ const NavBar = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser({});
-    setProfileDropdownOpen(false);
-    navigate('/login');
-  };
-  
-  // Check for token changes when navigating back after login
-  useEffect(() => {
-    const currentToken = localStorage.getItem('token');
-    if (currentToken && !token) {
-      setToken(currentToken);
-      const currentUser = localStorage.getItem('user');
-      if (currentUser) {
-        try {
-          setUser(JSON.parse(currentUser));
-        } catch (error) {
-          console.error('Error parsing user data on navigation:', error);
-          setUser({});
-        }
-      }
-    }
-  }, [location.pathname, token]);
+const handleLogout = useCallback(() => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  setToken(null);
+  setUser({});
+  setProfileDropdownOpen(false);
+  navigate('/login');
+}, [navigate]);
 
   // Improved getUserInitials function
   const getUserInitials = () => {
