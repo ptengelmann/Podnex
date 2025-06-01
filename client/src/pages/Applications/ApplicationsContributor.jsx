@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { motion, AnimatePresence, useInView, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
+  Users,
   User,
   Search,
   Filter,
@@ -12,36 +13,69 @@ import {
   ChevronRight,
   ExternalLink,
   MessageSquare,
-  ArrowRight,
   Briefcase,
   CheckCircle2,
   AlertCircle,
-  Hourglass
+  Hourglass,
+  Award,
+  BarChart2,
+  EyeIcon,
+  ChevronUp,
+  Grid,
+  List,
+  ArrowDownNarrowWide,
+  ArrowUpNarrowWide,
+  Check,
+  X,
+  PlusCircle,
+  RefreshCw,
+  ArrowRight,
+  Calendar,
+  FileText,
+  Inbox,
+  Send,
+  TrendingUp,
+  Target,
+  Zap
 } from 'lucide-react';
 import styles from './ApplicationsContributor.module.scss';
 
 const ApplicationsContributor = () => {
   // State management with reliable initialization
   const [applications, setApplications] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState({});
   const [error, setError] = useState('');
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
-  const [expandedApplication, setExpandedApplication] = useState(null);
+  const [expandedApplications, setExpandedApplications] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',
-    sortBy: 'newest'
+    sortBy: 'newest',
+    pod: 'all'
   });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
+  const [viewMode, setViewMode] = useState('cards');
+  const [availablePods, setAvailablePods] = useState([]);
+  const [selectedApplications, setSelectedApplications] = useState([]);
+  const [bulkActionMode, setBulkActionMode] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [stats, setStats] = useState({
+    responseRate: 0,
+    averageResponseTime: '2.1 days',
+    mostAppliedPod: 'Loading...',
+    applicationTrend: 'neutral'
+  });
   
   // Refs and animations
   const sectionRef = useRef(null);
-  const inView = useInView(sectionRef, { once: false, threshold: 0.2 });
-  const controls = useAnimation();
+  const inView = useInView(sectionRef, { once: false, threshold: 0.1 });
   const initialLoadCompleted = useRef(false);
+  const successMessageTimeoutRef = useRef(null);
 
   // Get application counts
   const pendingCount = applications.filter(app => app.status === 'Pending').length;
@@ -67,32 +101,100 @@ const ApplicationsContributor = () => {
       setIsMobile(window.innerWidth < 768);
     };
     
-    handleResize(); // Initial check
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Handle animation based on scroll
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    } else {
-      controls.start("hidden");
-    }
-  }, [controls, inView]);
-
-  // Add a listener for storage changes (in case user logs in/out in another tab)
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'user' || e.key === 'token') {
-        // Reload page when localStorage changes
-        window.location.reload();
-      }
-    };
+  // Calculate and update stats for contributors
+  const updateStats = (apps) => {
+    const respondedApps = apps.filter(app => app.status === 'Accepted' || app.status === 'Rejected').length;
+    const responseRate = apps.length > 0 ? Math.round((respondedApps / apps.length) * 100) : 0;
     
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    const podCounts = {};
+    apps.forEach(app => {
+      const podName = app.podTitle || 'Unknown Pod';
+      podCounts[podName] = (podCounts[podName] || 0) + 1;
+    });
+    
+    let mostAppliedPod = 'None';
+    let maxPodCount = 0;
+    
+    Object.entries(podCounts).forEach(([pod, count]) => {
+      if (count > maxPodCount) {
+        maxPodCount = count;
+        mostAppliedPod = pod;
+      }
+    });
+    
+    const recentApps = apps.filter(app => {
+      const appDate = new Date(app.createdAt);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return appDate > weekAgo;
+    });
+    
+    const applicationTrend = recentApps.length > 2 ? 'up' : recentApps.length > 0 ? 'stable' : 'down';
+    
+    setStats({
+      responseRate,
+      averageResponseTime: '2.1 days',
+      mostAppliedPod,
+      applicationTrend
+    });
+  };
+
+  // Apply filters and update filtered applications
+  useEffect(() => {
+    let filtered = [...applications];
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(app => 
+        (app.roleApplied && app.roleApplied.toLowerCase().includes(term)) ||
+        (app.podTitle && app.podTitle.toLowerCase().includes(term)) ||
+        (app.motivation && app.motivation.toLowerCase().includes(term)) ||
+        (app.experience && app.experience.toLowerCase().includes(term))
+      );
+    }
+    
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(app => 
+        app.status.toLowerCase() === filters.status.toLowerCase()
+      );
+    }
+    
+    if (filters.pod !== 'all') {
+      filtered = filtered.filter(app => 
+        app.podTitle === filters.pod
+      );
+    }
+    
+    if (activeTab !== 'all') {
+      filtered = filtered.filter(app => 
+        app.status.toLowerCase() === activeTab.toLowerCase()
+      );
+    }
+    
+    switch (filters.sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case 'a-z':
+        filtered.sort((a, b) => (a.podTitle || '').localeCompare(b.podTitle || ''));
+        break;
+      case 'z-a':
+        filtered.sort((a, b) => (b.podTitle || '').localeCompare(a.podTitle || ''));
+        break;
+      default:
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    
+    setFilteredApplications(filtered);
+  }, [applications, searchTerm, filters, activeTab]);
 
   // Fetch applications with robust authentication
   useEffect(() => {
@@ -100,7 +202,6 @@ const ApplicationsContributor = () => {
       try {
         setLoading(true);
         
-        // Check both localStorage items directly
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         
@@ -111,28 +212,17 @@ const ApplicationsContributor = () => {
           return;
         }
         
-        // Parse user data from localStorage
         let currentUser;
         try {
           currentUser = JSON.parse(storedUser);
           
-          // Ensure user object is valid - for contributor page
           if (!currentUser || typeof currentUser !== 'object') {
-            console.error('Invalid user data format, not an object:', currentUser);
+            console.error('Invalid user data format');
             setError('Invalid user data format');
             setLoading(false);
             return;
           }
           
-          // Verify this is a contributor
-          if (currentUser.role !== 'contributor') {
-            console.warn('Non-contributor attempting to access contributor page');
-            setError('You do not have contributor access');
-            setLoading(false);
-            return;
-          }
-          
-          // Set user state
           setUser(currentUser);
           console.log('Successfully loaded contributor data:', currentUser);
         } catch (parseError) {
@@ -142,7 +232,6 @@ const ApplicationsContributor = () => {
           return;
         }
         
-        // Make API request with proper error handling
         try {
           const res = await axios.get('http://localhost:5000/api/applications', {
             headers: {
@@ -152,7 +241,13 @@ const ApplicationsContributor = () => {
           });
     
           setApplications(res.data);
+          setFilteredApplications(res.data);
           initialLoadCompleted.current = true;
+          
+          const pods = Array.from(new Set(res.data.map(app => app.podTitle))).filter(Boolean);
+          setAvailablePods(pods);
+          
+          updateStats(res.data);
         } catch (apiError) {
           console.error('API Error:', apiError);
           
@@ -177,29 +272,31 @@ const ApplicationsContributor = () => {
       }
     };
   
-    // Fetch data only if component is mounted
     let isMounted = true;
     if (isMounted) {
       fetchApplications();
     }
     
-    // Set up an interval to periodically refresh data
     const refreshInterval = setInterval(() => {
       if (initialLoadCompleted.current && isMounted) {
         fetchApplications();
       }
-    }, 30000);
+    }, 60000);
     
     return () => {
       isMounted = false;
       clearInterval(refreshInterval);
+      if (successMessageTimeoutRef.current) {
+        clearTimeout(successMessageTimeoutRef.current);
+      }
     };
   }, []);
 
-  // Withdraw application - specific to contributors
+  // Withdraw application
   const withdrawApplication = async (applicationId) => {
     try {
-      setLoading(true);
+      setActionLoading(prev => ({...prev, [applicationId]: true}));
+      
       const token = localStorage.getItem('token');
       
       if (!token) throw new Error('User not authenticated');
@@ -210,51 +307,164 @@ const ApplicationsContributor = () => {
         },
       });
       
-      // Update the local state by removing the application
       setApplications(prevApplications => 
         prevApplications.filter(app => app._id !== applicationId)
       );
       
-      setLoading(false);
+      setSuccessMessage('Application withdrawn successfully');
+      
+      if (successMessageTimeoutRef.current) {
+        clearTimeout(successMessageTimeoutRef.current);
+      }
+      
+      successMessageTimeoutRef.current = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      
+      updateStats(applications.filter(app => app._id !== applicationId));
+      
+      setActionLoading(prev => {
+        const newState = {...prev};
+        delete newState[applicationId];
+        return newState;
+      });
     } catch (err) {
       console.error('Failed to withdraw application:', err);
       setError('Failed to withdraw application. Please try again.');
-      setLoading(false);
+      
+      setActionLoading(prev => {
+        const newState = {...prev};
+        delete newState[applicationId];
+        return newState;
+      });
     }
   };
 
   // Toggle expanded application
   const toggleExpandApplication = (id) => {
-    setExpandedApplication(expandedApplication === id ? null : id);
+    setExpandedApplications(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
-
-  // Filter applications based on search term and filters
-  const filteredApplications = applications.filter(app => {
-    // Filter by search term
-    const searchMatch = 
-      app.roleApplied.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (app.pod?.title && app.pod.title.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Filter by status
-    const statusMatch = 
-      filters.status === 'all' || 
-      app.status.toLowerCase() === filters.status.toLowerCase();
-    
-    // Filter by tab
-    const tabMatch = 
-      activeTab === 'all' || 
-      app.status.toLowerCase() === activeTab.toLowerCase();
-    
-    return searchMatch && statusMatch && tabMatch;
-  }).sort((a, b) => {
-    // Sort applications
-    if (filters.sortBy === 'newest') {
-      return new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now());
-    } else if (filters.sortBy === 'oldest') {
-      return new Date(a.createdAt || Date.now()) - new Date(b.createdAt || Date.now());
+  
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      status: 'all',
+      sortBy: 'newest',
+      pod: 'all'
+    });
+    setSearchTerm('');
+  };
+  
+  // Toggle bulk action mode
+  const toggleBulkActionMode = () => {
+    setBulkActionMode(!bulkActionMode);
+    setSelectedApplications([]);
+  };
+  
+  // Toggle application selection for bulk actions
+  const toggleApplicationSelection = (id) => {
+    if (selectedApplications.includes(id)) {
+      setSelectedApplications(prev => prev.filter(appId => appId !== id));
+    } else {
+      setSelectedApplications(prev => [...prev, id]);
     }
-    return 0;
-  });
+  };
+  
+  // Handle bulk withdrawal
+  const performBulkWithdrawal = async () => {
+    if (selectedApplications.length === 0) return;
+    
+    try {
+      setLoading(true);
+      
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('User not authenticated');
+      
+      for (const appId of selectedApplications) {
+        await axios.delete(
+          `http://localhost:5000/api/applications/${appId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      
+      setApplications(prevApplications => 
+        prevApplications.filter(app => !selectedApplications.includes(app._id))
+      );
+      
+      setSuccessMessage(
+        `${selectedApplications.length} applications withdrawn successfully`
+      );
+      
+      if (successMessageTimeoutRef.current) {
+        clearTimeout(successMessageTimeoutRef.current);
+      }
+      
+      successMessageTimeoutRef.current = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      
+      updateStats(applications.filter(app => !selectedApplications.includes(app._id)));
+      
+      setSelectedApplications([]);
+      setBulkActionMode(false);
+    } catch (err) {
+      console.error('Failed to perform bulk withdrawal:', err);
+      setError('Failed to withdraw applications. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Format date nicely
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date';
+    
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+  
+  // Get time ago for display
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return 'Unknown time';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+      return interval === 1 ? '1 year ago' : `${interval} years ago`;
+    }
+    
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) {
+      return interval === 1 ? '1 month ago' : `${interval} months ago`;
+    }
+    
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) {
+      return interval === 1 ? '1 day ago' : `${interval} days ago`;
+    }
+    
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) {
+      return interval === 1 ? '1 hour ago' : `${interval} hours ago`;
+    }
+    
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) {
+      return interval === 1 ? '1 minute ago' : `${interval} minutes ago`;
+    }
+    
+    return seconds < 10 ? 'just now' : `${Math.floor(seconds)} seconds ago`;
+  };
 
   // Animation variants
   const container = {
@@ -262,8 +472,8 @@ const ApplicationsContributor = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3
+        staggerChildren: 0.07,
+        delayChildren: 0.2
       }
     }
   };
@@ -288,14 +498,19 @@ const ApplicationsContributor = () => {
     },
     active: { 
       opacity: 1,
-      y: -5,
+      y: -3,
       scale: 1.05,
       transition: { duration: 0.3 }
     }
   };
+  
+  const fadeIn = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
 
   // Loading state UI
-  if (loading) {
+  if (loading && applications.length === 0) {
     return (
       <div className={styles.loadingContainer}>
         <motion.div
@@ -350,34 +565,6 @@ const ApplicationsContributor = () => {
     );
   }
 
-  // Auth error - if no user data is loaded
-  if (!user) {
-    return (
-      <div className={styles.errorContainer}>
-        <AlertCircle size={48} className={styles.errorIcon} />
-        <h2>Authentication Error</h2>
-        <p>Your session appears to be invalid. Please log in again.</p>
-        <div className={styles.errorDetails}>
-          <small>Debug info: User data missing or invalid</small>
-        </div>
-        <div className={styles.errorActions}>
-          <button
-            className={styles.retryButton}
-            onClick={() => window.location.reload()}
-          >
-            Try Again
-          </button>
-          <button
-            className={styles.loginButton}
-            onClick={() => window.location.href = '/login'}
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <section className={styles.applicationsPage} ref={sectionRef}>
       {/* Animated Background */}
@@ -408,7 +595,22 @@ const ApplicationsContributor = () => {
         transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
       />
       
-      {/* Section Header - Contributor Specific */}
+      {/* Success message */}
+      <AnimatePresence>
+        {successMessage && (
+          <motion.div 
+            className={styles.successMessage}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <CheckCircle size={18} />
+            <span>{successMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -422,10 +624,10 @@ const ApplicationsContributor = () => {
         </div>
         <h2 className={styles.sectionTitle}>
           <span>My Applications</span>
-          <span className={styles.highlight}> Tracker</span>
+          <span className={styles.highlight}> Dashboard</span>
         </h2>
         <p className={styles.sectionSubtitle}>
-          Track your applications to different pods and their current status
+          Track and manage your applications to different pods, monitor your application progress
         </p>
       </motion.div>
 
@@ -438,7 +640,7 @@ const ApplicationsContributor = () => {
       >
         <motion.div className={styles.statCard} variants={item}>
           <div className={styles.statIconWrapper} style={{ backgroundColor: 'rgba(232, 197, 71, 0.1)' }}>
-            <Briefcase size={24} color="#E8C547" />
+            <Send size={24} color="#E8C547" />
           </div>
           <div className={styles.statInfo}>
             <h3>{applications.length}</h3>
@@ -475,94 +677,253 @@ const ApplicationsContributor = () => {
             <p>Rejected</p>
           </div>
         </motion.div>
+        
+        {/* Enhanced stats insights */}
+        <motion.div 
+          className={styles.statInsightRow}
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className={styles.statInsight}>
+            <div className={styles.insightIcon}>
+              <BarChart2 size={16} />
+            </div>
+            <div className={styles.insightLabel}>Response Rate</div>
+            <div className={styles.insightValue}>{stats.responseRate}%</div>
+          </div>
+          
+          <div className={styles.statInsight}>
+            <div className={styles.insightIcon}>
+              <Clock size={16} />
+            </div>
+            <div className={styles.insightLabel}>Avg. Response Time</div>
+            <div className={styles.insightValue}>{stats.averageResponseTime}</div>
+          </div>
+          
+          <div className={styles.statInsight}>
+            <div className={styles.insightIcon}>
+              <Target size={16} />
+            </div>
+            <div className={styles.insightLabel}>Most Applied Pod</div>
+            <div className={styles.insightValue}>{stats.mostAppliedPod}</div>
+          </div>
+          
+          <div className={styles.statInsight}>
+            <div className={styles.insightIcon}>
+              {stats.applicationTrend === 'up' ? <TrendingUp size={16} /> : <Zap size={16} />}
+            </div>
+            <div className={styles.insightLabel}>Application Trend</div>
+            <div className={styles.insightValue}>
+              {stats.applicationTrend === 'up' ? 'Increasing' : 
+               stats.applicationTrend === 'stable' ? 'Stable' : 'Steady'}
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
 
-      {/* Search and Filter Bar */}
+      {/* Controls Bar */}
       <motion.div 
-        className={styles.searchFilterBar}
+        className={styles.controlsBar}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <div className={styles.searchContainer}>
-          <Search size={18} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search by role or pod..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-        
-        <motion.button 
-          className={styles.filterButton}
-          onClick={() => setShowFilters(!showFilters)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Filter size={18} />
-          Filters
-          <ChevronDown size={18} className={showFilters ? styles.rotated : ''} />
-        </motion.button>
+        {bulkActionMode ? (
+          <div className={styles.bulkActionControls}>
+            <div className={styles.selectedCounter}>
+              <span className={styles.selectedCount}>{selectedApplications.length}</span>
+              <span>selected</span>
+            </div>
+            
+            <button 
+              className={styles.bulkWithdrawButton}
+              onClick={performBulkWithdrawal}
+              disabled={selectedApplications.length === 0}
+            >
+              <XCircle size={16} />
+              <span>Withdraw Selected</span>
+            </button>
+            
+            <button 
+              className={styles.cancelBulkButton}
+              onClick={toggleBulkActionMode}
+            >
+              <X size={16} />
+              <span>Cancel</span>
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.searchContainer}>
+              <Search size={18} className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by role, pod, or details..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchTerm && (
+                <button className={styles.clearSearchButton} onClick={() => setSearchTerm('')}>
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            
+            <div className={styles.rightControls}>
+              <button 
+                className={styles.viewModeToggle} 
+                onClick={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
+                title={`Switch to ${viewMode === 'cards' ? 'list' : 'cards'} view`}
+              >
+                {viewMode === 'cards' ? <List size={18} /> : <Grid size={18} />}
+              </button>
+              
+              <motion.button 
+                className={styles.filterButton}
+                onClick={() => setShowFilters(!showFilters)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Filter size={18} />
+                <span>Filters</span>
+                <ChevronDown size={16} className={showFilters ? styles.rotated : ''} />
+              </motion.button>
+              
+              <motion.button 
+                className={styles.bulkActionButton}
+                onClick={toggleBulkActionMode}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={applications.length === 0}
+              >
+                <Users size={18} />
+                <span>Bulk Actions</span>
+              </motion.button>
+              
+              <motion.button 
+                className={styles.newApplicationButton}
+                onClick={() => window.location.href = '/pods/explore'}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PlusCircle size={18} />
+                <span>Apply to Pod</span>
+              </motion.button>
+            </div>
+          </>
+        )}
       </motion.div>
 
-      {/* Filter Panel */}
+      {/* Enhanced Filter Panel */}
       <AnimatePresence>
         {showFilters && (
           <motion.div 
             className={styles.filterPanel}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
             transition={{ duration: 0.3 }}
           >
-            <div className={styles.filterGroup}>
-              <h4>Status</h4>
-              <div className={styles.filterOptions}>
-                <button 
-                  className={`${styles.filterOption} ${filters.status === 'all' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, status: 'all'})}
-                >
-                  All
-                </button>
-                <button 
-                  className={`${styles.filterOption} ${filters.status === 'pending' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, status: 'pending'})}
-                >
-                  Pending
-                </button>
-                <button 
-                  className={`${styles.filterOption} ${filters.status === 'accepted' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, status: 'accepted'})}
-                >
-                  Accepted
-                </button>
-                <button 
-                  className={`${styles.filterOption} ${filters.status === 'rejected' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, status: 'rejected'})}
-                >
-                  Rejected
-                </button>
+            <div className={styles.filterGroups}>
+              <div className={styles.filterGroup}>
+                <h4>Status</h4>
+                <div className={styles.filterOptions}>
+                  <button 
+                    className={`${styles.filterOption} ${filters.status === 'all' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, status: 'all'})}
+                  >
+                    All
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.status === 'pending' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, status: 'pending'})}
+                  >
+                    Pending
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.status === 'accepted' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, status: 'accepted'})}
+                  >
+                    Accepted
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.status === 'rejected' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, status: 'rejected'})}
+                  >
+                    Rejected
+                  </button>
+                </div>
               </div>
+              
+              <div className={styles.filterGroup}>
+                <h4>Sort By</h4>
+                <div className={styles.filterOptions}>
+                  <button 
+                    className={`${styles.filterOption} ${filters.sortBy === 'newest' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, sortBy: 'newest'})}
+                  >
+                    <ArrowDownNarrowWide size={14} />
+                    <span>Newest First</span>
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.sortBy === 'oldest' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, sortBy: 'oldest'})}
+                  >
+                    <ArrowUpNarrowWide size={14} />
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.sortBy === 'a-z' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, sortBy: 'a-z'})}
+                  >
+                    <span>A-Z</span>
+                  </button>
+                  <button 
+                    className={`${styles.filterOption} ${filters.sortBy === 'z-a' ? styles.active : ''}`}
+                    onClick={() => setFilters({...filters, sortBy: 'z-a'})}
+                  >
+                    <span>Z-A</span>
+                  </button>
+                </div>
+              </div>
+              
+              {availablePods.length > 0 && (
+                <div className={styles.filterGroup}>
+                  <h4>Pod</h4>
+                  <div className={styles.filterSelectWrapper}>
+                    <select
+                      className={styles.filterSelect}
+                      value={filters.pod}
+                      onChange={(e) => setFilters({...filters, pod: e.target.value})}
+                    >
+                      <option value="all">All Pods</option>
+                      {availablePods.map(pod => (
+                        <option key={pod} value={pod}>{pod}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className={styles.selectIcon} />
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div className={styles.filterGroup}>
-              <h4>Sort By</h4>
-              <div className={styles.filterOptions}>
-                <button 
-                  className={`${styles.filterOption} ${filters.sortBy === 'newest' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, sortBy: 'newest'})}
-                >
-                  Newest First
-                </button>
-                <button 
-                  className={`${styles.filterOption} ${filters.sortBy === 'oldest' ? styles.active : ''}`}
-                  onClick={() => setFilters({...filters, sortBy: 'oldest'})}
-                >
-                  Oldest First
-                </button>
-              </div>
+            <div className={styles.filterActions}>
+              <button 
+                className={styles.resetFiltersButton}
+                onClick={resetFilters}
+              >
+                <RefreshCw size={14} />
+                <span>Reset Filters</span>
+              </button>
+              
+              <button 
+                className={styles.applyFiltersButton}
+                onClick={() => setShowFilters(false)}
+              >
+                <Check size={14} />
+                <span>Apply Filters</span>
+              </button>
             </div>
           </motion.div>
         )}
@@ -581,8 +942,9 @@ const ApplicationsContributor = () => {
           animate={activeTab === 'all' ? 'active' : 'inactive'}
           onClick={() => setActiveTab('all')}
         >
-          <Briefcase size={18} />
-          All Applications
+          <Send size={18} />
+          <span>All Applications</span>
+          <div className={styles.tabCount}>{applications.length}</div>
         </motion.button>
         
         <motion.button 
@@ -592,7 +954,8 @@ const ApplicationsContributor = () => {
           onClick={() => setActiveTab('pending')}
         >
           <Clock size={18} />
-          Pending
+          <span>Pending</span>
+          <div className={styles.tabCount}>{pendingCount}</div>
         </motion.button>
         
         <motion.button 
@@ -602,7 +965,8 @@ const ApplicationsContributor = () => {
           onClick={() => setActiveTab('accepted')}
         >
           <CheckCircle2 size={18} />
-          Accepted
+          <span>Accepted</span>
+          <div className={styles.tabCount}>{acceptedCount}</div>
         </motion.button>
         
         <motion.button 
@@ -612,11 +976,40 @@ const ApplicationsContributor = () => {
           onClick={() => setActiveTab('rejected')}
         >
           <XCircle size={18} />
-          Rejected
+          <span>Rejected</span>
+          <div className={styles.tabCount}>{rejectedCount}</div>
         </motion.button>
       </motion.div>
+      
+      {/* Results Info */}
+      {filteredApplications.length > 0 && (
+        <motion.div 
+          className={styles.resultsInfo}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className={styles.resultsCount}>
+            <span>Showing</span>
+            <strong>{filteredApplications.length}</strong>
+            <span>of</span>
+            <strong>{applications.length}</strong>
+            <span>applications</span>
+          </div>
+          
+          {(searchTerm || filters.status !== 'all' || filters.pod !== 'all') && (
+            <button 
+              className={styles.clearAllButton}
+              onClick={resetFilters}
+            >
+              <RefreshCw size={14} />
+              <span>Clear all filters</span>
+            </button>
+          )}
+        </motion.div>
+      )}
 
-      {/* Applications List */}
+      {/* Applications Display */}
       {filteredApplications.length === 0 ? (
         <motion.div 
           className={styles.emptyState}
@@ -625,30 +1018,48 @@ const ApplicationsContributor = () => {
           transition={{ duration: 0.5 }}
         >
           <div className={styles.emptyStateIcon}>
-            <Briefcase size={64} />
+            {searchTerm || filters.status !== 'all' || filters.pod !== 'all' ? (
+              <Search size={64} />
+            ) : (
+              <Send size={64} />
+            )}
           </div>
-          <h3>{searchTerm ? 'No matching applications found' : 'No applications yet'}</h3>
+          <h3>
+            {searchTerm || filters.status !== 'all' || filters.pod !== 'all' 
+              ? 'No matching applications found' 
+              : 'No applications yet'
+            }
+          </h3>
           <p>
-            {searchTerm 
+            {searchTerm || filters.status !== 'all' || filters.pod !== 'all'
               ? 'Try adjusting your search or filters to find what you\'re looking for'
-              : 'Find interesting pods to collaborate with and submit your applications'
+              : 'Start applying to pods that interest you and build your portfolio'
             }
           </p>
-          {!searchTerm && (
-            <motion.button 
-              className={styles.emptyStateButton}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          
+          {(searchTerm || filters.status !== 'all' || filters.pod !== 'all') && (
+            <button 
+              className={styles.resetFiltersButton}
+              onClick={resetFilters}
+            >
+              <RefreshCw size={16} />
+              <span>Clear all filters</span>
+            </button>
+          )}
+          
+          {!searchTerm && filters.status === 'all' && filters.pod === 'all' && (
+            <button 
+              className={styles.explorePodsButton}
               onClick={() => window.location.href = '/pods/explore'}
             >
-              Explore Pods
-              <ArrowRight size={18} />
-            </motion.button>
+              <PlusCircle size={16} />
+              <span>Explore Pods</span>
+            </button>
           )}
         </motion.div>
       ) : (
         <motion.div 
-          className={styles.applicationsGrid}
+          className={viewMode === 'cards' ? styles.applicationsGrid : styles.applicationsList}
           variants={container}
           initial="hidden"
           animate="visible"
@@ -656,14 +1067,31 @@ const ApplicationsContributor = () => {
           {filteredApplications.map((application) => (
             <motion.div 
               key={application._id} 
-              className={styles.applicationCard}
+              className={`${styles.applicationCard} ${bulkActionMode ? styles.selectable : ''} ${selectedApplications.includes(application._id) ? styles.selected : ''}`}
               variants={item}
               whileHover={{ y: -5 }}
               layout
+              onClick={bulkActionMode ? () => toggleApplicationSelection(application._id) : undefined}
             >
+              {/* Selection checkbox for bulk mode */}
+              {bulkActionMode && (
+                <div className={styles.selectionCheckbox}>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedApplications.includes(application._id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleApplicationSelection(application._id);
+                    }}
+                    id={`select-${application._id}`}
+                  />
+                  <label htmlFor={`select-${application._id}`}></label>
+                </div>
+              )}
+              
               <div className={styles.cardHeader}>
                 <div className={styles.podInfo}>
-                  <h3>{application.pod?.title || 'Untitled Pod'}</h3>
+                  <h3>{application.podTitle || 'Untitled Pod'}</h3>
                   <p className={styles.roleApplied}>
                     <Briefcase size={14} />
                     Role: {application.roleApplied}
@@ -679,11 +1107,23 @@ const ApplicationsContributor = () => {
                 </div>
               </div>
               
+              {/* Application submission info */}
+              <div className={styles.applicationInfo}>
+                <div className={styles.applicationDate}>
+                  <Calendar size={12} />
+                  <span>Applied {getTimeAgo(application.createdAt)}</span>
+                </div>
+                <div className={styles.applicationId}>
+                  <FileText size={12} />
+                  <span>#{application._id.slice(-6).toUpperCase()}</span>
+                </div>
+              </div>
+              
               <div className={styles.cardPreview}>
                 <div className={styles.previewItem}>
                   <span className={styles.previewLabel}>Experience</span>
                   <p className={styles.previewValue}>
-                    {application.experience.length > 120
+                    {application.experience?.length > 120
                       ? `${application.experience.substring(0, 120)}...`
                       : application.experience}
                   </p>
@@ -691,36 +1131,45 @@ const ApplicationsContributor = () => {
               </div>
               
               <div className={styles.cardActions}>
-                <div className={styles.leftActions}>
+                <motion.button 
+                  className={styles.detailsButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpandApplication(application._id);
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {expandedApplications[application._id] ? 'Hide Details' : 'View Details'}
+                  <ChevronDown 
+                    size={16} 
+                    className={expandedApplications[application._id] ? styles.rotated : ''} 
+                  />
+                </motion.button>
+                
+                {!bulkActionMode && application.status === 'Pending' && (
                   <motion.button 
-                    className={styles.detailsButton}
-                    onClick={() => toggleExpandApplication(application._id)}
+                    className={`${styles.withdrawButton} ${actionLoading[application._id] ? styles.loading : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      withdrawApplication(application._id);
+                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    disabled={actionLoading[application._id]}
                   >
-                    {expandedApplication === application._id ? 'Hide Details' : 'View Details'}
-                    {expandedApplication === application._id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    {actionLoading[application._id] ? (
+                      <RefreshCw size={14} className={styles.spinner} />
+                    ) : (
+                      <XCircle size={14} />
+                    )}
+                    <span>Withdraw</span>
                   </motion.button>
-                </div>
-                
-                <div className={styles.rightActions}>
-                  {/* Contributors can withdraw pending applications */}
-                  {application.status === 'Pending' && (
-                    <motion.button 
-                      className={styles.withdrawButton}
-                      onClick={() => withdrawApplication(application._id)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <XCircle size={16} />
-                      Withdraw
-                    </motion.button>
-                  )}
-                </div>
+                )}
               </div>
               
               <AnimatePresence>
-                {expandedApplication === application._id && (
+                {expandedApplications[application._id] && (
                   <motion.div 
                     className={styles.expandedDetails}
                     initial={{ height: 0, opacity: 0 }}
@@ -746,12 +1195,36 @@ const ApplicationsContributor = () => {
                           target="_blank" 
                           rel="noopener noreferrer"
                           className={styles.portfolioLink}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          View Portfolio
                           <ExternalLink size={14} />
+                          <span>View Portfolio</span>
                         </a>
                       </div>
                     )}
+                    
+                    <div className={styles.expandedActions}>
+                      <motion.button 
+                        className={styles.messageButton}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MessageSquare size={16} />
+                        <span>Message Creator</span>
+                      </motion.button>
+                      
+                      <motion.a 
+                        href={`/pods/${application.podId}`}
+                        className={styles.viewPodButton}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <EyeIcon size={16} />
+                        <span>View Pod</span>
+                      </motion.a>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -759,6 +1232,23 @@ const ApplicationsContributor = () => {
           ))}
         </motion.div>
       )}
+      
+      {/* Scroll to top button */}
+      <AnimatePresence>
+        {applications.length > 10 && (
+          <motion.button
+            className={styles.scrollTopButton}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            whileHover={{ y: -5 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <ChevronUp size={20} />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
