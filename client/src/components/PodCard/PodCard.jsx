@@ -23,6 +23,7 @@ const PodCard = ({
   title, 
   description = 'No description provided.', 
   status = 'draft', 
+  statusColor, // Add this prop
   urgency = 'medium',
   category = 'development',
   format = 'project',
@@ -130,20 +131,25 @@ const PodCard = ({
     return text.substring(0, lastSpace > 0 ? lastSpace : maxLength) + '...';
   };
   
-  // Get status color based on status
-  const getStatusColor = () => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return '#4CAF50';
-      case 'in progress':
-        return '#2196F3';
-      case 'active':
-        return '#E8C547';
-      default:
-        return '#9E9E9E';
-    }
-  };
+  // Use statusColor prop if provided, otherwise fall back to the default logic
+const getStatusColor = () => {
+  if (statusColor) {
+    return statusColor;
+  }
   
+  // Fallback logic
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return '#4CAF50';
+    case 'in progress':
+      return '#2196F3';
+    case 'active':
+      return '#E8C547';
+    default:
+      return '#9E9E9E';
+  }
+};
+
   // Get urgency icon based on urgency level
   const getUrgencyIcon = () => {
     switch (urgency.toLowerCase()) {

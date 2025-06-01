@@ -61,6 +61,64 @@ const ExplorePage = () => {
     { id: 'deadline', label: 'Deadline (Soon)', icon: <Calendar size={16} /> },
     { id: 'members', label: 'Team Size', icon: <Users size={16} /> }
   ];
+
+  // Pod states with colors
+const podStates = [
+  {
+    id: 'draft',
+    title: 'Draft',
+    description: 'Private exploration phase for Pod creators.',
+    color: '#6B7280',
+    count: 127,
+    avgDuration: '2-5 days'
+  },
+  {
+    id: 'open',
+    title: 'Open',
+    description: 'Public, actively recruiting contributors.',
+    color: '#3B82F6',
+    count: 289,
+    avgDuration: '1-3 weeks'
+  },
+  {
+    id: 'in-progress',
+    title: 'In Progress',
+    description: 'Active building phase with contributors working.',
+    color: '#10B981',
+    count: 156,
+    avgDuration: '4-12 weeks'
+  },
+  {
+    id: 'pre-launch',
+    title: 'Pre-Launch',
+    description: 'Final preparation and testing before launch.',
+    color: '#F59E0B',
+    count: 43,
+    avgDuration: '1-4 weeks'
+  },
+  {
+    id: 'live',
+    title: 'Live',
+    description: 'Actively selling products/services to buyers.',
+    color: '#8B5CF6',
+    count: 78,
+    avgDuration: 'Ongoing'
+  },
+  {
+    id: 'archived',
+    title: 'Archived',
+    description: 'Concluded project, available for forking.',
+    color: '#6B7280',
+    count: 234,
+    avgDuration: 'Permanent'
+  }
+];
+
+// Helper function to get color for a status
+const getStatusColor = (status) => {
+  const state = podStates.find(state => state.id === status.toLowerCase() || state.title.toLowerCase() === status.toLowerCase());
+  return state ? state.color : '#6B7280'; // Default color if status not found
+};
   
   // Mouse parallax effect
   useEffect(() => {
@@ -513,24 +571,25 @@ const ExplorePage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
-                  <PodCard
-                    id={pod._id}
-                    title={pod.title}
-                    description={pod.description}
-                    status={pod.status || "open"}
-                    urgency={pod.urgency || "medium"}
-                    category={pod.category || "development"}
-                    format={pod.format || "project"}
-                    progress={pod.progress || 0}
-                    deadline={pod.deadline}
-                    budget={pod.budget}
-                    creator={pod.creator || {}}
-                    rolesNeeded={pod.rolesNeeded || []}
-                    skills={pod.skills || []}
-                    teamSize={pod.teamSize || 0}
-                    maxMembers={pod.maxMembers || 8}
-                    commitment={pod.commitment || "part-time"}
-                  />
+      <PodCard
+  id={pod._id}
+  title={pod.title}
+  description={pod.description}
+  status={pod.status || "open"}
+  statusColor={getStatusColor(pod.status || "open")}
+  urgency={pod.urgency || "medium"}
+  category={pod.category || "development"}
+  format={pod.format || "project"}
+  progress={pod.progress || 0}
+  deadline={pod.deadline}
+  budget={pod.budget}
+  creator={pod.creator || {}}
+  rolesNeeded={pod.rolesNeeded || []}
+  skills={pod.skills || []}
+  teamSize={pod.teamSize || 0}
+  maxMembers={pod.maxMembers || 8}
+  commitment={pod.commitment || "part-time"}
+/>
                 </motion.div>
               ))}
             </div>

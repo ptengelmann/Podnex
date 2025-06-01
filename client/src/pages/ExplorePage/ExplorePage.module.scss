@@ -925,8 +925,7 @@
   backdrop-filter: blur(5px);
   
   &:hover {
-    background: $gold;
-    color: $black;
+    background: $gold; 
     border-color: $gold;
     box-shadow: 0 10px 30px rgba($gold, 0.3);
   }
