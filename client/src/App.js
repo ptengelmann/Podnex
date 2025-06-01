@@ -19,6 +19,8 @@ import FAQPage from './pages/FAQ/FAQPage';
 import TermsOfService from './pages/TermsOfService/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import Ecosystem from './pages/Ecosystem/Ecosystem';
+import PodListPage from './pages/PodListPage/PodListPage';
+
 
 // Import the role-specific components
 import ApplicationsContributor from './pages/Applications/ApplicationsContributor';
@@ -207,6 +209,25 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/pods"
+  element={
+    <ProtectedRoute>
+      <PodListPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/my-pods"
+  element={
+    <ProtectedRoute>
+      <PodListPage />
+    </ProtectedRoute>
+  }
+/>
+
+
       </Routes>
       
       {/* GamificationToast - Global component for achievement notifications */}
