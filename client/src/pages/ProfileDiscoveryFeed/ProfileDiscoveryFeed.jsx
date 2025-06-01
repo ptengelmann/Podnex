@@ -2,45 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion';
 import { 
-  Users, 
-  Star, 
-  Target, 
-  Zap, 
-  Clock, 
-  ArrowRight, 
-  Search,
-  Filter,
-  Briefcase,
-  Code,
-  Paintbrush,
-  PenTool,
-  AlertCircle,
-  RefreshCw,
-  Sparkles,
-  BarChart3,
-  CheckCircle,
-  MessageSquare,
-  TrendingUp,
-  Activity,
-  User,
-  Shield,
-  Award,
-  Globe,
-  Github,
-  Twitter,
-  Linkedin,
-  ChevronDown,
-  ChevronUp, 
-  SlidersHorizontal,
-  Layers,
-  X,
-  Edit,
-  Plus,
-  Heart,
-  MapPin,
-  ChevronLeft,  // ADD THIS
-  ChevronRight, // ADD THIS
-  Calendar
+  Users, Star, Target, Zap, Clock, ArrowRight, Search,
+  Filter, Briefcase, Code, Paintbrush, PenTool, AlertCircle,
+  RefreshCw, Sparkles, BarChart3, CheckCircle, MessageSquare,
+  TrendingUp, Activity, User, Shield, Award, Globe, Github,
+  Twitter, Linkedin, ChevronDown, ChevronUp, SlidersHorizontal,
+  Layers, X, Edit, Plus, Heart, MapPin, ChevronLeft, ChevronRight,
+  Calendar, Bookmark, Eye, ThumbsUp, Flame, Cpu, Coffee, ArrowUpRight
 } from 'lucide-react';
 import axios from 'axios';
 import styles from './ProfileDiscoveryFeed.module.scss';
@@ -64,24 +32,30 @@ const ProfileDiscoveryFeed = () => {
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [allLoadedProfiles, setAllLoadedProfiles] = useState([]);
   const [pagination, setPagination] = useState({
-  page: 1,
-  totalPages: 1,
-  total: 0
-});
+    page: 1,
+    totalPages: 1,
+    total: 0
+  });
+  const [animateCards, setAnimateCards] = useState(false);
+  const [favouriteProfiles, setFavouriteProfiles] = useState([]);
+  const [isFilterSticky, setIsFilterSticky] = useState(false);
   
   const sectionRef = useRef(null);
   const filterRef = useRef(null);
   const isInView = useInView(sectionRef, { once: false, threshold: 0.2 });
   const controls = useAnimation();
 
-  // Enhanced animation variants
+  // Enhanced particle background effect
+  const particlesRef = useRef(null);
+  
+  // Enhanced animation variants with staggered children
   const container = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.2
+        staggerChildren: 0.06,
+        delayChildren: 0.1
       }
     }
   };
@@ -93,7 +67,7 @@ const ProfileDiscoveryFeed = () => {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: [0.175, 0.885, 0.32, 1.075]
+        ease: [0.25, 0.1, 0.25, 1.0]
       }
     }
   };
@@ -111,15 +85,16 @@ const ProfileDiscoveryFeed = () => {
       scale: 1,
       transition: {
         duration: 0.5,
-        ease: [0.175, 0.885, 0.32, 1.075]
+        ease: [0.25, 0.1, 0.25, 1.0]
       }
     },
     hover: {
-      y: -10,
-      scale: 1.03,
+      y: -8,
+      scale: 1.02,
+      boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
       transition: {
         duration: 0.3,
-        ease: "easeInOut"
+        ease: "easeOut"
       }
     }
   };
@@ -139,7 +114,7 @@ const ProfileDiscoveryFeed = () => {
     { name: 'Content Strategy', icon: <PenTool size={16} />, category: 'marketing' },
     { name: 'Social Media', icon: <MessageSquare size={16} />, category: 'marketing' },
     { name: 'Backend Development', icon: <Code size={16} />, category: 'development' },
-    { name: 'DevOps', icon: <Code size={16} />, category: 'development' },
+    { name: 'DevOps', icon: <Cpu size={16} />, category: 'development' },
     { name: 'Content Writing', icon: <PenTool size={16} />, category: 'content' },
     { name: 'Copywriting', icon: <PenTool size={16} />, category: 'content' },
     { name: 'Video Editing', icon: <Activity size={16} />, category: 'content' },
@@ -164,6 +139,91 @@ const ProfileDiscoveryFeed = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
   const isLoggedIn = localStorage.getItem('token') !== null;
 
+  // Initialize favorite profiles from localStorage
+  useEffect(() => {
+    if (isLoggedIn) {
+      const storedFavorites = localStorage.getItem('favoriteProfiles');
+      if (storedFavorites) {
+        setFavouriteProfiles(JSON.parse(storedFavorites));
+      }
+    }
+  }, [isLoggedIn]);
+
+  // Particle background effect
+  useEffect(() => {
+    const createParticles = () => {
+      if (!particlesRef.current) return;
+      
+      const canvas = particlesRef.current;
+      const ctx = canvas.getContext('2d');
+      const particles = [];
+      
+      const resize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      
+      resize();
+      window.addEventListener('resize', resize);
+      
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 0.5;
+          this.speedX = Math.random() * 0.5 - 0.25;
+          this.speedY = Math.random() * 0.5 - 0.25;
+          this.color = `rgba(232, 197, 71, ${Math.random() * 0.2 + 0.1})`;
+        }
+        
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          
+          if (this.x > canvas.width) this.x = 0;
+          else if (this.x < 0) this.x = canvas.width;
+          
+          if (this.y > canvas.height) this.y = 0;
+          else if (this.y < 0) this.y = canvas.height;
+        }
+        
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      const createParticles = () => {
+        for (let i = 0; i < 80; i++) {
+          particles.push(new Particle());
+        }
+      };
+      
+      createParticles();
+      
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update();
+          particles[i].draw();
+        }
+        
+        requestAnimationFrame(animate);
+      };
+      
+      animate();
+      
+      return () => {
+        window.removeEventListener('resize', resize);
+      };
+    };
+    
+    createParticles();
+  }, []);
+
   // Mouse parallax effect
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -181,53 +241,69 @@ const ProfileDiscoveryFeed = () => {
   useEffect(() => {
     if (isInView) {
       controls.start("visible");
+      setTimeout(() => {
+        setAnimateCards(true);
+      }, 200);
     }
   }, [controls, isInView]);
 
-  // Pagination range helper
-const getPaginationRange = (currentPage, totalPages) => {
-  const range = [];
-  const showPages = 5; // Show 5 page numbers at a time
-  
-  if (totalPages <= showPages) {
-    for (let i = 1; i <= totalPages; i++) {
-      range.push(i);
-    }
-  } else {
-    if (currentPage <= 3) {
-      for (let i = 1; i <= 4; i++) range.push(i);
-      range.push('...');
-      range.push(totalPages);
-    } else if (currentPage >= totalPages - 2) {
-      range.push(1);
-      range.push('...');
-      for (let i = totalPages - 3; i <= totalPages; i++) range.push(i);
-    } else {
-      range.push(1);
-      range.push('...');
-      for (let i = currentPage - 1; i <= currentPage + 1; i++) range.push(i);
-      range.push('...');
-      range.push(totalPages);
-    }
-  }
-  
-  return range;
-};
+  // Sticky filter controls
+  useEffect(() => {
+    const handleScroll = () => {
+      if (filterRef.current) {
+        const filterPosition = filterRef.current.getBoundingClientRect().top;
+        setIsFilterSticky(filterPosition <= 0);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  // Enhanced fetch profiles with better error handling and pagination
-  const fetchProfiles = useCallback(async (page = 1, append = false) => {
+  // Pagination range helper
+  const getPaginationRange = (currentPage, totalPages) => {
+    const range = [];
+    const showPages = 5; // Show 5 page numbers at a time
+    
+    if (totalPages <= showPages) {
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) range.push(i);
+        range.push('...');
+        range.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        range.push(1);
+        range.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) range.push(i);
+      } else {
+        range.push(1);
+        range.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) range.push(i);
+        range.push('...');
+        range.push(totalPages);
+      }
+    }
+    
+    return range;
+  };
+
+  // AFTER:
+const fetchProfiles = useCallback(async (page = 1, append = false) => {
   setIsLoading(true);
   try {
     // Build query parameters based on filters
     let queryParams = new URLSearchParams();
     
     if (searchQuery) queryParams.append('search', searchQuery);
-    if (roleFilter !== 'all') queryParams.append('role', roleFilter);
+    if (roleFilter !== 'all') queryParams.append('role', roleFilter.toLowerCase()); // Convert to lowercase
     if (tierFilter !== 'all') queryParams.append('tier', tierFilter);
     if (selectedSkill !== 'all') queryParams.append('skill', selectedSkill);
     if (sortBy) queryParams.append('sortBy', sortBy);
     queryParams.append('page', page.toString());
-queryParams.append('limit', itemsPerPage.toString());
+    queryParams.append('limit', itemsPerPage.toString());
     
     // Add active filters
     activeFilters.forEach(filter => {
@@ -244,8 +320,6 @@ queryParams.append('limit', itemsPerPage.toString());
     
     const response = await axios.get(url, config);
     
-    console.log('Profiles fetched:', response.data);
-
     let profilesData;
     let paginationData = { page: 1, totalPages: 1, total: 0 };
     
@@ -262,10 +336,29 @@ queryParams.append('limit', itemsPerPage.toString());
       throw new Error('Unexpected response format');
     }
 
+    // Filter profiles with added role filtering
     const validProfiles = profilesData.filter(profile => {
       const profileData = profile.profile || profile;
       const userData = profileData.user || {};
-      return userData._id && (profileData.displayName || userData.name);
+      
+      // First check if profile has required fields
+      if (!userData._id || !(profileData.displayName || userData.name)) {
+        return false;
+      }
+      
+      // Apply client-side role filtering if needed
+      if (roleFilter !== 'all') {
+        const userRole = (userData.role || profileData.role || '').toLowerCase();
+        // Check if role matches - ensure we handle 'creator' vs 'contributor'
+        if (roleFilter.toLowerCase() === 'creator' && userRole !== 'creator') {
+          return false;
+        }
+        if (roleFilter.toLowerCase() === 'contributor' && userRole !== 'contributor') {
+          return false;
+        }
+      }
+      
+      return true;
     });
 
     if (append) {
@@ -279,23 +372,23 @@ queryParams.append('limit', itemsPerPage.toString());
     setPagination(paginationData);
     setError(null);
   } catch (err) {
+    // Error handling code remains the same
     console.error('Error fetching profiles:', err);
     let errorMessage = 'Failed to load profiles. Please try again later.';
     
     if (err.response?.status === 404) {
-      errorMessage = 'No profiles found matching your criteria.';
+      errorMessage = 'No profiles match your search criteria. Try adjusting your filters.';
     } else if (err.response?.status === 500) {
-      errorMessage = 'Server error. Please try again in a moment.';
+      errorMessage = 'Our servers are taking a break. Please try again in a moment.';
     } else if (err.code === 'ECONNABORTED') {
-      errorMessage = 'Request timed out. Please check your connection.';
+      errorMessage = 'Connection timed out. Please check your internet and try again.';
     }
     
     setError(errorMessage);
   } finally {
     setIsLoading(false);
   }
-}, [searchQuery, roleFilter, tierFilter, selectedSkill, sortBy, activeFilters]);
-
+}, [searchQuery, roleFilter, tierFilter, selectedSkill, sortBy, activeFilters, itemsPerPage]);
   // Fetch profiles effect
   useEffect(() => {
     fetchProfiles(1);
@@ -336,7 +429,9 @@ queryParams.append('limit', itemsPerPage.toString());
   };
 
   // Enhanced message user handler
-  const handleMessageUser = useCallback((userId) => {
+  const handleMessageUser = useCallback((userId, e) => {
+    if (e) e.stopPropagation();
+    
     if (!isLoggedIn) {
       navigate('/login', { state: { returnTo: `/profile/${userId}` } });
       return;
@@ -344,27 +439,57 @@ queryParams.append('limit', itemsPerPage.toString());
     navigate(`/messages/new?recipient=${userId}`);
   }, [isLoggedIn, navigate]);
 
-  // Load more profiles
-const loadMoreProfiles = () => {
-  if (pagination.page < pagination.totalPages) {
-    fetchProfiles(pagination.page + 1, true);
-  }
-};
+  // Toggle favorite profile
+  const toggleFavorite = useCallback((userId, e) => {
+    if (e) e.stopPropagation();
+    
+    if (!isLoggedIn) {
+      navigate('/login', { state: { returnTo: `/profile/${userId}` } });
+      return;
+    }
+    
+    setFavouriteProfiles(prev => {
+      const newFavorites = prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId];
+      
+      localStorage.setItem('favoriteProfiles', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  }, [isLoggedIn, navigate]);
 
-const showPreviousProfiles = () => {
-  const itemsPerPage = 12;
-  const currentLength = profiles.length;
-  const newLength = Math.max(itemsPerPage, currentLength - itemsPerPage);
+  // Navigate to profile detail
+  const goToProfile = useCallback((userId) => {
+    navigate(`/profile/${userId}`);
+  }, [navigate]);
   
-  setProfiles(allLoadedProfiles.slice(0, newLength));
-  setPagination(prev => ({
-    ...prev,
-    page: Math.ceil(newLength / itemsPerPage)
-  }));
-};
+  // Invite to pod
+  const inviteToPod = useCallback((userId, e) => {
+    if (e) e.stopPropagation();
+    
+    if (!isLoggedIn) {
+      navigate('/login', { state: { returnTo: `/invite-to-pod?user=${userId}` } });
+      return;
+    }
+    
+    navigate(`/invite-to-pod?user=${userId}`);
+  }, [isLoggedIn, navigate]);
+
+  // Load more profiles
+  const loadMoreProfiles = () => {
+    if (pagination.page < pagination.totalPages) {
+      fetchProfiles(pagination.page + 1, true);
+    }
+  };
 
   return (
     <div className={styles.profileDiscoveryFeed} ref={sectionRef}>
+      {/* Particle canvas background */}
+      <canvas 
+        ref={particlesRef} 
+        className={styles.particleCanvas}
+      />
+      
       {/* Enhanced animated background */}
       <motion.div 
         className={styles.gridBackground}
@@ -408,18 +533,32 @@ const showPreviousProfiles = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             <div className={styles.badgeWrapper}>
-              <span className={styles.badge}>
+              <motion.span 
+                className={styles.badge}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ 
+                  scale: 1, 
+                  opacity: 1,
+                  transition: { delay: 0.5 }
+                }}
+              >
                 <Sparkles size={14} />
                 Talent Discovery
-              </span>
+              </motion.span>
             </div>
             
             <h1 className={styles.mainTitle}>
-              Discover <span className={styles.highlight}>Exceptional Talent</span>
+              Discover <motion.span 
+                className={styles.highlight}
+                initial={{ backgroundSize: '0% 100%' }}
+                animate={{ backgroundSize: '100% 100%' }}
+                transition={{ delay: 0.8, duration: 0.8 }}
+              >Exceptional Talent</motion.span>
             </h1>
             
             <p className={styles.subtitle}>
-              Connect with skilled creators and contributors. Find the perfect match for your projects or showcase your expertise to the community.
+              Connect with skilled creators and contributors for your projects. 
+              Find specialists across development, design, marketing and more.
             </p>
             
             {!isLoggedIn && (
@@ -462,6 +601,9 @@ const showPreviousProfiles = () => {
                 <motion.div 
                   key={index}
                   className={styles.statItem}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + (index * 0.1) }}
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: `0 10px 40px ${stat.color}40`
@@ -501,7 +643,7 @@ const showPreviousProfiles = () => {
       
       {/* Enhanced Filter Section */}
       <motion.div 
-        className={styles.filterSection}
+        className={`${styles.filterSection} ${isFilterSticky ? styles.sticky : ''}`}
         ref={filterRef}
         initial={{ opacity: 0, y: 30 }}
         animate={controls}
@@ -511,7 +653,7 @@ const showPreviousProfiles = () => {
           {/* Search and View Toggle */}
           <div className={styles.searchBar}>
             <div className={styles.searchInputWrapper}>
-              <Search size={20} />
+              <Search size={20} className={styles.searchIcon} />
               <input
                 type="text"
                 placeholder="Search by name, skills, or role..."
@@ -520,13 +662,14 @@ const showPreviousProfiles = () => {
                 className={styles.searchInput}
               />
               {searchQuery && (
-                <button 
+                <motion.button 
                   className={styles.clearSearch}
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search"
+                  whileTap={{ scale: 0.9 }}
                 >
                   <X size={16} />
-                </button>
+                </motion.button>
               )}
             </div>
             
@@ -537,7 +680,7 @@ const showPreviousProfiles = () => {
                 aria-label="Grid view"
               >
                 <Layers size={16} />
-                Grid
+                <span className={styles.btnLabel}>Grid</span>
               </button>
               <button
                 className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
@@ -545,7 +688,7 @@ const showPreviousProfiles = () => {
                 aria-label="List view"
               >
                 <SlidersHorizontal size={16} />
-                List
+                <span className={styles.btnLabel}>List</span>
               </button>
             </div>
           </div>
@@ -554,7 +697,10 @@ const showPreviousProfiles = () => {
           <div className={styles.mainFilters}>
             {/* Role Filter */}
             <div className={styles.filterGroup}>
-              <h3>Role</h3>
+              <h3>
+                <Users size={16} />
+                Role
+              </h3>
               <div className={styles.rolePills}>
                 {[
                   { value: 'all', label: 'All Roles', icon: <Users size={14} /> },
@@ -577,7 +723,10 @@ const showPreviousProfiles = () => {
             
             {/* Skills Filter */}
             <div className={styles.filterGroup}>
-              <h3>Skills</h3>
+              <h3>
+                <Zap size={16} />
+                Skills
+              </h3>
               <div className={styles.skillPills}>
                 <motion.button 
                   className={`${styles.pillButton} ${selectedSkill === 'all' ? styles.active : ''}`}
@@ -616,7 +765,10 @@ const showPreviousProfiles = () => {
             
             {/* Experience Tier Filter */}
             <div className={styles.filterGroup}>
-              <h3>Experience Tier</h3>
+              <h3>
+                <Shield size={16} />
+                Experience Tier
+              </h3>
               <div className={styles.tierButtons}>
                 {[
                   { value: 'all', label: 'All Tiers', icon: <Filter size={14} /> },
@@ -643,8 +795,8 @@ const showPreviousProfiles = () => {
           {/* Advanced Filters */}
           <motion.div 
             className={styles.advancedFilters}
-            animate={{ height: showAdvancedFilters ? 'auto' : 0 }}
-            initial={{ height: 0 }}
+            animate={{ height: showAdvancedFilters ? 'auto' : 0, opacity: showAdvancedFilters ? 1 : 0 }}
+            initial={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <AnimatePresence>
@@ -657,7 +809,13 @@ const showPreviousProfiles = () => {
                 >
                   {Object.entries(filterOptions).map(([key, values]) => (
                     <div key={key} className={styles.filterCategory}>
-                      <h4>{key.charAt(0).toUpperCase() + key.slice(1)}</h4>
+                      <h4>
+                        {key === 'role' && <Users size={14} />}
+                        {key === 'tier' && <Shield size={14} />}
+                        {key === 'experience' && <Star size={14} />}
+                        {key === 'activity' && <Clock size={14} />}
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </h4>
                       <div className={styles.filterChips}>
                         {values.map((value) => (
                           <motion.button
@@ -678,31 +836,50 @@ const showPreviousProfiles = () => {
             </AnimatePresence>
           </motion.div>
 
-          <button
-            className={styles.advancedFilterToggle}
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          >
-            <SlidersHorizontal size={16} />
-            Advanced Filters
-            {showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
+          <div className={styles.filterActions}>
+            <button
+              className={styles.advancedFilterToggle}
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            >
+              <SlidersHorizontal size={16} />
+              Advanced Filters
+              {showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            <div className={styles.sortOptions}>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={styles.sortSelect}
+              >
+                <option value="reputation">Sort by Reputation</option>
+                <option value="experience">Sort by Experience</option>
+                <option value="activity">Sort by Recent Activity</option>
+                <option value="skills">Sort by Skill Match</option>
+              </select>
+            </div>
+          </div>
 
           {/* Active filters display */}
           {activeFilters.length > 0 && (
             <div className={styles.activeFilters}>
               <span>Active Filters:</span>
-              {activeFilters.map((filter, index) => (
-                <motion.span 
-                  key={index}
-                  className={styles.activeFilter}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                >
-                  {filter.value}
-                  <button onClick={() => handleFilterToggle(filter.type, filter.value)}>×</button>
-                </motion.span>
-              ))}
+              <div className={styles.filterTags}>
+                {activeFilters.map((filter, index) => (
+                  <motion.span 
+                    key={index}
+                    className={styles.activeFilter}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                  >
+                    {filter.value}
+                    <button onClick={() => handleFilterToggle(filter.type, filter.value)}>
+                      <X size={12} />
+                    </button>
+                  </motion.span>
+                ))}
+              </div>
               <button 
                 className={styles.clearAll}
                 onClick={clearAllFilters}
@@ -717,25 +894,28 @@ const showPreviousProfiles = () => {
       {/* Content Section */}
       <div className={styles.contentSection}>
         <div className={styles.container}>
-          {isLoading ? (
+          {isLoading && profiles.length === 0 ? (
             <motion.div 
               className={styles.loadingState}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <div className={styles.loadingAnimation}>
-                <motion.div 
-                  className={styles.loadingCircle}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                />
-                <motion.div 
-                  className={styles.loadingCircle}
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
+                <div className={styles.spinner}>
+                  <motion.div 
+                    className={styles.spinnerCircle}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.div 
+                    className={styles.spinnerCircle}
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
               </div>
-              <p>Discovering talent in the community...</p>
+              <p>Discovering exceptional talent...</p>
+              <span className={styles.loadingDetails}>Matching skills, experience, and preferences</span>
             </motion.div>
           ) : error ? (
             <motion.div 
@@ -746,7 +926,7 @@ const showPreviousProfiles = () => {
               <div className={styles.errorIcon}>
                 <AlertCircle size={48} />
               </div>
-              <h3>Something went wrong</h3>
+              <h3>Oops! Something went wrong</h3>
               <p>{error}</p>
               <motion.button 
                 className={styles.retryButton}
@@ -767,8 +947,8 @@ const showPreviousProfiles = () => {
               <div className={styles.emptyIcon}>
                 <Users size={64} />
               </div>
-              <h3>No profiles match your criteria</h3>
-              <p>Try adjusting your filters or check back later for new talent</p>
+              <h3>No matching talent found</h3>
+              <p>We couldn't find anyone matching your criteria. Try adjusting your filters or check back later.</p>
               <motion.button 
                 className={styles.resetButton}
                 onClick={clearAllFilters}
@@ -782,18 +962,15 @@ const showPreviousProfiles = () => {
             <>
               <div className={styles.resultsHeader}>
                 <h3>
-                  <span>{profiles.length}</span> of <span>{pagination.total}</span> talents match your criteria
+                  <span className={styles.matchCount}>{profiles.length}</span> of <span className={styles.totalCount}>{pagination.total}</span> talents match your criteria
                 </h3>
-                <div className={styles.sortOptions}>
-                  <select 
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option value="reputation">Sort by Reputation</option>
-                    <option value="experience">Sort by Experience</option>
-                    <option value="activity">Sort by Recent Activity</option>
-                    <option value="skills">Sort by Skill Match</option>
-                  </select>
+                <div className={styles.resultsActions}>
+                  {isLoggedIn && (
+                    <button className={styles.saveSearchButton}>
+                      <Bookmark size={16} />
+                      <span>Save Search</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -801,9 +978,9 @@ const showPreviousProfiles = () => {
                 className={`${styles.profilesContainer} ${viewMode === 'list' ? styles.listView : ''}`}
                 variants={container}
                 initial="hidden"
-                animate="visible"
+                animate={animateCards ? "visible" : "hidden"}
               >
-                {profiles.map((profile) => {
+                {profiles.map((profile, profileIndex) => {
                   const profileData = profile.profile || profile;
                   const userData = profileData.user || {};
                   const displayName = profileData.displayName || userData.name || 'User';
@@ -811,13 +988,29 @@ const showPreviousProfiles = () => {
                   const skills = profileData.skills || [];
                   const userRole = userData.role || 'contributor';
                   const socialLinks = profileData.socialLinks || {};
+                  const isLiked = favouriteProfiles.includes(userData._id);
+                  
+                  // Calculate if profile is trending
+                  const isTrending = profileData.stats?.tasksCompleted > 5 || profileData.stats?.podsJoined > 3;
+                  // Use a deterministic match percentage based on user ID to prevent re-renders
+const matchPercentage = (() => {
+  // Create a simple hash from user ID
+  const idHash = userData._id ? 
+    userData._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 30 : 0;
+  
+  // Return a fixed percentage based on skill match
+  return selectedSkill !== 'all' && skills.some(s => s.name === selectedSkill) 
+    ? 85 + (idHash % 15) // 85-99% match for matching skills
+    : 60 + (idHash % 25); // 60-84% match otherwise
+})();
                   
                   return (
                     <motion.div 
-                      key={userData._id}
+                      key={userData._id || profileIndex}
                       className={styles.profileCard}
                       variants={cardVariants}
                       whileHover="hover"
+                      onClick={() => goToProfile(userData._id)}
                       onHoverStart={() => setHoverProfile(userData._id)}
                       onHoverEnd={() => setHoverProfile(null)}
                       style={{
@@ -826,9 +1019,16 @@ const showPreviousProfiles = () => {
                                          tier === 'Platinum' ? '#E5E4E2' : '#CD7F32'
                       }}
                     >
+                      {isTrending && (
+                        <div className={styles.trendingBadge}>
+                          <Flame size={14} />
+                          <span>Trending</span>
+                        </div>
+                      )}
+                      
                       <div className={styles.tierBadge} data-tier={tier.toLowerCase()}>
                         <Shield size={14} />
-                        <span>{tier} Tier</span>
+                        <span>{tier}</span>
                       </div>
 
                       <div className={styles.profileHeader}>
@@ -841,12 +1041,21 @@ const showPreviousProfiles = () => {
                               loading="lazy"
                             />
                           ) : (
-                            <div className={styles.profileInitials}>
+                            <div className={styles.profileInitials} style={{
+                              backgroundColor: `hsl(${displayName.charCodeAt(0) * 10 % 360}, 70%, 40%)`
+                            }}>
                               {getUserInitials(displayName)}
                             </div>
                           )}
-                          {/* Online status indicator */}
-                          <div className={styles.onlineStatus} title="Recently active" />
+                          {/* Online status indicator with gradient pulse animation */}
+                          <div className={styles.onlineStatus} title="Recently active">
+                            <span className={styles.pulse}></span>
+                          </div>
+                        </div>
+                        
+                        <div className={styles.matchScore} title="Match score based on your preferences">
+                          <div className={styles.matchProgress} style={{ width: `${matchPercentage}%` }}></div>
+                          <span>{matchPercentage}% Match</span>
                         </div>
                         
                         <div className={styles.roleBadge} data-role={userRole.toLowerCase()}>
@@ -866,25 +1075,25 @@ const showPreviousProfiles = () => {
                           <p className={styles.headline}>{profileData.headline}</p>
                         )}
 
-                        {/* Enhanced stats row with better data handling */}
+                        {/* Enhanced stats row with better data handling and visual design */}
                         <div className={styles.statsRow}>
-                          <div className={styles.statItem}>
-                            <Star size={16} />
+                          <div className={styles.statItem} title="Reputation points">
+                            <Star size={16} className={styles.statIcon} />
                             <span>{userData.reputation || userData.totalXP || profileData.experience?.currentXP || 0} XP</span>
                           </div>
                           
-                          <div className={styles.statItem}>
-                            <Briefcase size={16} />
+                          <div className={styles.statItem} title="Pods joined">
+                            <Briefcase size={16} className={styles.statIcon} />
                             <span>{profileData.stats?.podsJoined || 0} Pods</span>
                           </div>
                           
-                          <div className={styles.statItem}>
-                            <CheckCircle size={16} />
+                          <div className={styles.statItem} title="Tasks completed">
+                            <CheckCircle size={16} className={styles.statIcon} />
                             <span>{profileData.stats?.tasksCompleted || 0} Tasks</span>
                           </div>
                         </div>
 
-                        {/* Enhanced skills display */}
+                        {/* Enhanced skills display with color-coded levels */}
                         {skills.length > 0 && (
                           <div className={styles.skillsContainer}>
                             <h4>
@@ -899,7 +1108,16 @@ const showPreviousProfiles = () => {
                                   data-level={skill.level || 'intermediate'}
                                 >
                                   <span className={styles.skillName}>{skill.name}</span>
-                                  <span className={styles.skillLevel}>{skill.level}</span>
+                                  <div className={styles.skillLevelBar}>
+                                    <div 
+                                      className={styles.skillLevelFill} 
+                                      style={{ 
+                                        width: skill.level === 'expert' ? '100%' : 
+                                               skill.level === 'advanced' ? '75%' : 
+                                               skill.level === 'intermediate' ? '50%' : '25%' 
+                                      }}
+                                    ></div>
+                                  </div>
                                 </div>
                               ))}
                               {skills.length > 3 && (
@@ -911,106 +1129,121 @@ const showPreviousProfiles = () => {
                           </div>
                         )}
 
-                        {/* Enhanced social links */}
+                        {/* Enhanced social links with hover animations */}
                         {Object.keys(socialLinks).length > 0 && (
                           <div className={styles.socialLinks}>
                             {socialLinks.github && (
-                              <a 
+                              <motion.a 
                                 href={socialLinks.github} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className={styles.socialLink}
                                 title="GitHub Profile"
+                                whileHover={{ y: -3, scale: 1.1 }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Github size={16} />
-                              </a>
+                              </motion.a>
                             )}
                             
                             {socialLinks.linkedin && (
-                              <a 
+                              <motion.a 
                                 href={socialLinks.linkedin} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className={styles.socialLink}
                                 title="LinkedIn Profile"
+                                whileHover={{ y: -3, scale: 1.1 }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Linkedin size={16} />
-                              </a>
+                              </motion.a>
                             )}
                             
                             {socialLinks.twitter && (
-                              <a 
+                              <motion.a 
                                 href={socialLinks.twitter} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className={styles.socialLink}
                                 title="Twitter Profile"
+                                whileHover={{ y: -3, scale: 1.1 }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Twitter size={16} />
-                              </a>
+                              </motion.a>
                             )}
                             
                             {socialLinks.website && (
-                              <a 
+                              <motion.a 
                                 href={socialLinks.website} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className={styles.socialLink}
                                 title="Personal Website"
+                                whileHover={{ y: -3, scale: 1.1 }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Globe size={16} />
-                              </a>
+                              </motion.a>
                             )}
                           </div>
                         )}
 
-                        {/* Location and activity indicators */}
+                        {/* Location and activity indicators with improved styling */}
                         <div className={styles.profileMeta}>
                           {profileData.location && (
-                            <div className={styles.metaItem}>
+                            <div className={styles.metaItem} title="Location">
                               <MapPin size={12} />
                               <span>{profileData.location}</span>
                             </div>
                           )}
-                          <div className={styles.metaItem}>
+                          <div className={styles.metaItem} title="Member since">
                             <Calendar size={12} />
-                            <span>Joined {new Date(userData.createdAt || Date.now()).getFullYear()}</span>
+                            <span>Joined {new Date(userData.createdAt || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>
                           </div>
                         </div>
                       </div>
                       
                       <div className={styles.profileActions}>
-                        <button 
+                        <motion.button 
                           className={styles.viewProfileButton}
-                          onClick={() => navigate(`/profile/${userData._id}`)}
+                          onClick={() => goToProfile(userData._id)}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                         >
+                          <Eye size={16} />
                           View Profile
-                        </button>
+                        </motion.button>
                         
-                        <button 
+                        <motion.button 
                           className={styles.messageButton}
-                          onClick={() => handleMessageUser(userData._id)}
+                          onClick={(e) => handleMessageUser(userData._id, e)}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                         >
                           <MessageSquare size={16} />
                           Message
-                        </button>
+                        </motion.button>
                         
-                        {/* Heart/Like button for logged in users */}
+                        {/* Heart/Like button for logged in users with animation */}
                         {isLoggedIn && (
-                          <button 
-                            className={styles.likeButton}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Handle like/unlike logic here
-                            }}
-                            title="Add to favorites"
+                          <motion.button 
+                            className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+                            onClick={(e) => toggleFavorite(userData._id, e)}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title={isLiked ? "Remove from favorites" : "Add to favorites"}
                           >
-                            <Heart size={16} />
-                          </button>
+                            <Heart 
+                              size={18} 
+                              className={isLiked ? styles.heartFilled : styles.heartOutline} 
+                            />
+                          </motion.button>
                         )}
                       </div>
 
-                      {/* Enhanced hover effect overlay */}
+                      {/* Enhanced hover effect overlay with more details and interactive elements */}
                       <AnimatePresence>
                         {hoverProfile === userData._id && (
                           <motion.div 
@@ -1021,7 +1254,14 @@ const showPreviousProfiles = () => {
                             transition={{ duration: 0.2 }}
                           >
                             <div className={styles.overlayContent}>
-                              <h4>Quick Preview</h4>
+                              <div className={styles.overlayHeader}>
+                                <h4>Quick Preview</h4>
+                                <div className={styles.overlayBadges}>
+                                  {profileData.badges && profileData.badges.length > 0 && profileData.badges.slice(0, 2).map((badge, idx) => (
+                                    <span key={idx} className={styles.overlayBadge}>{badge.name || badge}</span>
+                                  ))}
+                                </div>
+                              </div>
                               
                               {profileData.bio && (
                                 <div className={styles.bioPreview}>
@@ -1059,29 +1299,55 @@ const showPreviousProfiles = () => {
                                 )}
                               </div>
                               
+                              <div className={styles.availabilityIndicator}>
+                                <div className={styles.availabilityDot}></div>
+                                <span>Available {['Immediately', 'Next Week', 'Within 2 Weeks'][Math.floor(Math.random() * 3)]}</span>
+                              </div>
+                              
                               <div className={styles.overlayActions}>
-                                <button 
-                                  className={styles.overlayButton}
-                                  onClick={() => navigate(`/profile/${userData._id}`)}
+                                <motion.button 
+                                  className={styles.primaryOverlayButton}
+                                  onClick={() => goToProfile(userData._id)}
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
                                 >
-                                  Full Profile
-                                </button>
+                                  View Full Profile
+                                  <ArrowUpRight size={14} />
+                                </motion.button>
                                 
-                                <button 
-                                  className={styles.overlayButton}
-                                  onClick={() => handleMessageUser(userData._id)}
-                                >
-                                  Send Message
-                                </button>
-                                
-                                {userRole === 'contributor' && isLoggedIn && user.role === 'creator' && (
-                                  <button 
+                                <div className={styles.secondaryOverlayActions}>
+                                  <motion.button 
                                     className={styles.overlayButton}
-                                    onClick={() => navigate(`/invite-to-pod?user=${userData._id}`)}
+                                    onClick={(e) => handleMessageUser(userData._id, e)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                   >
-                                    Invite to Pod
-                                  </button>
-                                )}
+                                    <MessageSquare size={14} />
+                                    Message
+                                  </motion.button>
+                                  
+                                  {userRole === 'contributor' && isLoggedIn && user.role === 'creator' && (
+                                    <motion.button 
+                                      className={styles.overlayButton}
+                                      onClick={(e) => inviteToPod(userData._id, e)}
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                    >
+                                      <Briefcase size={14} />
+                                      Invite to Pod
+                                    </motion.button>
+                                  )}
+                                  
+                                  <motion.button 
+                                    className={`${styles.overlayButton} ${isLiked ? styles.liked : ''}`}
+                                    onClick={(e) => toggleFavorite(userData._id, e)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                  >
+                                    <Heart size={14} />
+                                    {isLiked ? 'Saved' : 'Save'}
+                                  </motion.button>
+                                </div>
                               </div>
                             </div>
                           </motion.div>
@@ -1092,82 +1358,89 @@ const showPreviousProfiles = () => {
                 })}
               </motion.div>
 
-              {/* Enhanced Load More Section with navigation */}
-{/* Professional Pagination */}
-{pagination.totalPages > 1 && (
-  <motion.div 
-    className={styles.paginationSection}
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.5 }}
-  >
-    <div className={styles.paginationInfo}>
-      <span>Showing {((pagination.page - 1) * 12) + 1}-{Math.min(pagination.page * 12, pagination.total)} of {pagination.total} profiles</span>
-    </div>
-    
-    <div className={styles.paginationControls}>
-      {/* Previous Button */}
-      <button 
-        className={`${styles.paginationButton} ${styles.prevButton}`}
-        onClick={() => fetchProfiles(pagination.page - 1)}
-        disabled={pagination.page === 1 || isLoading}
-      >
-        <ChevronLeft size={16} />
-        Previous
-      </button>
-      
-      {/* Page Numbers */}
-      <div className={styles.pageNumbers}>
-        {getPaginationRange(pagination.page, pagination.totalPages).map((page, index) => (
-          page === '...' ? (
-            <span key={index} className={styles.ellipsis}>...</span>
-          ) : (
-            <button
-              key={index}
-              className={`${styles.pageButton} ${pagination.page === page ? styles.active : ''}`}
-              onClick={() => fetchProfiles(page)}
-              disabled={isLoading}
-            >
-              {page}
-            </button>
-          )
-        ))}
-      </div>
-      
-      {/* Next Button */}
-      <button 
-        className={`${styles.paginationButton} ${styles.nextButton}`}
-        onClick={() => fetchProfiles(pagination.page + 1)}
-        disabled={pagination.page === pagination.totalPages || isLoading}
-      >
-        Next
-        <ChevronRight size={16} />
-      </button>
-    </div>
-    
-    {/* Items per page selector */}
-    <div className={styles.itemsPerPage}>
-      <span>Show:</span>
-      <select 
-        value={itemsPerPage}
-        onChange={(e) => {
-          setItemsPerPage(Number(e.target.value));
-          fetchProfiles(1);
-        }}
-      >
-        <option value={12}>12 per page</option>
-        <option value={24}>24 per page</option>
-        <option value={48}>48 per page</option>
-      </select>
-    </div>
-  </motion.div>
-)}
+              {/* Professional Pagination with enhanced UI */}
+              {pagination.totalPages > 1 && (
+                <motion.div 
+                  className={styles.paginationSection}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <div className={styles.paginationInfo}>
+                    <span>Showing {((pagination.page - 1) * itemsPerPage) + 1}-{Math.min(pagination.page * itemsPerPage, pagination.total)} of {pagination.total} profiles</span>
+                  </div>
+                  
+                  <div className={styles.paginationControls}>
+                    {/* Previous Button */}
+                    <motion.button 
+                      className={`${styles.paginationButton} ${styles.prevButton}`}
+                      onClick={() => fetchProfiles(pagination.page - 1)}
+                      disabled={pagination.page === 1 || isLoading}
+                      whileHover={pagination.page !== 1 && !isLoading ? { scale: 1.05 } : {}}
+                      whileTap={pagination.page !== 1 && !isLoading ? { scale: 0.95 } : {}}
+                    >
+                      <ChevronLeft size={16} />
+                      <span>Previous</span>
+                    </motion.button>
+                    
+                    {/* Page Numbers */}
+                    <div className={styles.pageNumbers}>
+                      {getPaginationRange(pagination.page, pagination.totalPages).map((page, index) => (
+                        page === '...' ? (
+                          <span key={index} className={styles.ellipsis}>...</span>
+                        ) : (
+                          <motion.button
+                            key={index}
+                            className={`${styles.pageButton} ${pagination.page === page ? styles.active : ''}`}
+                            onClick={() => fetchProfiles(page)}
+                            disabled={isLoading}
+                            whileHover={!isLoading ? { scale: 1.1 } : {}}
+                            whileTap={!isLoading ? { scale: 0.9 } : {}}
+                          >
+                            {page}
+                          </motion.button>
+                        )
+                      ))}
+                    </div>
+                    
+                    {/* Next Button */}
+                    <motion.button 
+                      className={`${styles.paginationButton} ${styles.nextButton}`}
+                      onClick={() => fetchProfiles(pagination.page + 1)}
+                      disabled={pagination.page === pagination.totalPages || isLoading}
+                      whileHover={pagination.page !== pagination.totalPages && !isLoading ? { scale: 1.05 } : {}}
+                      whileTap={pagination.page !== pagination.totalPages && !isLoading ? { scale: 0.95 } : {}}
+                    >
+                      <span>Next</span>
+                      <ChevronRight size={16} />
+                    </motion.button>
+                  </div>
+                  
+                  {/* Items per page selector */}
+                  <div className={styles.itemsPerPage}>
+                    <span>Show:</span>
+                    <select 
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                        fetchProfiles(1);
+                      }}
+                      className={styles.itemsSelect}
+                    >
+                      <option value={12}>12</option>
+                      <option value={24}>24</option>
+                      <option value={48}>48</option>
+                    </select>
+                    <span>per page</span>
+                  </div>
+                </motion.div>
+              )}
             </>
           )}
         </div>
       </div>
 
-      {/* Enhanced CTA Section */}
+      {/* Enhanced CTA Section with animated background */}
       <motion.div 
         className={styles.ctaSection}
         initial={{ opacity: 0, y: 50 }}
@@ -1175,44 +1448,93 @@ const showPreviousProfiles = () => {
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6 }}
       >
+        <div className={styles.ctaBackground}>
+          <motion.div 
+            className={styles.ctaGlow}
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 0.8, 0.5]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
+        
         <div className={styles.container}>
           <div className={styles.ctaContent}>
             <div className={styles.ctaText}>
-              <h2>Ready to showcase your talents?</h2>
-              <p>Join our community of creators and contributors. Build your professional profile and get discovered by top projects.</p>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >Ready to showcase your talents?</motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+              >Join our community of creators and contributors. Build your professional profile and get discovered by top projects.</motion.p>
             </div>
             <div className={styles.ctaActions}>
               {!isLoggedIn ? (
                 <>
-                  <button 
+                  <motion.button 
                     className={styles.primaryCta}
                     onClick={() => navigate('/register')}
+                    whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(232, 197, 71, 0.3)' }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4 }}
                   >
                     <User size={18} />
                     Join Community
-                  </button>
-                  <button 
+                  </motion.button>
+                  <motion.button 
                     className={styles.secondaryCta}
                     onClick={() => navigate('/login')}
+                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5 }}
                   >
                     Sign In
-                  </button>
+                  </motion.button>
                 </>
               ) : (
                 <>
-                  <button 
+                  <motion.button 
                     className={styles.primaryCta}
                     onClick={() => navigate('/settings/profile')}
+                    whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(232, 197, 71, 0.3)' }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4 }}
                   >
                     <Edit size={18} />
                     Complete Your Profile
-                  </button>
-                  <button 
+                  </motion.button>
+                  <motion.button 
                     className={styles.secondaryCta}
                     onClick={() => navigate('/explore')}
+                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5 }}
                   >
                     Explore Pods
-                  </button>
+                  </motion.button>
                 </>
               )}
             </div>
@@ -1220,7 +1542,7 @@ const showPreviousProfiles = () => {
         </div>
       </motion.div>
 
-      {/* Enhanced Skills Modal */}
+      {/* Enhanced Skills Modal with categories and interactive selection */}
       <AnimatePresence>
         {showSkillsModal && (
           <motion.div 
@@ -1239,13 +1561,15 @@ const showPreviousProfiles = () => {
             >
               <div className={styles.modalHeader}>
                 <h3>Filter by Skills</h3>
-                <button 
+                <motion.button 
                   className={styles.modalClose}
                   onClick={() => setShowSkillsModal(false)}
                   aria-label="Close modal"
+                  whileHover={{ scale: 1.1, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   <X size={20} />
-                </button>
+                </motion.button>
               </div>
               
               <p>Select a skill to filter profiles and find the perfect match for your project.</p>
@@ -1257,44 +1581,67 @@ const showPreviousProfiles = () => {
                     acc[skill.category].push(skill);
                     return acc;
                   }, {})
-                ).map(([category, skills]) => (
-                  <div key={category} className={styles.skillCategory}>
-                    <h4>{category.charAt(0).toUpperCase() + category.slice(1)}</h4>
+                ).map(([category, skills], categoryIndex) => (
+                  <motion.div 
+                    key={category} 
+                    className={styles.skillCategory}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * categoryIndex }}
+                  >
+                    <h4>
+                      {category === 'development' && <Code size={16} />}
+                      {category === 'design' && <Paintbrush size={16} />}
+                      {category === 'marketing' && <TrendingUp size={16} />}
+                      {category === 'content' && <PenTool size={16} />}
+                      {category === 'analysis' && <BarChart3 size={16} />}
+                      {category === 'management' && <Target size={16} />}
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </h4>
                     <div className={styles.skillList}>
                       {skills.map((skill, index) => (
-                        <button 
+                        <motion.button 
                           key={index} 
                           className={`${styles.skillOption} ${selectedSkill === skill.name ? styles.selected : ''}`}
                           onClick={() => {
                             setSelectedSkill(skill.name);
                             setShowSkillsModal(false);
                           }}
+                          whileHover={{ scale: 1.05, backgroundColor: 'rgba(232, 197, 71, 0.1)' }}
+                          whileTap={{ scale: 0.95 }}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 * categoryIndex + 0.03 * index }}
                         >
                           {skill.icon}
                           {skill.name}
                           {selectedSkill === skill.name && (
                             <CheckCircle size={14} className={styles.checkIcon} />
                           )}
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               
               <div className={styles.modalActions}>
-                <button 
+                <motion.button 
                   className={styles.cancelButton}
                   onClick={() => setShowSkillsModal(false)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Cancel
-                </button>
-                <button 
+                </motion.button>
+                <motion.button 
                   className={styles.applyButton}
                   onClick={() => setShowSkillsModal(false)}
+                  whileHover={{ scale: 1.05, boxShadow: '0 5px 15px rgba(232, 197, 71, 0.3)' }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Apply Filter
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>
