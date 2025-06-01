@@ -20,6 +20,7 @@ import TermsOfService from './pages/TermsOfService/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import Ecosystem from './pages/Ecosystem/Ecosystem';
 import PodListPage from './pages/PodListPage/PodListPage';
+import CookiesPage from './pages/CookiesPage/CookiesPage';
 
 
 // Import the role-specific components
@@ -120,6 +121,7 @@ const App = () => {
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/ecosystem" element={<Ecosystem />} />
+        <Route path="/cookies" element={<CookiesPage />} />
         
         {/* Profile Routes */}
         <Route

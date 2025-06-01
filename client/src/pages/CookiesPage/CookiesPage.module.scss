@@ -1,0 +1,1021 @@
+@import '../../styles/variables';
+
+// Main Layout Styles
+.cookiesPage {
+  width: 100%;
+  background-color: $black;
+  color: $white;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-between;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+// Particle background effects
+.particleContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  z-index: 1;
+  animation: float linear infinite;
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-10px) translateX(10px);
+    }
+    50% {
+      transform: translateY(-20px) translateX(0);
+    }
+    75% {
+      transform: translateY(-10px) translateX(-10px);
+    }
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+  }
+}
+
+// Floating shapes
+.floatingShape {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.07;
+  
+  &.shape1 {
+    top: 15%;
+    right: 10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: linear-gradient(45deg, rgba($gold, 0.8), transparent);
+    filter: blur(30px);
+  }
+  
+  &.shape2 {
+    bottom: 15%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba($white, 0.05), transparent);
+    filter: blur(35px);
+  }
+}
+
+// Header Section
+.cookiesHeader {
+  padding: 120px 0 60px;
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(to top, rgba($black, 1), transparent);
+    z-index: 1;
+  }
+}
+
+.cookiesHeaderContent {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  z-index: 2;
+  position: relative;
+}
+
+.cookiesTitle {
+  font-size: 48px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, $white 0%, rgba($gold, 0.8) 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  
+  @media (max-width: 768px) {
+    font-size: 36px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 32px;
+  }
+}
+
+.cookiesSubtitle {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba($white, 0.9);
+  
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
+}
+
+.accentText {
+  color: $gold;
+}
+
+.effectiveDate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba($white, 0.05);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  color: rgba($white, 0.8);
+  margin-top: 20px;
+  
+  svg {
+    color: $gold;
+  }
+}
+
+// Success Message
+.successMessage {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(16, 185, 129, 0.9);
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 10px;
+  
+  &:hover {
+    color: white;
+  }
+}
+
+// Main Content Layout
+.cookiesContent {
+  padding: 40px 0 80px;
+  min-height: 70vh;
+}
+
+.cookiesGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+  position: relative;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 240px 1fr;
+    gap: 30px;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+// Sidebar
+.cookiesSidebar {
+  position: relative;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.sidebarSticky {
+  position: sticky;
+  top: 100px;
+  padding: 24px;
+  background: rgba($white, 0.03);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+}
+
+.sidebarIntro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba($white, 0.1);
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: $white;
+  }
+  
+  .sidebarIcon {
+    color: $gold;
+  }
+}
+
+.sidebarNav {
+  margin-bottom: 24px;
+}
+
+.sidebarList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebarItem {
+  width: 100%;
+  
+  &.activeSidebarItem {
+    .sidebarButton {
+      background: rgba($gold, 0.15);
+      color: $gold;
+      
+      .sidebarIcon {
+        color: $gold;
+      }
+      
+      .sidebarArrow {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+}
+
+.sidebarButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: rgba($white, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba($white, 0.05);
+    color: $white;
+  }
+}
+
+.sidebarIcon {
+  color: rgba($white, 0.6);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.sidebarLabel {
+  flex: 1;
+}
+
+.sidebarArrow {
+  color: currentColor;
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: all 0.2s ease;
+}
+
+.sidebarActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px solid rgba($white, 0.1);
+}
+
+.acceptAllButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: $gold;
+  color: $black;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba($gold, 0.3);
+  }
+}
+
+.rejectButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba($white, 0.05);
+  color: $white;
+  border: 1px solid rgba($white, 0.1);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba($white, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  color: rgba(16, 185, 129, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+.sidebarLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebarLink {
+  display: inline-block;
+  padding: 10px;
+  background: rgba($white, 0.03);
+  border-radius: 8px;
+  text-align: center;
+  color: $white;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba($white, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+// Main Content Area
+.cookiesMain {
+  padding: 0 20px;
+  
+  @media (max-width: 768px) {
+    padding: 0;
+  }
+}
+
+.cookiesIntro {
+  background: rgba($white, 0.03);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 40px;
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .cookiesHighlight {
+    color: $gold;
+    font-weight: 500;
+  }
+}
+
+// Cookie Sections
+.cookiesSection {
+  margin-bottom: 60px;
+  scroll-margin-top: 100px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cookiesSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba($white, 0.1);
+  
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    color: $white;
+    
+    @media (max-width: 480px) {
+      font-size: 22px;
+    }
+  }
+}
+
+.cookiesSectionIcon {
+  color: $gold;
+  flex-shrink: 0;
+}
+
+.cookiesSectionContent {
+  padding-left: 40px;
+  
+  @media (max-width: 480px) {
+    padding-left: 0;
+  }
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 30px 0 16px;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 16px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  ul, ol {
+    margin: 0 0 20px 0;
+    
+    li {
+      color: $gray;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.contentList {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+// Cookie Manager
+.cookieManagerPreview {
+  background: rgba($white, 0.02);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.cookieManagerHeader {
+  margin-bottom: 24px;
+  
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 12px 0;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 15px;
+    margin: 0;
+  }
+}
+
+.cookieToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cookieToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: rgba($white, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.cookieToggleInfo {
+  flex: 1;
+  
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+.cookieToggleControl {
+  flex-shrink: 0;
+}
+
+.cookieToggleButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  
+  &.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .toggleTrack {
+    width: 44px;
+    height: 24px;
+    background: rgba($white, 0.1);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .toggleKnob {
+    width: 20px;
+    height: 20px;
+    background: $white;
+    border-radius: 50%;
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .toggleLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray;
+  }
+  
+  &.active {
+    .toggleTrack {
+      background: rgba($gold, 0.5);
+    }
+    
+    .toggleKnob {
+      left: calc(100% - 22px);
+      background: $gold;
+    }
+    
+    .toggleLabel {
+      color: $gold;
+    }
+  }
+}
+
+.cookieManagerActions {
+  display: flex;
+  gap: 16px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+// Cookie Toggle Bar
+.cookieToggleBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba($white, 0.02);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+// Cookie Table
+.cookieTable {
+  width: 100%;
+  margin: 24px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cookieTableHeader {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  background: rgba($white, 0.05);
+  
+  @media (max-width: 576px) {
+    display: none;
+  }
+}
+
+.cookieTableRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  background: rgba($white, 0.02);
+  border-top: 1px solid rgba($white, 0.05);
+  
+  @media (max-width: 576px) {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+  }
+}
+
+.cookieTableCell {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: $gray;
+  
+  @media (max-width: 576px) {
+    padding: 4px 0;
+    
+    &:first-child {
+      font-weight: 600;
+      color: $white;
+    }
+    
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+  
+  .cookieTableHeader & {
+    font-weight: 600;
+    color: $white;
+  }
+}
+
+// Alert & Info Boxes
+.alertBox, .infoBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba($gold, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  
+  svg {
+    color: $gold;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 15px;
+  }
+}
+
+.infoBox {
+  background: rgba($white, 0.05);
+  
+  svg {
+    color: rgba($white, 0.7);
+  }
+}
+
+// Browser Grid
+.browserGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin: 24px 0;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.browserCard {
+  background: rgba($white, 0.02);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  
+  h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 16px 0;
+  }
+}
+
+.browserSteps {
+  margin: 0 0 20px 0;
+  padding-left: 20px;
+  
+  li {
+    margin-bottom: 8px;
+  }
+}
+
+// Contact Info
+.contactInfo {
+  background: rgba($white, 0.03);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.contactMethod {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contactLabel {
+  font-size: 14px;
+  color: rgba($white, 0.6);
+  font-weight: 500;
+}
+
+.contactLink {
+  color: $gold;
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.contactAddress {
+  font-style: normal;
+  color: $gray;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.contactActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.contactButton {
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba($white, 0.05);
+  border: 1px solid rgba($white, 0.1);
+  border-radius: 8px;
+  color: $white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+  flex: 1;
+  
+  &:hover {
+    background: rgba($white, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+// Back to Top Button
+.backToTopButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba($gold, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: $black;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background: $gold;
+  }
+  
+  @media (max-width: 768px) {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+// Footer Banner
+.cookiesFooter {
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
+  padding: 60px 0;
+}
+
+.cookiesFooterContent {
+  background: linear-gradient(90deg, rgba($gold, 0.15), rgba($gold, 0.05));
+  border: 1px solid rgba($gold, 0.2);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: $white;
+  }
+  
+  p {
+    color: $gray;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+}
+
+.cookiesFooterActions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.footerButton {
+  background-color: $gold;
+  color: $black;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba($gold, 0.3);
+  }
+}
+
+.footerButtonSecondary {
+  background: transparent;
+  border: 1px solid rgba($white, 0.2);
+  color: $white;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: rgba($gold, 0.5);
+    color: $gold;
+    transform: translateY(-3px);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .cookiesContent {
+    padding: 32px 0 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cookiesContent {
+    padding: 24px 0 40px;
+  }
+  
+  .cookiesSectionContent {
+    h3 {
+      font-size: 18px;
+    }
+    
+    p, ul li, ol li {
+      font-size: 15px;
+    }
+  }
+}
