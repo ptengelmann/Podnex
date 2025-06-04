@@ -25,6 +25,24 @@ router.get('/user/:userId', async (req, res) => {
     
     console.log('Fetching contributions for user:', userId);
     
+    // Validate userId
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      console.log('Invalid userId received:', userId);
+      return res.status(400).json({ 
+        message: 'Invalid user ID provided',
+        error: 'userId is required and must be valid'
+      });
+    }
+    
+    // Check if userId is a valid ObjectId format
+    if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+      console.log('Invalid ObjectId format:', userId);
+      return res.status(400).json({ 
+        message: 'Invalid user ID format',
+        error: 'userId must be a valid ObjectId'
+      });
+    }
+
     // Build query
     const query = { userId };
     if (type && type !== 'all') query.type = type;
@@ -116,20 +134,51 @@ router.get('/progress/:userId', async (req, res) => {
     
     console.log('Fetching progress for user:', userId);
     
-    let userProgress = await UserProgress.findOne({ userId })
-      .populate('badges.badgeId');
+    let userProgress = await UserProgress.findOne({ userId });
     
     if (!userProgress) {
       // Create new progress record if none exists
       console.log('Creating new progress record for user:', userId);
-      userProgress = new UserProgress({ userId });
+      userProgress = new UserProgress({ 
+        userId,
+        totalXP: 0,
+        currentLevel: 1,
+        tier: 'bronze',
+        badges: [],
+        stats: {
+          totalContributions: 0,
+          approvedContributions: 0,
+          contributionSuccessRate: 0,
+          podsCreated: 0,
+          podsJoined: 0,
+          reviewsGiven: 0,
+          contributionsByType: {
+            code_commit: 0,
+            design_asset: 0,
+            documentation: 0,
+            bug_fix: 0,
+            feature_implementation: 0,
+            code_review: 0,
+            testing: 0,
+            marketing_content: 0,
+            user_research: 0,
+            project_management: 0,
+            mentoring: 0,
+            community_building: 0
+          }
+        }
+      });
       await userProgress.save();
     }
     
-    // Ensure calculations are up to date
-    userProgress.calculateLevel();
-    userProgress.calculateTier();
-    userProgress.updateReputation();
+    // Safely ensure calculations are up to date
+    try {
+      if (userProgress.calculateLevel) userProgress.calculateLevel();
+      if (userProgress.calculateTier) userProgress.calculateTier();
+      if (userProgress.updateReputation) userProgress.updateReputation();
+    } catch (calcError) {
+      console.warn('Error in calculations:', calcError);
+    }
     
     console.log('Returning progress:', {
       userId,
@@ -138,7 +187,17 @@ router.get('/progress/:userId', async (req, res) => {
       tier: userProgress.tier
     });
     
-    res.json(userProgress);
+    // Return clean data structure
+    res.json({
+      totalXP: userProgress.totalXP || 0,
+      currentLevel: userProgress.currentLevel || 1,
+      tier: userProgress.tier || 'bronze',
+      badges: userProgress.badges || [],
+      stats: userProgress.stats || {},
+      reputation: userProgress.reputation || { score: 0 },
+      createdAt: userProgress.createdAt,
+      lastUpdated: userProgress.lastUpdated
+    });
     
   } catch (error) {
     console.error('Error fetching user progress:', error);
@@ -226,6 +285,41 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Add this helper function before the routes
+async function updateProfileStats(userId) {
+  try {
+    const Profile = require('../models/Profile');
+    
+    // Get all contributions for this user
+    const contributions = await Contribution.find({ userId, status: 'approved' });
+    
+    // Calculate stats
+    const stats = {
+      tasksCompleted: contributions.filter(c => 
+        c.type === 'task_completed' || c.type === 'feature_implementation'
+      ).length,
+      contributionCount: contributions.length,
+      successRate: contributions.length > 0 ? 100 : 0,
+    };
+    
+    // Update the profile
+    await Profile.findOneAndUpdate(
+      { user: userId },
+      { 
+        $set: { 
+          'stats.tasksCompleted': stats.tasksCompleted,
+          'stats.contributionCount': stats.contributionCount,
+          'stats.successRate': stats.successRate
+        }
+      }
+    );
+    
+    console.log('Updated profile stats for user:', userId, stats);
+  } catch (error) {
+    console.error('Error updating profile stats:', error);
+  }
+}
+
 // POST /api/contributions/auto - Create automatic contribution (called by system)
 router.post('/auto', async (req, res) => {
   try {
@@ -258,6 +352,9 @@ router.post('/auto', async (req, res) => {
     
     // Award XP to user
     await awardXPToUser(userId, contribution.totalXP, type);
+    
+    // UPDATE PROFILE STATS - NEW LINE ADDED
+    await updateProfileStats(userId);
     
     res.status(201).json({ 
       success: true, 

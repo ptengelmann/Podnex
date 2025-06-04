@@ -35,24 +35,26 @@ const useGamification = () => {
           throw new Error('No authentication token');
         }
 
-        // Fetch user's gamification progress
-const response = await axios.get('http://localhost:5000/api/gamification/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+// Fetch user's gamification progress
+console.log('Fetching gamification data for user:', user._id);
+const response = await axios.get(`http://localhost:5000/api/contributions/progress/${user._id}`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
 
-        if (response.data.success) {
-          const progress = response.data.data;
-          
-          setGamificationData({
-            totalXP: progress.totalXP || 0,
-            currentLevel: progress.currentLevel || 1,
-            tier: progress.tier || 'bronze',
-            badges: progress.badges || [],
-            stats: progress.stats || {},
-            loading: false,
-            error: null
-          });
-        }
+console.log('Gamification response:', response.data);
+
+// Handle response data structure (your endpoint returns progress directly)
+const progress = response.data;
+
+setGamificationData({
+  totalXP: progress.totalXP || 0,
+  currentLevel: progress.currentLevel || 1,
+  tier: progress.tier || 'bronze',
+  badges: progress.badges || [],
+  stats: progress.stats || {},
+  loading: false,
+  error: null
+});
       } catch (error) {
         console.error('Error fetching gamification data:', error);
         setGamificationData(prev => ({
@@ -100,27 +102,35 @@ const response = await axios.get('http://localhost:5000/api/gamification/me', {
     return tierInfo[tier] || tierInfo.bronze;
   };
 
-  const refreshGamificationData = async () => {
-    setGamificationData(prev => ({ ...prev, loading: true }));
+const refreshGamificationData = async () => {
+  setGamificationData(prev => ({ ...prev, loading: true }));
+  
+  try {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/gamification/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    if (!user._id) {
+      setGamificationData(prev => ({ ...prev, loading: false }));
+      return;
+    }
+    
+    const response = await axios.get(`http://localhost:5000/api/contributions/progress/${user._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-      if (response.data.success) {
-        const progress = response.data.data;
-        setGamificationData({
-          totalXP: progress.totalXP || 0,
-          currentLevel: progress.currentLevel || 1,
-          tier: progress.tier || 'bronze',
-          badges: progress.badges || [],
-          stats: progress.stats || {},
-          loading: false,
-          error: null
-        });
-      }
+console.log('Refresh response:', response.data);
+
+// Handle response data structure
+const progress = response.data;
+setGamificationData({
+  totalXP: progress.totalXP || 0,
+  currentLevel: progress.currentLevel || 1,
+  tier: progress.tier || 'bronze',
+  badges: progress.badges || [],
+  stats: progress.stats || {},
+  loading: false,
+  error: null
+});
     } catch (error) {
       console.error('Error refreshing gamification data:', error);
       setGamificationData(prev => ({

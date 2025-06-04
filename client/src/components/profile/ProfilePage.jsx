@@ -70,10 +70,10 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
-// Contribution state
-const [userContributions, setUserContributions] = useState([]);
-const [contributionFilter, setContributionFilter] = useState('all');
-const [contributionLoading, setContributionLoading] = useState(false);
+  // Contribution state
+  const [userContributions, setUserContributions] = useState([]);
+  const [contributionFilter, setContributionFilter] = useState('all');
+  const [contributionLoading, setContributionLoading] = useState(false);
   
   // Animation variants
   const containerVariants = {
@@ -95,99 +95,171 @@ const [contributionLoading, setContributionLoading] = useState(false);
     }
   };
 
+  // Define fetchUserContributions function BEFORE the useEffect hooks (KEEP THIS ONE)
+  const fetchUserContributions = async () => {
+    try {
+      console.log('🔍 DEBUG: fetchUserContributions called');
+      console.log('🔍 DEBUG: userId from params:', userId);
+      console.log('🔍 DEBUG: currentUser:', currentUser);
+      console.log('🔍 DEBUG: isCurrentUserProfile:', isCurrentUserProfile);
+      
+      // Use current user ID if this is their own profile and no userId in URL
+      let targetUserId;
+      if (userId && userId !== 'undefined') {
+        targetUserId = userId; // Viewing someone else's profile
+      } else if (currentUser?._id) {
+        targetUserId = currentUser._id; // Viewing own profile
+      }
 
-    // Fetch contributions when the tab changes to 'contributions'
-useEffect(() => {
-  if (activeTab === 'contributions') {
-    fetchUserContributions();
-  }
-}, [activeTab, userId]);
+      console.log('🔍 DEBUG: targetUserId to use:', targetUserId);
+      console.log('🔍 DEBUG: isCurrentUserProfile:', isCurrentUserProfile);
 
-// Refetch when filter changes
-useEffect(() => {
-  if (activeTab === 'contributions') {
-    fetchUserContributions();
-  }
-}, [contributionFilter]);
+      if (!targetUserId || targetUserId === 'undefined') {
+        console.log('🔍 DEBUG: No valid targetUserId, returning early');
+        setContributionLoading(false);
+        return;
+      }
+      
+      setContributionLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        if (!isCurrentUserProfile) {
+          // For public viewing without login
+          setContributionLoading(false);
+          return;
+        }
+        throw new Error('Authentication required');
+      }
+      
+      // Construct the query URL with the filter - USE targetUserId HERE!
+      let url = `http://localhost:5000/api/contributions/user/${targetUserId}`;
+      if (contributionFilter !== 'all') {
+        url += `?type=${contributionFilter}`;
+      }
+
+      console.log('Fetching contributions from:', url);
+
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      console.log('Contributions response:', response.data);
+
+      // Handle both array and paginated response
+      const contributions = Array.isArray(response.data) ? response.data : response.data.contributions || [];
+      console.log('Processed contributions:', contributions);
+
+      setUserContributions(contributions);
+      setContributionLoading(false);
+    } catch (error) {
+      console.error('Error fetching user contributions:', error);
+      setContributionLoading(false);
+    }
+  };
+
+  // NOW the useEffect hooks can use fetchUserContributions
+  // Fetch contributions when the tab changes to 'contributions'
+  useEffect(() => {
+    console.log('🔍 DEBUG: activeTab changed to:', activeTab);
+    console.log('🔍 DEBUG: currentUser available:', !!currentUser);
+    console.log('🔍 DEBUG: userId from params:', userId);
+    console.log('🔍 DEBUG: profile loaded:', !!profile);
+    
+    // Only fetch if we have the contributions tab active AND either:
+    // 1. We have a userId from URL params, OR
+    // 2. We have currentUser data for own profile
+    if (activeTab === 'contributions' && (userId || currentUser)) {
+      console.log('🔍 DEBUG: Calling fetchUserContributions from useEffect');
+      fetchUserContributions();
+    }
+  }, [activeTab, userId, currentUser, profile]);
+
+  // Refetch when filter changes
+  useEffect(() => {
+    if (activeTab === 'contributions' && currentUser) {
+      fetchUserContributions();
+    }
+  }, [contributionFilter, currentUser]); // Add currentUser to dependencies
   
   useEffect(() => {
     const fetchProfile = async () => {
-        try {
-          setLoading(true);
-          setError(null);
-          
-          // Get current user from localStorage
-          const userData = localStorage.getItem('user');
-          if (userData) {
-            try {
-              const parsedUser = JSON.parse(userData);
-              setCurrentUser(parsedUser);
-              
-              console.log('Current user from localStorage:', parsedUser);
-              console.log('Token:', localStorage.getItem('token'));
-              
-              // Check if this is the current user's profile
-              if (!userId || userId === parsedUser._id) {
-                setIsCurrentUserProfile(true);
-                console.log('Fetching current user profile...');
-                const profileData = await getCurrentProfile();
-                console.log('Profile data received:', profileData);
-                setProfile(profileData);
-              } else {
-                setIsCurrentUserProfile(false);
-                console.log(`Fetching profile for user ID: ${userId}`);
-                const profileData = await getProfileByUserId(userId);
-                console.log('Profile data received:', profileData);
-                setProfile(profileData);
-              }
-            } catch (err) {
-              console.error('Error fetching profile:', err);
-              
-              if (err.response) {
-                console.error('Error response data:', err.response.data);
-                console.error('Error response status:', err.response.status);
-                
-                if (err.response.status === 404) {
-                  setError('Profile not found. You may need to complete your profile.');
-                } else if (err.response.status === 401) {
-                  setError('Authentication error. Please log in again.');
-                  setTimeout(() => navigate('/login'), 2000);
-                } else {
-                  setError(`Server error: ${err.response.data.message || 'Unknown error'}`);
-                }
-              } else if (err.request) {
-                console.error('Error request:', err.request);
-                setError('No response from server. Please check if the backend is running.');
-              } else {
-                console.error('Error message:', err.message);
-                setError(`Error: ${err.message}`);
-              }
-            }
-          } else {
-            if (userId) {
-              try {
-                console.log(`Fetching profile for public user ID: ${userId}`);
-                const profileData = await getProfileByUserId(userId);
-                console.log('Profile data received:', profileData);
-                setProfile(profileData);
-              } catch (err) {
-                console.error('Error fetching profile by ID:', err);
-                setError('Profile not found or you don\'t have permission to view it.');
-              }
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get current user from localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData);
+            setCurrentUser(parsedUser);
+            
+            console.log('Current user from localStorage:', parsedUser);
+            console.log('Token:', localStorage.getItem('token'));
+            
+            // Check if this is the current user's profile
+            if (!userId || userId === parsedUser._id) {
+              setIsCurrentUserProfile(true);
+              console.log('Fetching current user profile...');
+              const profileData = await getCurrentProfile();
+              console.log('Profile data received:', profileData);
+              setProfile(profileData);
             } else {
-              console.log('No user data found, redirecting to login');
-              setError('User not authenticated');
-              navigate('/login');
+              setIsCurrentUserProfile(false);
+              console.log(`Fetching profile for user ID: ${userId}`);
+              const profileData = await getProfileByUserId(userId);
+              console.log('Profile data received:', profileData);
+              setProfile(profileData);
+            }
+          } catch (err) {
+            console.error('Error fetching profile:', err);
+            
+            if (err.response) {
+              console.error('Error response data:', err.response.data);
+              console.error('Error response status:', err.response.status);
+              
+              if (err.response.status === 404) {
+                setError('Profile not found. You may need to complete your profile.');
+              } else if (err.response.status === 401) {
+                setError('Authentication error. Please log in again.');
+                setTimeout(() => navigate('/login'), 2000);
+              } else {
+                setError(`Server error: ${err.response.data.message || 'Unknown error'}`);
+              }
+            } else if (err.request) {
+              console.error('Error request:', err.request);
+              setError('No response from server. Please check if the backend is running.');
+            } else {
+              console.error('Error message:', err.message);
+              setError(`Error: ${err.message}`);
             }
           }
-          
-          setLoading(false);
-        } catch (err) {
-          console.error('Unexpected error in fetchProfile:', err);
-          setError('An unexpected error occurred');
-          setLoading(false);
+        } else {
+          if (userId) {
+            try {
+              console.log(`Fetching profile for public user ID: ${userId}`);
+              const profileData = await getProfileByUserId(userId);
+              console.log('Profile data received:', profileData);
+              setProfile(profileData);
+            } catch (err) {
+              console.error('Error fetching profile by ID:', err);
+              setError('Profile not found or you don\'t have permission to view it.');
+            }
+          } else {
+            console.log('No user data found, redirecting to login');
+            setError('User not authenticated');
+            navigate('/login');
+          }
         }
-      };
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Unexpected error in fetchProfile:', err);
+        setError('An unexpected error occurred');
+        setLoading(false);
+      }
+    };
     
     fetchProfile();
   }, [userId, navigate]);
@@ -218,8 +290,6 @@ useEffect(() => {
       </div>
     );
   }
-
-  
   
   if (!profile) {
     return (
@@ -239,40 +309,7 @@ useEffect(() => {
     );
   }
 
-  // Fetch user contributions
-const fetchUserContributions = async () => {
-  try {
-    if (!userId) return;
-    
-    setContributionLoading(true);
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      if (!isCurrentUserProfile) {
-        // For public viewing without login
-        setContributionLoading(false);
-        return;
-      }
-      throw new Error('Authentication required');
-    }
-    
-    // Construct the query URL with the filter
-    let url = `http://localhost:5000/api/gamification/contributions?userId=${userId}`;
-    if (contributionFilter !== 'all') {
-      url += `&type=${contributionFilter}`;
-    }
-    
-    const response = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    setUserContributions(response.data);
-    setContributionLoading(false);
-  } catch (error) {
-    console.error('Error fetching user contributions:', error);
-    setContributionLoading(false);
-  }
-};
+  // REMOVED THE DUPLICATE fetchUserContributions DEFINITION FROM HERE
 
   // Get user and profile data safely
   const userData = getUserData(profile);
@@ -669,7 +706,7 @@ const fetchUserContributions = async () => {
             </div>
           )}
           
-          {/* Portfolio Tab */}
+         {/* Portfolio Tab */}
           {activeTab === 'portfolio' && (
             <div className={styles.portfolioTab}>
               <div className={styles.tabHeader}>
@@ -743,122 +780,138 @@ const fetchUserContributions = async () => {
           )}
           
           {/* Contributions Tab */}
-{activeTab === 'contributions' && (
-  <div className={styles.contributionsTab}>
-    <div className={styles.tabHeader}>
-      <h2>Contributions</h2>
-      <div className={styles.tabActions}>
-        <div className={styles.filterContainer}>
-          <select 
-            className={styles.filterSelect}
-            value={contributionFilter}
-            onChange={(e) => setContributionFilter(e.target.value)}
-          >
-            <option value="all">All Activities</option>
-            <option value="task_completed">Tasks Completed</option>
-            <option value="task_created">Tasks Created</option>
-            <option value="resource_uploaded">Resources Uploaded</option>
-            <option value="milestone_completed">Milestones Completed</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    
-    <div className={styles.contributionStatsRow}>
-      <div className={styles.contributionStatCard}>
-        <div className={styles.statValue}>{profileData.stats?.tasksCompleted || 0}</div>
-        <div className={styles.statLabel}>Tasks Completed</div>
-      </div>
-      
-      <div className={styles.contributionStatCard}>
-        <div className={styles.statValue}>{profileData.stats?.contributionCount || 0}</div>
-        <div className={styles.statLabel}>Total Contributions</div>
-      </div>
-      
-      <div className={styles.contributionStatCard}>
-        <div className={styles.statValue}>{profileData.stats?.successRate || 0}%</div>
-        <div className={styles.statLabel}>Success Rate</div>
-      </div>
-      
-      <div className={styles.contributionStatCard}>
-        <div className={styles.statValue}>{userContributions.reduce((total, contrib) => total + (contrib.xpGained || 0), 0)}</div>
-        <div className={styles.statLabel}>Total XP Earned</div>
-      </div>
-    </div>
-    
-    <div className={styles.contributionHistory}>
-      <h3 className={styles.subSectionTitle}>Contribution History</h3>
-      
-      <div className={styles.contributionTimeline}>
-        {contributionLoading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.loadingSpinner}></div>
-            <p>Loading contributions...</p>
-          </div>
-        ) : userContributions.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyStateIcon}>
-              <Activity size={32} />
-            </div>
-            <p>No contribution history available.</p>
-            {isCurrentUserProfile && (
-              <p>Start contributing to pods to build your profile!</p>
-            )}
-          </div>
-        ) : (
-          <div className={styles.contributionItems}>
-            {userContributions.map((contribution, index) => (
-              <div key={contribution._id || index} className={styles.contributionItem}>
-                <div className={styles.contributionTypeIcon}>
-                  {(() => {
-                    switch(contribution.type) {
-                      case 'task_completed': return <CheckCircle size={18} />;
-                      case 'task_created': return <Activity size={18} />;
-                      case 'resource_uploaded': return <FileText size={18} />;
-                      case 'milestone_completed': return <Target size={18} />;
-                      default: return <Activity size={18} />;
-                    }
-                  })()}
-                </div>
-                <div className={styles.contributionContent}>
-                  <div className={styles.contributionHeader}>
-                    <span className={styles.contributionAction}>
-                      {(() => {
-                        switch(contribution.type) {
-                          case 'task_completed': return 'Completed a task';
-                          case 'task_created': return 'Created a task';
-                          case 'resource_uploaded': return 'Uploaded a resource';
-                          case 'milestone_completed': return 'Completed a milestone';
-                          default: return contribution.type.replace(/_/g, ' ');
-                        }
-                      })()}
-                    </span>
-                    <span className={styles.contributionPod}>
-                      in <a href={`/pod-environment/${contribution.podId}`}>{contribution.podTitle || 'Pod'}</a>
-                    </span>
-                  </div>
-                  <div className={styles.contributionDetails}>
-                    <h4>{contribution.title || contribution.object?.title || 'Untitled'}</h4>
-                    <p>{contribution.description || contribution.object?.description || ''}</p>
-                  </div>
-                  <div className={styles.contributionMeta}>
-                    <span className={styles.contributionTime}>{formatDate(contribution.createdAt)}</span>
-                    {contribution.xpGained && (
-                      <span className={styles.xpGained}>
-                        <Award size={14} />
-                        +{contribution.xpGained} XP
-                      </span>
-                    )}
+          {activeTab === 'contributions' && (
+            <div className={styles.contributionsTab}>
+              <div className={styles.tabHeader}>
+                <h2>Contributions</h2>
+                <div className={styles.tabActions}>
+                  <div className={styles.filterContainer}>
+                    <select
+                      className={styles.filterSelect}
+                      value={contributionFilter}
+                      onChange={(e) => setContributionFilter(e.target.value)}
+                    >
+                      <option value="all">All Activities</option>
+                      <option value="task_completed">Tasks Completed</option>
+                      <option value="task_created">Tasks Created</option>
+                      <option value="resource_uploaded">Resources Uploaded</option>
+                      <option value="milestone_completed">Milestones Completed</option>
+                    </select>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+
+              {/* Calculate stats from actual contributions */}
+              {(() => {
+                const calculatedStats = {
+                  tasksCompleted: userContributions.filter(c =>
+                    c.type === 'task_completed' || c.type === 'feature_implementation'
+                  ).length,
+                  contributionCount: userContributions.length,
+                  successRate: userContributions.length > 0 ? 100 : 0,
+                  totalXP: userContributions.reduce((total, contrib) =>
+                    total + (contrib.totalXP || contrib.xpGained || 0), 0
+                  )
+                };
+
+                return (
+                  <div className={styles.contributionStatsRow}>
+                    <div className={styles.contributionStatCard}>
+                      <div className={styles.statValue}>{calculatedStats.tasksCompleted}</div>
+                      <div className={styles.statLabel}>Tasks Completed</div>
+                    </div>
+                    <div className={styles.contributionStatCard}>
+                      <div className={styles.statValue}>{calculatedStats.contributionCount}</div>
+                      <div className={styles.statLabel}>Total Contributions</div>
+                    </div>
+                    <div className={styles.contributionStatCard}>
+                      <div className={styles.statValue}>{calculatedStats.successRate}%</div>
+                      <div className={styles.statLabel}>Success Rate</div>
+                    </div>
+                    <div className={styles.contributionStatCard}>
+                      <div className={styles.statValue}>{calculatedStats.totalXP}</div>
+                      <div className={styles.statLabel}>Total XP Earned</div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div className={styles.contributionHistory}>
+                <h3 className={styles.subSectionTitle}>Contribution History</h3>
+
+                <div className={styles.contributionTimeline}>
+                  {contributionLoading ? (
+                    <div className={styles.loadingState}>
+                      <div className={styles.loadingSpinner}></div>
+                      <p>Loading contributions...</p>
+                    </div>
+                  ) : userContributions.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyStateIcon}>
+                        <Activity size={32} />
+                      </div>
+                      <p>No contribution history available.</p>
+                      {isCurrentUserProfile && (
+                        <p>Start contributing to pods to build your profile!</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.contributionItems}>
+                      {userContributions.map((contribution, index) => (
+                        <div key={contribution._id || index} className={styles.contributionItem}>
+                          <div className={styles.contributionTypeIcon}>
+                            {(() => {
+                              switch (contribution.type) {
+                                case 'feature_implementation': return <CheckCircle size={18} />;
+                                case 'design_asset':          return <FileText size={18} />;
+                                case 'project_management':    return <Target size={18} />;
+                                case 'code_commit':           return <Activity size={18} />;
+                                case 'documentation':         return <FileText size={18} />;
+                                default:                     return <Activity size={18} />;
+                              }
+                            })()}
+                          </div>
+                          <div className={styles.contributionContent}>
+                            <div className={styles.contributionHeader}>
+                              <span className={styles.contributionAction}>
+                                {(() => {
+                                  switch (contribution.type) {
+                                    case 'feature_implementation': return 'Completed a task';
+                                    case 'design_asset':          return 'Uploaded a resource';
+                                    case 'project_management':    return 'Completed a milestone';
+                                    case 'code_commit':           return 'Made a code contribution';
+                                    case 'documentation':         return 'Added documentation';
+                                    default:                     return contribution.type.replace(/_/g, ' ');
+                                  }
+                                })()}
+                              </span>
+                              <span className={styles.contributionPod}>
+                                in <a href={`/pod-environment/${contribution.podId}`}>{contribution.podTitle || 'Pod'}</a>
+                              </span>
+                            </div>
+                            <div className={styles.contributionDetails}>
+                              <h4>{contribution.title || contribution.object?.title || 'Untitled'}</h4>
+                              <p>{contribution.description || contribution.object?.description || ''}</p>
+                            </div>
+                            <div className={styles.contributionMeta}>
+                              <span className={styles.contributionTime}>{formatDate(contribution.createdAt)}</span>
+                              {(contribution.totalXP || contribution.xpGained) && (
+                                <span className={styles.xpGained}>
+                                  <Award size={14} />
+                                  +{contribution.totalXP || contribution.xpGained} XP
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
         </motion.div>
       </motion.div>
     </div>

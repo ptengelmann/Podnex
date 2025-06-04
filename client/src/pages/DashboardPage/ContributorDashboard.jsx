@@ -32,6 +32,7 @@ const ContributorDashboard = () => {
   const [activePods, setActivePods] = useState([]);
   const [error, setError] = useState(null);
 
+  
   // Use the gamification hook
   const {
     totalXP,
@@ -45,6 +46,13 @@ const ContributorDashboard = () => {
     error: gamificationError,
     refresh: refreshGamification
   } = useGamification();
+
+// Refresh gamification data when component mounts
+useEffect(() => {
+  if (user && refreshGamification) {
+    refreshGamification();
+  }
+}, [user]); // Remove refreshGamification from dependencies to prevent infinite loop
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
