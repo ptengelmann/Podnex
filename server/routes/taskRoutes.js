@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const { protect } = require('../middleware/authMiddleware');
+const ContributionTracker = require('../services/ContributionTracker');
 
 // Import gamification middleware
 const { autoGamify, extractors } = require('../middleware/gamificationMiddleware');
@@ -69,7 +70,14 @@ router.post('/:podId/tasks',
         await updateMilestoneProgress(milestoneId);
       }
       
-      const populatedTask = await Task.findById(task._id)
+      // Auto-track task completion as contribution
+await ContributionTracker.trackTaskCompletion(
+  req.user._id, 
+  task, 
+  req.params.podId
+);
+
+const populatedTask = await Task.findById(task._id)
         .populate('assignedTo', 'name profileImage')
         .populate('createdBy', 'name')
         .populate('milestone', 'title')

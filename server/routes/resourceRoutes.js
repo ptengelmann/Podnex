@@ -1,10 +1,10 @@
-// routes/resourceRoutes.js
 const express = require('express');
 const router = express.Router();
 const Resource = require('../models/Resource');
 const Pod = require('../models/Pod');
 const PodMember = require('../models/PodMember');
 const { protect } = require('../middleware/authMiddleware');
+const ContributionTracker = require('../services/ContributionTracker');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -132,11 +132,18 @@ router.post('/:podId/resources', protect, upload.single('file'), async (req, res
     
     await resource.save();
     
-    // Populate the uploaded by field
-    const populatedResource = await Resource.findById(resource._id)
-      .populate('uploadedBy', 'name email profileImage');
-    
-    res.status(201).json(populatedResource);
+    // Auto-track resource upload as contribution
+await ContributionTracker.trackResourceUpload(
+  req.user._id, 
+  resource, 
+  podId
+);
+
+// Populate the uploaded by field
+const populatedResource = await Resource.findById(resource._id)
+  .populate('uploadedBy', 'name email profileImage');
+
+res.status(201).json(populatedResource);
   } catch (error) {
     console.error('Error uploading resource:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

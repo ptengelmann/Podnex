@@ -16,7 +16,7 @@ const milestoneRoutes = require('./routes/milestoneRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
 const contributionRoutes = require('./routes/contributionRoutes');
 const profileRoutes = require('./routes/profileRoutes');
-
+const gamificationRoutes = require('./routes/gamificationRoutes');
 
 // Import auth middleware for protected routes
 const { protect } = require('./middleware/authMiddleware');
@@ -97,79 +97,6 @@ app.get('/api/auth-test', (req, res) => {
   });
 });
 
-// Gamification API routes
-app.get('/api/gamification/user/:userId/progress', async (req, res) => {
-  try {
-    const GamificationService = require('./services/GamificationService');
-    const userProgress = await GamificationService.getUserProgress(req.params.userId);
-    res.json({
-      success: true,
-      data: userProgress
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Get current user's gamification data (authenticated)
-app.get('/api/gamification/me', protect, async (req, res) => {
-  try {
-    const GamificationService = require('./services/GamificationService');
-    const userProgress = await GamificationService.getUserProgress(req.user._id);
-    res.json({
-      success: true,
-      data: userProgress
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-app.get('/api/gamification/user/:userId/badges', async (req, res) => {
-  try {
-    const GamificationService = require('./services/GamificationService');
-    const userProgress = await GamificationService.getUserProgress(req.params.userId);
-    
-    // Add metadata to badges
-    const badgesWithMetadata = userProgress.badges.map(badge => ({
-      ...badge.toObject(),
-      metadata: GamificationService.BADGE_METADATA[badge.badgeId] || {}
-    }));
-    
-    res.json({
-      success: true,
-      data: badgesWithMetadata
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Manual gamification trigger (for testing)
-app.post('/api/gamification/trigger', async (req, res) => {
-  try {
-    const { actionType, userId, actionData } = req.body;
-    const GamificationService = require('./services/GamificationService');
-    
-    const result = await GamificationService.processAction(actionType, userId, actionData);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
 // Register application routes
 app.use('/api/applications', applicationRoutes);
 
@@ -178,6 +105,9 @@ app.use('/api/creator', creatorRoutes);
 
 // Register contribution routes
 app.use('/api/contributions', contributionRoutes);
+
+// Register gamification routes (for activities and contributions)
+app.use('/api/gamification', gamificationRoutes);
 
 // Register message routes
 app.use('/api/messages', messageRoutes);

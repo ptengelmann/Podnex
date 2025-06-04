@@ -21,21 +21,87 @@ router.get('/test', (req, res) => {
 router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
+    const { type, status, page = 1, limit = 20 } = req.query;
     
     console.log('Fetching contributions for user:', userId);
     
-    const contributions = await Contribution.find({ userId })
+    // Build query
+    const query = { userId };
+    if (type && type !== 'all') query.type = type;
+    if (status && status !== 'all') query.status = status;
+    
+    // Pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const contributions = await Contribution.find(query)
       .populate('podId', 'title')
-      .populate('reviews.reviewerId', 'name')
+      .populate('reviews.reviewerId', 'name profileImage')
       .sort({ createdAt: -1 })
-      .limit(50);
+      .limit(parseInt(limit))
+      .skip(skip);
+    
+    const total = await Contribution.countDocuments(query);
     
     console.log(`Found ${contributions.length} contributions for user ${userId}`);
     
-    res.json(contributions);
+    res.json({
+      contributions,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
     
   } catch (error) {
     console.error('Error fetching user contributions:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// GET /api/contributions/pod/:podId - Get contributions for a specific pod
+router.get('/pod/:podId', async (req, res) => {
+  try {
+    const { podId } = req.params;
+    const { type, status, page = 1, limit = 20 } = req.query;
+    
+    console.log('Fetching contributions for pod:', podId);
+    
+    // Build query
+    const query = { podId };
+    if (type && type !== 'all') query.type = type;
+    if (status && status !== 'all') query.status = status;
+    
+    // Pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const contributions = await Contribution.find(query)
+      .populate('userId', 'name profileImage')
+      .populate('reviews.reviewerId', 'name profileImage')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(skip);
+    
+    const total = await Contribution.countDocuments(query);
+    
+    console.log(`Found ${contributions.length} contributions for pod ${podId}`);
+    
+    res.json({
+      contributions,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error fetching pod contributions:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 
@@ -83,13 +149,13 @@ router.get('/progress/:userId', async (req, res) => {
   }
 });
 
-// POST /api/contributions - Submit a new contribution
+// POST /api/contributions - Submit a new contribution (MANUAL)
 router.post('/', async (req, res) => {
   try {
     const userId = req.user._id;
     const contributionData = req.body;
     
-    console.log('Contribution submission:', { userId, contributionData });
+    console.log('Manual contribution submission:', { userId, contributionData });
     
     // Basic validation
     if (!contributionData.podId || !contributionData.type || !contributionData.title) {
@@ -98,12 +164,25 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Validate pod exists (optional - you can skip this if pods aren't required)
-    if (contributionData.podId) {
-      const pod = await Pod.findById(contributionData.podId);
-      if (!pod) {
-        return res.status(404).json({ message: 'Pod not found' });
-      }
+    // Validate pod exists and user is a member
+    const pod = await Pod.findById(contributionData.podId);
+    if (!pod) {
+      return res.status(404).json({ message: 'Pod not found' });
+    }
+    
+    // Check if user is a member or creator
+    const isMember = await PodMember.findOne({ 
+      pod: contributionData.podId, 
+      user: userId, 
+      status: 'active' 
+    });
+    
+    const isCreator = pod.creator.toString() === userId.toString();
+    
+    if (!isMember && !isCreator) {
+      return res.status(403).json({ 
+        message: 'You must be a member of this pod to submit contributions' 
+      });
     }
     
     // Create contribution
@@ -116,26 +195,146 @@ router.post('/', async (req, res) => {
       difficulty: contributionData.difficulty || 'medium',
       impact: contributionData.impact || 'medium',
       evidence: contributionData.evidence || {},
-      status: 'pending'
+      status: 'pending' // Manual contributions need review
     });
     
     // Calculate XP
     contribution.calculateXP();
     await contribution.save();
     
-    console.log('Contribution created:', contribution._id);
+    console.log('Manual contribution created:', contribution._id);
     
     // Update user stats
     await updateUserContributionStats(userId, 'submitted');
     
+    // Populate for response
+    await contribution.populate('userId', 'name profileImage');
+    await contribution.populate('podId', 'title');
+    
     res.status(201).json({ 
       success: true, 
       contribution,
-      message: 'Contribution submitted successfully' 
+      message: 'Contribution submitted for review' 
     });
     
   } catch (error) {
     console.error('Error submitting contribution:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// POST /api/contributions/auto - Create automatic contribution (called by system)
+router.post('/auto', async (req, res) => {
+  try {
+    const { userId, podId, type, title, description, difficulty, impact, evidence } = req.body;
+    
+    console.log('Automatic contribution creation:', { userId, podId, type, title });
+    
+    // Create contribution with auto-approval for system actions
+    const contribution = new Contribution({
+      userId,
+      podId,
+      type,
+      title,
+      description: description || `Automatically tracked: ${title}`,
+      difficulty: difficulty || 'medium',
+      impact: impact || 'medium',
+      evidence: evidence || {},
+      status: 'approved' // Auto-approve system-generated contributions
+    });
+    
+    // Calculate XP
+    contribution.calculateXP();
+    contribution.approvedAt = new Date();
+    await contribution.save();
+    
+    console.log('Automatic contribution created:', contribution._id);
+    
+    // Update user stats
+    await updateUserContributionStats(userId, 'approved', type);
+    
+    // Award XP to user
+    await awardXPToUser(userId, contribution.totalXP, type);
+    
+    res.status(201).json({ 
+      success: true, 
+      contribution,
+      xpAwarded: contribution.totalXP 
+    });
+    
+  } catch (error) {
+    console.error('Error creating automatic contribution:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// PUT /api/contributions/:id/review - Review a contribution (approve/reject)
+router.put('/:id/review', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, feedback } = req.body;
+    const reviewerId = req.user._id;
+    
+    if (!['approved', 'rejected', 'needs_revision'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid review status' });
+    }
+    
+    const contribution = await Contribution.findById(id)
+      .populate('podId')
+      .populate('userId');
+    
+    if (!contribution) {
+      return res.status(404).json({ message: 'Contribution not found' });
+    }
+    
+    // Check if reviewer has permission (pod creator or admin)
+    const pod = contribution.podId;
+    const isCreator = pod.creator.toString() === reviewerId.toString();
+    // Add admin check if you have admin roles
+    
+    if (!isCreator) {
+      return res.status(403).json({ 
+        message: 'Only pod creators can review contributions' 
+      });
+    }
+    
+    // Update contribution status
+    contribution.status = status;
+    
+    // Add review
+    contribution.reviews.push({
+      reviewerId,
+      status,
+      feedback,
+      timestamp: new Date()
+    });
+    
+    if (status === 'approved') {
+      contribution.approvedAt = new Date();
+      
+      // Award XP to user
+      await awardXPToUser(contribution.userId._id, contribution.totalXP, contribution.type);
+      
+      // Update user stats
+      await updateUserContributionStats(contribution.userId._id, 'approved', contribution.type);
+    }
+    
+    await contribution.save();
+    
+    res.json({ 
+      success: true, 
+      contribution,
+      message: `Contribution ${status}` 
+    });
+    
+  } catch (error) {
+    console.error('Error reviewing contribution:', error);
     res.status(500).json({ 
       message: 'Server error',
       error: error.message 
@@ -158,13 +357,15 @@ async function updateUserContributionStats(userId, action, contributionType = nu
         
       case 'approved':
         userProgress.stats.approvedContributions += 1;
-        if (contributionType) {
+        if (contributionType && userProgress.stats.contributionsByType[contributionType] !== undefined) {
           userProgress.stats.contributionsByType[contributionType] += 1;
         }
         
         // Update success rate
-        userProgress.stats.contributionSuccessRate = 
-          (userProgress.stats.approvedContributions / userProgress.stats.totalContributions) * 100;
+        if (userProgress.stats.totalContributions > 0) {
+          userProgress.stats.contributionSuccessRate = 
+            (userProgress.stats.approvedContributions / userProgress.stats.totalContributions) * 100;
+        }
         break;
     }
     
@@ -179,6 +380,49 @@ async function updateUserContributionStats(userId, action, contributionType = nu
     
   } catch (error) {
     console.error('Error updating user stats:', error);
+  }
+}
+
+// Helper function to award XP to user
+async function awardXPToUser(userId, xpAmount, contributionType) {
+  try {
+    let userProgress = await UserProgress.findOne({ userId });
+    if (!userProgress) {
+      userProgress = new UserProgress({ userId });
+    }
+    
+    const oldLevel = userProgress.currentLevel;
+    const oldTier = userProgress.tier;
+    
+    // Add XP
+    userProgress.totalXP += xpAmount;
+    
+    // Recalculate level and tier
+    userProgress.calculateLevel();
+    userProgress.calculateTier();
+    userProgress.updateReputation();
+    
+    await userProgress.save();
+    
+    // Check for level up
+    const leveledUp = userProgress.currentLevel > oldLevel;
+    const tierPromoted = userProgress.tier !== oldTier;
+    
+    console.log(`Awarded ${xpAmount} XP to user ${userId}`, {
+      totalXP: userProgress.totalXP,
+      level: userProgress.currentLevel,
+      tier: userProgress.tier,
+      leveledUp,
+      tierPromoted
+    });
+    
+    // Send notifications if you have a notification system
+    // NotificationService.sendXPGained(userId, { xpAmount, totalXP: userProgress.totalXP });
+    
+    return { leveledUp, tierPromoted, totalXP: userProgress.totalXP };
+    
+  } catch (error) {
+    console.error('Error awarding XP:', error);
   }
 }
 

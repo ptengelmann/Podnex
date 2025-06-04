@@ -10,6 +10,7 @@ import ResourceUploadModal from './modals/ResourceUploadModal'; // If you have t
 
 import { 
   Sparkles,
+  Award,
   Users,
   Target,
   Clock,
@@ -292,6 +293,21 @@ const getInitials = (name) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase();
 };
 
+// Format time ago (e.g., "2 hours ago")
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return '';
+  
+  const now = new Date();
+  const activityTime = new Date(dateString);
+  const diffInSeconds = Math.floor((now - activityTime) / 1000);
+  
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 172800) return 'yesterday';
+  return `${Math.floor(diffInSeconds / 86400)} days ago`;
+};
+
 // Format date to readable string
 const formatDate = (dateString) => {
   if (!dateString) return 'No date';
@@ -361,6 +377,11 @@ const [resourceModalOpen, setResourceModalOpen] = useState(false);
   const [lastActivity, setLastActivity] = useState(new Date());
   const typingTimeoutRef = useRef(null);
   
+// Contributor activities state
+const [contributorActivities, setContributorActivities] = useState([]);
+const [activityFilter, setActivityFilter] = useState('all');
+const [activityLoading, setActivityLoading] = useState(false);
+
   // Derived data
   const todoTasks = tasks.filter(task => task.status === 'to-do');
   const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
@@ -436,6 +457,31 @@ const handleUpdateTaskStatus = async (taskId, newStatus) => {
   } catch (error) {
     console.error('Error updating task status:', error);
     throw error;
+  }
+};
+
+// Fetch contributor activities
+const fetchContributorActivities = async () => {
+  try {
+    setActivityLoading(true);
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+    
+    // Construct the query URL with the filter
+    let url = `http://localhost:5000/api/gamification/activities?podId=${podId}`;
+    if (activityFilter !== 'all') {
+      url += `&type=${activityFilter}`;
+    }
+    
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setContributorActivities(response.data);
+    setActivityLoading(false);
+  } catch (error) {
+    console.error('Error fetching contributor activities:', error);
+    setActivityLoading(false);
   }
 };
 
@@ -643,6 +689,9 @@ useEffect(() => {
               fetchMilestones()
             ]);
             break;
+          case 'contributions':
+            await fetchContributorActivities();
+            break;
           default:
             break;
         }
@@ -655,6 +704,13 @@ useEffect(() => {
     fetchTabData();
   }
 }, [activeTab, podData]);
+
+// Refetch activities when filter changes
+useEffect(() => {
+  if (activeTab === 'contributions' && !loading && podData) {
+    fetchContributorActivities();
+  }
+}, [activityFilter]);
 
 // Auto-scroll to bottom of messages when messages change
 useEffect(() => {
@@ -1382,51 +1438,58 @@ setPodMessages(prev => [...prev, response.data]);
               <div className={styles.navSection}>
                 <h3>Pod Navigation</h3>
                 <ul className={styles.navList}>
-                  <li className={activeTab === 'dashboard' ? styles.active : ''}>
-                    <button onClick={() => setActiveTab('dashboard')}>
-                      <Zap size={18} />
-                      <span>Dashboard</span>
-                      {activeTab === 'dashboard' && <ChevronRight size={16} />}
-                    </button>
-                  </li>
-                  <li className={activeTab === 'tasks' ? styles.active : ''}>
-                    <button onClick={() => setActiveTab('tasks')}>
-                      <CheckCircle size={18} />
-                      <span>Tasks</span>
-                      {activeTab === 'tasks' && <ChevronRight size={16} />}
-                    </button>
-                  </li>
-                  <li className={activeTab === 'milestones' ? styles.active : ''}>
-                    <button onClick={() => setActiveTab('milestones')}>
-                      <Target size={18} />
-                      <span>Milestones</span>
-                      {activeTab === 'milestones' && <ChevronRight size={16} />}
-                    </button>
-                  </li>
-                  <li className={activeTab === 'communication' ? styles.active : ''}>
-                    <button onClick={() => setActiveTab('communication')}>
-                      <MessageSquare size={18} />
-                      <span>Communication</span>
-                      {activeTab === 'communication' && <ChevronRight size={16} />}
-                    </button>
-                  </li>
-                  <li className={activeTab === 'resources' ? styles.active : ''}>
-                    <button onClick={() => setActiveTab('resources')}>
-                      <FileText size={18} />
-                      <span>Resources</span>
-                      {activeTab === 'resources' && <ChevronRight size={16} />}
-                    </button>
-                  </li>
-                  {isCreator && (
-                    <li className={activeTab === 'analytics' ? styles.active : ''}>
-                      <button onClick={() => setActiveTab('analytics')}>
-                        <BarChart2 size={18} />
-                        <span>Analytics</span>
-                        {activeTab === 'analytics' && <ChevronRight size={16} />}
-                      </button>
-                    </li>
-                  )}
-                </ul>
+  <li className={activeTab === 'dashboard' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('dashboard')}>
+      <Zap size={18} />
+      <span>Dashboard</span>
+      {activeTab === 'dashboard' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  <li className={activeTab === 'tasks' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('tasks')}>
+      <CheckCircle size={18} />
+      <span>Tasks</span>
+      {activeTab === 'tasks' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  <li className={activeTab === 'milestones' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('milestones')}>
+      <Target size={18} />
+      <span>Milestones</span>
+      {activeTab === 'milestones' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  <li className={activeTab === 'communication' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('communication')}>
+      <MessageSquare size={18} />
+      <span>Communication</span>
+      {activeTab === 'communication' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  <li className={activeTab === 'resources' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('resources')}>
+      <FileText size={18} />
+      <span>Resources</span>
+      {activeTab === 'resources' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  <li className={activeTab === 'contributions' ? styles.active : ''}>
+    <button onClick={() => setActiveTab('contributions')}>
+      <Activity size={18} />
+      <span>Contributions</span>
+      {activeTab === 'contributions' && <ChevronRight size={16} />}
+    </button>
+  </li>
+  {isCreator && (
+    <li className={activeTab === 'analytics' ? styles.active : ''}>
+      <button onClick={() => setActiveTab('analytics')}>
+        <BarChart2 size={18} />
+        <span>Analytics</span>
+        {activeTab === 'analytics' && <ChevronRight size={16} />}
+      </button>
+    </li>
+  )}
+</ul>
               </div>
               
               <div className={styles.navSection}>
@@ -1523,6 +1586,99 @@ setPodMessages(prev => [...prev, response.data]);
               </div>
             </div>
           </motion.nav>
+
+          {/* Contributions Tab */}
+{activeTab === 'contributions' && (
+  <motion.div
+    className={styles.contributionsTab}
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+  >
+    <motion.div className={styles.tabHeader} variants={itemVariants}>
+      <h2>Contributor Activities</h2>
+      <div className={styles.tabActions}>
+        <div className={styles.filterContainer}>
+          <select 
+            className={styles.filterSelect}
+            value={activityFilter}
+            onChange={(e) => setActivityFilter(e.target.value)}
+          >
+            <option value="all">All Activities</option>
+            <option value="task_completed">Tasks Completed</option>
+            <option value="task_created">Tasks Created</option>
+            <option value="resource_uploaded">Resources Uploaded</option>
+            <option value="milestone_completed">Milestones Completed</option>
+          </select>
+        </div>
+      </div>
+    </motion.div>
+    
+    {activityLoading ? (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading activities...</p>
+      </div>
+    ) : contributorActivities.length === 0 ? (
+      <motion.div className={styles.emptyState} variants={itemVariants}>
+        <div className={styles.emptyStateIcon}>
+          <Activity size={40} />
+        </div>
+        <h3>No Contributor Activities</h3>
+        <p>There are no recorded activities by contributors in this pod yet.</p>
+      </motion.div>
+    ) : (
+      <motion.div className={styles.activityTimeline} variants={itemVariants}>
+        {contributorActivities.map((activity, index) => (
+          <div key={activity._id || index} className={styles.activityItem}>
+            <div className={styles.activityAvatar}>
+              {activity.user?.profileImage ? (
+                <img src={activity.user.profileImage} alt={activity.user.name} />
+              ) : (
+                <div className={styles.activityInitials}>
+                  {getInitials(activity.user?.name || 'Unknown')}
+                </div>
+              )}
+            </div>
+            <div className={styles.activityContent}>
+              <div className={styles.activityHeader}>
+                <span className={styles.activityUser}>{activity.user?.name || 'Unknown'}</span>
+                <span className={styles.activityType}>
+                  {(() => {
+                    switch(activity.type) {
+                      case 'task_completed': return 'completed a task';
+                      case 'task_created': return 'created a task';
+                      case 'resource_uploaded': return 'uploaded a resource';
+                      case 'milestone_completed': return 'completed a milestone';
+                      case 'joined_pod': return 'joined the pod';
+                      default: return activity.type.replace(/_/g, ' ');
+                    }
+                  })()}
+                </span>
+              </div>
+              <div className={styles.activityDetails}>
+                <h4>{activity.title || activity.object?.title || 'Untitled'}</h4>
+                <p>{activity.description || activity.object?.description || ''}</p>
+                
+                {activity.xpGained && (
+                  <div className={styles.xpGained}>
+                    <Award size={14} />
+                    <span>+{activity.xpGained} XP</span>
+                  </div>
+                )}
+              </div>
+              <div className={styles.activityMeta}>
+                <span className={styles.activityTime}>
+                  {formatTimeAgo(activity.createdAt)}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    )}
+  </motion.div>
+)}
           
           {/* Main content */}
           <motion.main 

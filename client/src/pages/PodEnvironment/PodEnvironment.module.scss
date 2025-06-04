@@ -3977,3 +3977,122 @@ h3 {
     transform: translateY(-2px);
   }
 }
+
+// Add to your PodEnvironment.module.scss file
+.contributionsTab {
+  width: 100%;
+  
+  .activityTimeline {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .activityItem {
+    display: flex;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .activityAvatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: rgba(232, 197, 71, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .activityInitials {
+        color: #E8C547;
+        font-weight: 600;
+        font-size: 16px;
+      }
+    }
+    
+    .activityContent {
+      flex: 1;
+      
+      .activityHeader {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+        
+        .activityUser {
+          font-weight: 600;
+          color: #ffffff;
+        }
+        
+        .activityType {
+          color: rgba(255, 255, 255, 0.6);
+        }
+      }
+      
+      .activityDetails {
+        margin-bottom: 12px;
+        
+        h4 {
+          margin: 0 0 4px 0;
+          font-size: 16px;
+          font-weight: 600;
+        }
+        
+        p {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .xpGained {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 8px;
+          background-color: rgba(232, 197, 71, 0.1);
+          color: #E8C547;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+      }
+      
+      .activityMeta {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+  
+  .filterContainer {
+    .filterSelect {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ffffff;
+      padding: 8px 16px;
+      font-size: 14px;
+      
+      option {
+        background-color: #1A1A1A;
+      }
+    }
+  }
+}

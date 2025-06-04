@@ -18,7 +18,9 @@ import {
   CheckCircle,
   Clock,
   Target,
-  AlertCircle
+  AlertCircle,
+  Activity,
+  FileText
 } from 'lucide-react';
 import { getCurrentProfile, getProfileByUserId } from '../../services/profileService';
 import styles from './ProfilePage.module.scss';
@@ -43,6 +45,13 @@ const getUserData = (profile) => {
   return null;
 };
 
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return 'No date';
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
 // Helper function to safely get profile data
 const getProfileData = (profile) => {
   if (profile?.profile) {
@@ -60,6 +69,11 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+
+// Contribution state
+const [userContributions, setUserContributions] = useState([]);
+const [contributionFilter, setContributionFilter] = useState('all');
+const [contributionLoading, setContributionLoading] = useState(false);
   
   // Animation variants
   const containerVariants = {
@@ -80,6 +94,21 @@ const ProfilePage = () => {
       transition: { duration: 0.3 }
     }
   };
+
+
+    // Fetch contributions when the tab changes to 'contributions'
+useEffect(() => {
+  if (activeTab === 'contributions') {
+    fetchUserContributions();
+  }
+}, [activeTab, userId]);
+
+// Refetch when filter changes
+useEffect(() => {
+  if (activeTab === 'contributions') {
+    fetchUserContributions();
+  }
+}, [contributionFilter]);
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -189,6 +218,8 @@ const ProfilePage = () => {
       </div>
     );
   }
+
+  
   
   if (!profile) {
     return (
@@ -207,6 +238,41 @@ const ProfilePage = () => {
       </div>
     );
   }
+
+  // Fetch user contributions
+const fetchUserContributions = async () => {
+  try {
+    if (!userId) return;
+    
+    setContributionLoading(true);
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      if (!isCurrentUserProfile) {
+        // For public viewing without login
+        setContributionLoading(false);
+        return;
+      }
+      throw new Error('Authentication required');
+    }
+    
+    // Construct the query URL with the filter
+    let url = `http://localhost:5000/api/gamification/contributions?userId=${userId}`;
+    if (contributionFilter !== 'all') {
+      url += `&type=${contributionFilter}`;
+    }
+    
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setUserContributions(response.data);
+    setContributionLoading(false);
+  } catch (error) {
+    console.error('Error fetching user contributions:', error);
+    setContributionLoading(false);
+  }
+};
 
   // Get user and profile data safely
   const userData = getUserData(profile);
@@ -677,40 +743,122 @@ const ProfilePage = () => {
           )}
           
           {/* Contributions Tab */}
-          {activeTab === 'contributions' && (
-            <div className={styles.contributionsTab}>
-              <div className={styles.tabHeader}>
-                <h2>Contributions</h2>
-              </div>
-              
-              <div className={styles.contributionStatsRow}>
-                <div className={styles.contributionStatCard}>
-                  <div className={styles.statValue}>{profileData.stats?.tasksCompleted || 0}</div>
-                  <div className={styles.statLabel}>Tasks Completed</div>
+{activeTab === 'contributions' && (
+  <div className={styles.contributionsTab}>
+    <div className={styles.tabHeader}>
+      <h2>Contributions</h2>
+      <div className={styles.tabActions}>
+        <div className={styles.filterContainer}>
+          <select 
+            className={styles.filterSelect}
+            value={contributionFilter}
+            onChange={(e) => setContributionFilter(e.target.value)}
+          >
+            <option value="all">All Activities</option>
+            <option value="task_completed">Tasks Completed</option>
+            <option value="task_created">Tasks Created</option>
+            <option value="resource_uploaded">Resources Uploaded</option>
+            <option value="milestone_completed">Milestones Completed</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div className={styles.contributionStatsRow}>
+      <div className={styles.contributionStatCard}>
+        <div className={styles.statValue}>{profileData.stats?.tasksCompleted || 0}</div>
+        <div className={styles.statLabel}>Tasks Completed</div>
+      </div>
+      
+      <div className={styles.contributionStatCard}>
+        <div className={styles.statValue}>{profileData.stats?.contributionCount || 0}</div>
+        <div className={styles.statLabel}>Total Contributions</div>
+      </div>
+      
+      <div className={styles.contributionStatCard}>
+        <div className={styles.statValue}>{profileData.stats?.successRate || 0}%</div>
+        <div className={styles.statLabel}>Success Rate</div>
+      </div>
+      
+      <div className={styles.contributionStatCard}>
+        <div className={styles.statValue}>{userContributions.reduce((total, contrib) => total + (contrib.xpGained || 0), 0)}</div>
+        <div className={styles.statLabel}>Total XP Earned</div>
+      </div>
+    </div>
+    
+    <div className={styles.contributionHistory}>
+      <h3 className={styles.subSectionTitle}>Contribution History</h3>
+      
+      <div className={styles.contributionTimeline}>
+        {contributionLoading ? (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Loading contributions...</p>
+          </div>
+        ) : userContributions.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyStateIcon}>
+              <Activity size={32} />
+            </div>
+            <p>No contribution history available.</p>
+            {isCurrentUserProfile && (
+              <p>Start contributing to pods to build your profile!</p>
+            )}
+          </div>
+        ) : (
+          <div className={styles.contributionItems}>
+            {userContributions.map((contribution, index) => (
+              <div key={contribution._id || index} className={styles.contributionItem}>
+                <div className={styles.contributionTypeIcon}>
+                  {(() => {
+                    switch(contribution.type) {
+                      case 'task_completed': return <CheckCircle size={18} />;
+                      case 'task_created': return <Activity size={18} />;
+                      case 'resource_uploaded': return <FileText size={18} />;
+                      case 'milestone_completed': return <Target size={18} />;
+                      default: return <Activity size={18} />;
+                    }
+                  })()}
                 </div>
-                
-                <div className={styles.contributionStatCard}>
-                  <div className={styles.statValue}>{profileData.stats?.contributionCount || 0}</div>
-                  <div className={styles.statLabel}>Total Contributions</div>
-                </div>
-                
-                <div className={styles.contributionStatCard}>
-                  <div className={styles.statValue}>{profileData.stats?.successRate || 0}%</div>
-                  <div className={styles.statLabel}>Success Rate</div>
-                </div>
-              </div>
-              
-              <div className={styles.contributionHistory}>
-                <h3 className={styles.subSectionTitle}>Contribution History</h3>
-                
-                <div className={styles.contributionTimeline}>
-                  <div className={styles.emptyState}>
-                    No contribution history available.
+                <div className={styles.contributionContent}>
+                  <div className={styles.contributionHeader}>
+                    <span className={styles.contributionAction}>
+                      {(() => {
+                        switch(contribution.type) {
+                          case 'task_completed': return 'Completed a task';
+                          case 'task_created': return 'Created a task';
+                          case 'resource_uploaded': return 'Uploaded a resource';
+                          case 'milestone_completed': return 'Completed a milestone';
+                          default: return contribution.type.replace(/_/g, ' ');
+                        }
+                      })()}
+                    </span>
+                    <span className={styles.contributionPod}>
+                      in <a href={`/pod-environment/${contribution.podId}`}>{contribution.podTitle || 'Pod'}</a>
+                    </span>
+                  </div>
+                  <div className={styles.contributionDetails}>
+                    <h4>{contribution.title || contribution.object?.title || 'Untitled'}</h4>
+                    <p>{contribution.description || contribution.object?.description || ''}</p>
+                  </div>
+                  <div className={styles.contributionMeta}>
+                    <span className={styles.contributionTime}>{formatDate(contribution.createdAt)}</span>
+                    {contribution.xpGained && (
+                      <span className={styles.xpGained}>
+                        <Award size={14} />
+                        +{contribution.xpGained} XP
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
         </motion.div>
       </motion.div>
     </div>

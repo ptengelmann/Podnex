@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Milestone = require('../models/Milestone');
 const { protect } = require('../middleware/authMiddleware');
+const ContributionTracker = require('../services/ContributionTracker');
 
 // @route   GET /api/pods/:podId/milestones
 // @desc    Get all milestones for a pod
@@ -83,24 +84,36 @@ router.put('/:podId/milestones/:milestoneId', protect, async (req, res) => {
     const { milestoneId } = req.params;
     const { title, description, dueDate, status, progress } = req.body;
     
-    const milestone = await Milestone.findByIdAndUpdate(
-      milestoneId,
-      {
-        title,
-        description,
-        dueDate,
-        status,
-        progress,
-        updatedAt: new Date()
-      },
-      { new: true }
-    );
-    
-    if (!milestone) {
-      return res.status(404).json({ message: 'Milestone not found' });
-    }
-    
-    res.json(milestone);
+    const oldMilestone = await Milestone.findById(milestoneId);
+const wasCompleted = oldMilestone?.status === 'completed';
+
+const milestone = await Milestone.findByIdAndUpdate(
+  milestoneId,
+  {
+    title,
+    description,
+    dueDate,
+    status,
+    progress,
+    updatedAt: new Date()
+  },
+  { new: true }
+);
+
+if (!milestone) {
+  return res.status(404).json({ message: 'Milestone not found' });
+}
+
+// Auto-track milestone completion if status changed to completed
+if (status === 'completed' && !wasCompleted) {
+  await ContributionTracker.trackMilestoneCompletion(
+    req.user._id, 
+    milestone, 
+    req.params.podId
+  );
+}
+
+res.json(milestone);
   } catch (error) {
     console.error('Error updating milestone:', error);
     res.status(500).json({ message: 'Server error' });
