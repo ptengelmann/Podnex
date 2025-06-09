@@ -14,6 +14,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import styles from './HeroSection.module.scss';
+import PodCreationDemo from './PodCreationDemo'; // New import
+
 
 const HeroSection = () => {
   // State management
@@ -22,6 +24,8 @@ const HeroSection = () => {
   const [showModal, setShowModal] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showPitch, setShowPitch] = useState(false);
+  const [showPodDemo, setShowPodDemo] = useState(false); // Add this new state
+
   
   // Refs
   const sectionRef = useRef(null);
@@ -196,30 +200,40 @@ const HeroSection = () => {
           </motion.p>
             {/* Primary & secondary CTAs */}
             <motion.div 
-              className={styles.actions}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-            >
-              <motion.a 
-                href="/register"
-                className={styles.primaryBtn}
-                whileHover={{ scale: 1.05, backgroundColor: "#E8C547" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Start a Pod
-                <ArrowRight size={18} />
-              </motion.a>
-              
-              <motion.a 
-                href="/explore"
-                className={styles.secondaryBtn}
-                whileHover={{ scale: 1.05, borderColor: "#E8C547", color: "#E8C547" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Explore Pods
-              </motion.a>
-            </motion.div>
+    className={styles.actions}
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.8, duration: 0.8 }}
+  >
+    <motion.a 
+      href="/register"
+      className={styles.primaryBtn}
+      whileHover={{ scale: 1.05, backgroundColor: "#E8C547" }}
+      whileTap={{ scale: 0.95 }}
+    >
+      Start a Pod
+      <ArrowRight size={18} />
+    </motion.a>
+    
+    <motion.button 
+      onClick={() => setShowPodDemo(true)} // Add this onClick handler
+      className={styles.demoBtn}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      Try It Now
+      <Sparkles size={18} />
+    </motion.button>
+    
+    <motion.a 
+      href="/explore"
+      className={styles.secondaryBtn}
+      whileHover={{ scale: 1.05, borderColor: "#E8C547", color: "#E8C547" }}
+      whileTap={{ scale: 0.95 }}
+    >
+      Explore Pods
+    </motion.a>
+  </motion.div>
             
             {/* Quick benefits immediately visible */}
             <motion.div 
@@ -415,6 +429,34 @@ const HeroSection = () => {
           </motion.div>
         </div>
       )}
+
+{/* Add this to the end of your return statement */}
+<AnimatePresence>
+  {showPodDemo && (
+    <motion.div 
+      className={styles.demoOverlay}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={(e) => {
+        // Close modal when clicking outside
+        if (e.target === e.currentTarget) setShowPodDemo(false);
+      }}
+    >
+      <motion.div 
+        className={styles.demoContainer}
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        transition={{ type: "spring", damping: 30 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <PodCreationDemo onClose={() => setShowPodDemo(false)} />
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
     </section>
   );
 };

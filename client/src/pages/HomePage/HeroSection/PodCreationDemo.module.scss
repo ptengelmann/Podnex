@@ -1,0 +1,702 @@
+@import '../../../styles/variables';
+
+.demoWrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.demoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.demoTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  .demoIcon {
+    color: $gold;
+  }
+  
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $white;
+    margin: 0;
+  }
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: $gray;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $white;
+  }
+}
+
+.progressBar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  width: 100%;
+  
+  .progressFill {
+    height: 100%;
+    background: linear-gradient(to right, $gold, #F59E0B);
+    transition: width 0.4s ease;
+  }
+}
+
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  
+  .steps {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .step {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: $gray;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &.active {
+      background: $gold;
+      color: $black;
+    }
+  }
+  
+  .stepLabel {
+    font-size: 14px;
+    color: $gray;
+    font-weight: 500;
+  }
+}
+
+.demoContent {
+  padding: 24px;
+  min-height: 420px;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+}
+
+.stepContent {
+  width: 100%;
+}
+
+// Form styling
+.formGroup {
+  margin-bottom: 24px;
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $white;
+    margin-bottom: 10px;
+    
+    svg {
+      color: $gold;
+    }
+    
+    .required {
+      color: #FF4D4D;
+      margin-left: 4px;
+    }
+  }
+}
+
+.formInput, .formTextarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: $white;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  
+  &::placeholder {
+    color: rgba($gray, 0.6);
+  }
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $gold;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba($gold, 0.1);
+  }
+}
+
+.formTextarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+// Category grid
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.categoryCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  &.selected {
+    background: rgba($gold, 0.1);
+    border-color: rgba($gold, 0.3);
+    color: $gold;
+  }
+}
+
+.categoryIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.selectedIndicator {
+  position: absolute;
+  inset: -1px;
+  border: 2px solid $gold;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+// Roles section
+.rolesSection {
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: $white;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin-bottom: 20px;
+  }
+}
+
+.roleTemplates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.roleTemplate {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0 0 16px 0;
+  }
+}
+
+.roleMetaInfo {
+  display: flex;
+  justify-content: space-between;
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    
+    svg {
+      color: $gold;
+      opacity: 0.7;
+    }
+  }
+}
+
+.selectedRoles {
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  svg {
+    color: $gray;
+    opacity: 0.3;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+.roleList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.roleCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  
+  .roleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+    }
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+.removeButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 77, 77, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.2);
+  border-radius: 50%;
+  color: #FF4D4D;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 77, 77, 0.2);
+  }
+}
+
+// Preview section
+.previewSection {
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: $white;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin-bottom: 24px;
+  }
+}
+
+.podPreview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.podCard {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(18, 18, 18, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  
+  .statusBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: $gold;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(40, 40, 40, 0.95);
+  color: $gray;
+}
+
+.priorityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba($gold, 0.3);
+  color: $gold;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  width: fit-content;
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: $gold;
+  box-shadow: 0 0 5px $gold;
+}
+
+.podTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.podDescription {
+  font-size: 14px;
+  color: $gray;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.creatorSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.creatorAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba($gold, 0.1);
+  border: 2px solid rgba($gold, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gold;
+  font-weight: 700;
+}
+
+.creatorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.creatorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: $white;
+}
+
+.creatorRole {
+  font-size: 12px;
+  color: $gray;
+}
+
+.detailsRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  color: $gray;
+  font-size: 12px;
+  
+  svg {
+    color: $gold;
+  }
+}
+
+.rolesSection {
+  margin-bottom: 16px;
+  
+  h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $gray;
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+}
+
+.rolesTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roleTag {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  font-size: 12px;
+  color: $gray;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.categoryTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  color: $gray;
+  font-size: 12px;
+}
+
+.viewDetails {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $gold;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.launchInfo {
+  margin-top: 20px;
+}
+
+.infoBox {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba($gold, 0.05);
+  border: 1px solid rgba($gold, 0.15);
+  border-radius: 12px;
+  
+  .infoIcon {
+    color: $gold;
+    flex-shrink: 0;
+  }
+  
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 4px 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: $gray;
+    margin: 0;
+  }
+}
+
+// Demo actions
+.demoActions {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.backButton {
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: $white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  @media (max-width: 480px) {
+    order: 2;
+  }
+}
+
+.nextButton, .launchButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: $gold;
+  border: none;
+  border-radius: 8px;
+  color: $black;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: darken($gold, 5%);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  @media (max-width: 480px) {
+    order: 1;
+  }
+}
+
+.launchButton {
+  background: linear-gradient(90deg, $gold, #F59E0B);
+  
+  &:hover {
+    box-shadow: 0 8px 20px rgba($gold, 0.3);
+  }
+}

@@ -190,26 +190,68 @@
 }
 
 .primaryBtn {
+  position: relative;
   padding: 16px 32px;
-  background-color: $white;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
   color: $black;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
+  overflow: hidden;
+  z-index: 1;
+  
+  // Glass effect inner border
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  // Shimmer effect on hover
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
   
   &:hover {
-    background-color: $gold;
+    background: linear-gradient(140deg, #E8C547, rgba(232, 197, 71, 0.9));
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(232, 197, 71, 0.3), 0 0 0 1px rgba(232, 197, 71, 0.3);
+    
+    &::before {
+      transform: translateX(100%);
+    }
+    
+    svg {
+      transform: translateX(3px);
+    }
+  }
+  
+  &:active {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(232, 197, 71, 0.3);
   }
   
   &:focus {
@@ -222,23 +264,65 @@
 }
 
 .secondaryBtn {
+  position: relative;
   padding: 16px 32px;
-  background-color: transparent;
+  background: rgba(15, 15, 15, 0.5);
   color: $white;
   font-weight: 600;
   font-size: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+  z-index: 1;
+  
+  // Glass effect inner border
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  // Shimmer effect on hover
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
   
   &:hover {
+    background: rgba(25, 25, 25, 0.6);
     border-color: $gold;
     color: $gold;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(232, 197, 71, 0.2);
+    
+    &::before {
+      transform: translateX(100%);
+    }
+  }
+  
+  &:active {
     transform: translateY(-2px);
   }
   
@@ -250,7 +334,6 @@
     width: 100%;
   }
 }
-
 // Quick benefits section
 .quickBenefits {
   display: grid;
@@ -787,5 +870,136 @@
   
   &:hover {
     color: $white;
+  }
+}
+
+.demoBtn {
+  position: relative;
+  padding: 16px 32px;
+  background: linear-gradient(140deg, #3B82F6, #2563EB);
+  color: $white;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  overflow: hidden;
+  z-index: 1;
+  
+  // Glass effect inner border
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  // Shimmer effect on hover
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+  
+  svg {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    animation: sparkle 2s infinite;
+  }
+  
+  @keyframes sparkle {
+    0% {
+      opacity: 0.7;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+      opacity: 0.7;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+  
+  &:hover {
+    background: linear-gradient(140deg, #4F92FF, #2D6FEC);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.3);
+    
+    &::before {
+      transform: translateX(100%);
+    }
+  }
+  
+  &:active {
+    transform: translateY(-2px);
+  }
+  
+  &:focus {
+    outline: none;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+// Modal overlay for demo
+.demoOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(5px);
+  padding: 20px;
+}
+
+.demoContainer {
+  background-color: $black;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
   }
 }
